@@ -2,5 +2,17 @@
   "$schema": "https://ui.shadcn.com/schema/registry.json",
   "name": "brimba",
   "homepage": "https://brimba.dev",
-  "items": []
+  "items": [
+    { "name": "theme-provider", "type": "registry:lib", "layer": "tokens" },
+    { "name": "button", "type": "registry:ui", "layer": "primitives" },
+    { "name": "input", "type": "registry:ui", "layer": "primitives" },
+    { "name": "label", "type": "registry:ui", "layer": "primitives" },
+    { "name": "badge", "type": "registry:ui", "layer": "primitives" },
+    { "name": "card", "type": "registry:ui", "layer": "primitives" },
+    { "name": "switch", "type": "registry:ui", "layer": "primitives" },
+    { "name": "dialog", "type": "registry:ui", "layer": "primitives" },
+    { "name": "mode-toggle", "type": "registry:ui", "layer": "primitives" },
+    { "name": "list", "type": "registry:ui", "layer": "collections" },
+    { "name": "card-grid", "type": "registry:ui", "layer": "collections" }
+  ]
 }
