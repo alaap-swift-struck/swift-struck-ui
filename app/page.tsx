@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { Car, Coffee, CreditCard, ShoppingCart, TrendingUp } from "lucide-react"
 
 import { Badge } from "@/registry/primitives/badge/badge"
@@ -108,7 +109,12 @@ export default function Home() {
           </span>
           <h1 className="text-2xl font-semibold tracking-tight">brimba</h1>
         </div>
-        <ModeToggle />
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/components">Components →</Link>
+          </Button>
+          <ModeToggle />
+        </div>
       </header>
 
       <div className="grid gap-4 lg:grid-cols-3">

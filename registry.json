@@ -17,6 +17,15 @@
     { "name": "separator", "type": "registry:ui", "layer": "primitives" },
     { "name": "textarea", "type": "registry:ui", "layer": "primitives" },
     { "name": "mode-toggle", "type": "registry:ui", "layer": "primitives" },
+    { "name": "checkbox", "type": "registry:ui", "layer": "primitives" },
+    { "name": "radio-group", "type": "registry:ui", "layer": "primitives" },
+    { "name": "tabs", "type": "registry:ui", "layer": "primitives" },
+    { "name": "accordion", "type": "registry:ui", "layer": "primitives" },
+    { "name": "avatar", "type": "registry:ui", "layer": "primitives" },
+    { "name": "skeleton", "type": "registry:ui", "layer": "primitives" },
+    { "name": "alert", "type": "registry:ui", "layer": "primitives" },
+    { "name": "tooltip", "type": "registry:ui", "layer": "primitives" },
+    { "name": "table", "type": "registry:ui", "layer": "primitives" },
     { "name": "list", "type": "registry:ui", "layer": "collections" },
     { "name": "card-grid", "type": "registry:ui", "layer": "collections" }
   ]
