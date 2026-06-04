@@ -1,0 +1,101 @@
+# Architecture
+
+This document is the contract. If a change would violate something here, the
+change is wrong — not the document. Keeping to it is what stops brimba from
+sprawling the way past projects did.
+
+## What brimba is
+
+A **web-first, cross-platform component & collection library** that you use as a
+base to build entire applications. Two kinds of building blocks:
+
+1. **Primitives** — shadcn-style atoms (Button, Input, Dialog…).
+2. **Collections** — Glide-style data-bound views (List, Grid, Kanban,
+   Calendar, Detail, Form…). This is where the leverage is.
+
+Distribution is **copy-in**: components are source you own, pulled into each
+project via a registry (the shadcn model), not an installed package.
+
+## The three layers
+
+Everything lives in exactly one layer, and dependencies flow **one direction
+only**:
+
+```
+  Layer 0   tokens        app/globals.css + registry/tokens
+                │           colors, radii, surfaces — the single source of truth
+                ▼
+  Layer 1   primitives    registry/primitives
+                │           atoms built from tokens, via Radix + CVA
+                ▼
+  Layer 2   collections   registry/collections
+                            data-bound views built from primitives
+```
+
+- Collections may use primitives. Primitives may **not** reach into collections.
+- Primitives use tokens. Tokens import nothing.
+- The library (`registry/`, `lib/`) never depends on `app/` (the docs harness).
+
+This is not a guideline — it's enforced by `npm run guardrails`
+([`.dependency-cruiser.cjs`](.dependency-cruiser.cjs)). A violation fails the
+check.
+
+## The five rules that prevent bloat
+
+1. **Strict layering.** Above. Enforced, not trusted.
+2. **Tokens are the only source of truth.** No hardcoded colors or sizes in any
+   component — only Tailwind utilities that resolve to Layer 0. Re-theming, dark
+   mode, and future native skins are then a single-file edit.
+3. **Variants, not new components.** A visual variation is a
+   [CVA](https://cva.style) variant on the existing component, never a new file.
+   `Button` with a `variant`, not `PrimaryButton` + `GhostButton` + `IconButton`.
+4. **Every component ships its docs.** A component is not "done" until it has a
+   co-located `.mdx` doc with at least one live example. No exceptions — this is
+   how documentation stays "super robust" without a doc-debt backlog.
+5. **Reuse before adding.** Before writing a component, check whether an existing
+   one plus a variant or a prop covers it. The smallest set that works wins.
+
+## Cross-platform strategy
+
+One web codebase, wrapped natively — no rewrite, ever.
+
+- **Web** — Next.js + React + Tailwind v4. The primary target and dev surface.
+- **Desktop (macOS/Windows/Linux)** — [Tauri](https://tauri.app) wraps the
+  static web build.
+- **Mobile (iOS/Android)** — [Capacitor](https://capacitorjs.com) wraps the same
+  build.
+
+`next.config.ts` is ready for `output: "export"`, which produces the static
+build both wrappers consume. Native shells are Phase 5; nothing about the
+component code changes when we add them.
+
+## Directory map
+
+```
+app/                  Next.js docs + showcase harness (NOT shipped to consumers)
+  globals.css         Layer 0 tokens live here (CSS-first Tailwind v4 @theme)
+lib/
+  utils.ts            cn() — the class-merge helper every component uses
+registry/             THE library — the copy-in source
+  tokens/             Layer 0 TS helpers (CSS tokens are in app/globals.css)
+  primitives/         Layer 1 — one folder per atom (component + .mdx)
+  collections/        Layer 2 — one folder per data view (component + .mdx)
+registry.json         Manifest of every registry item (drives the copy-in CLI)
+.dependency-cruiser.cjs   The enforced layering rules
+ARCHITECTURE.md       This file
+CONTRIBUTING.md       How to add a component without breaking the rules
+```
+
+## Roadmap
+
+| Phase | Goal                                                         |
+| ----- | ------------------------------------------------------------ |
+| 0 ✅  | Foundation & guardrails (this commit)                        |
+| 1     | Tokens & theming — finalize the token set + light/dark       |
+| 2     | Primitives — curate the ~15–20 shadcn atoms, each documented |
+| 3     | Collections — List, Grid, Kanban, Calendar, Detail, Form     |
+| 4     | Registry & CLI — make components copy-in installable         |
+| 5     | Native shells — Tauri (desktop) + Capacitor (mobile)         |
+
+We do not start a phase until the previous one is documented and
+`npm run check` is green.
