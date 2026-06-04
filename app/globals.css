@@ -8,12 +8,15 @@
  * `text-foreground`, `rounded-lg`) and NEVER hardcode a hex value or pixel size.
  * Re-theming any project — including future native skins — is a matter of
  * editing this block alone. See registry/tokens/README.md and ARCHITECTURE.md.
+ *
+ * Current preset: "Teal" brand + "Amber" chart accent, medium radius.
+ * Swapping the brand is the ~4 lines marked PRIMARY / RING below.
  * ------------------------------------------------------------------------- */
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --radius: 0.625rem;
+  --radius: 0.75rem;
 
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -24,7 +27,8 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
 
-  --primary: oklch(0.205 0 0);
+  /* PRIMARY (brand) */
+  --primary: oklch(0.58 0.1 185);
   --primary-foreground: oklch(0.985 0 0);
 
   --secondary: oklch(0.97 0 0);
@@ -33,8 +37,8 @@
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
 
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --accent: oklch(0.96 0.02 185);
+  --accent-foreground: oklch(0.3 0.06 185);
 
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
@@ -47,7 +51,14 @@
 
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --ring: oklch(0.58 0.1 185); /* RING follows PRIMARY */
+
+  /* Chart palette — chart-2 (amber) is the accent in the demo dashboard. */
+  --chart-1: oklch(0.58 0.1 185);
+  --chart-2: oklch(0.77 0.16 70);
+  --chart-3: oklch(0.6 0.13 250);
+  --chart-4: oklch(0.65 0.18 320);
+  --chart-5: oklch(0.7 0.15 145);
 }
 
 .dark {
@@ -60,8 +71,9 @@
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
 
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
+  /* PRIMARY (brand) */
+  --primary: oklch(0.62 0.11 185);
+  --primary-foreground: oklch(0.985 0 0);
 
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
@@ -69,8 +81,8 @@
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
 
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --accent: oklch(0.3 0.04 185);
+  --accent-foreground: oklch(0.95 0.02 185);
 
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.985 0 0);
@@ -83,12 +95,21 @@
 
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --ring: oklch(0.62 0.11 185); /* RING follows PRIMARY */
+
+  --chart-1: oklch(0.65 0.12 185);
+  --chart-2: oklch(0.79 0.16 70);
+  --chart-3: oklch(0.65 0.14 250);
+  --chart-4: oklch(0.7 0.18 320);
+  --chart-5: oklch(0.72 0.15 145);
 }
 
 /* Expose the tokens to Tailwind's utility engine so `bg-background`,
- * `text-muted-foreground`, `rounded-lg`, etc. all resolve from the block above. */
+ * `text-muted-foreground`, `rounded-lg`, `bg-chart-2`, etc. all resolve from
+ * the block above. */
 @theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -112,6 +133,11 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -126,5 +152,6 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
   }
 }

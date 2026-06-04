@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { LayoutGrid, Plus, Rocket } from "lucide-react"
+import { Car, Coffee, CreditCard, ShoppingCart, TrendingUp } from "lucide-react"
 
 import { Badge } from "@/registry/primitives/badge/badge"
 import { Button } from "@/registry/primitives/button/button"
@@ -12,285 +12,232 @@ import {
   CardHeader,
   CardTitle,
 } from "@/registry/primitives/card/card"
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/registry/primitives/dialog/dialog"
-import { Input } from "@/registry/primitives/input/input"
 import { Label } from "@/registry/primitives/label/label"
 import { ModeToggle } from "@/registry/primitives/mode-toggle/mode-toggle"
-import { Switch } from "@/registry/primitives/switch/switch"
-import { CardGrid } from "@/registry/collections/card-grid/card-grid"
+import { Progress } from "@/registry/primitives/progress/progress"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/registry/primitives/select/select"
+import { Separator } from "@/registry/primitives/separator/separator"
+import { Slider } from "@/registry/primitives/slider/slider"
+import { Textarea } from "@/registry/primitives/textarea/textarea"
 import { List, type ListItem } from "@/registry/collections/list/list"
 
-function Avatar({ name }: { name: string }) {
-  const initials = name
-    .split(" ")
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join("")
+const contributions = [
+  { month: "Dec", value: 55 },
+  { month: "Jan", value: 72 },
+  { month: "Feb", value: 60 },
+  { month: "Mar", value: 88 },
+  { month: "Apr", value: 47 },
+  { month: "May", value: 100 },
+]
+
+const targets = [
+  { label: "Retirement", amount: "$420,000", pct: 65, of: "$273,000" },
+  { label: "Real Estate", amount: "$85,000", pct: 32, of: "$27,200" },
+]
+
+function TxnIcon({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex size-9 items-center justify-center rounded-full bg-secondary text-xs font-medium text-secondary-foreground">
-      {initials}
+    <div className="flex size-9 items-center justify-center rounded-md bg-secondary text-secondary-foreground [&_svg]:size-4">
+      {children}
     </div>
   )
 }
 
-function Section({
-  title,
-  kicker,
-  children,
-}: {
-  title: string
-  kicker: string
-  children: React.ReactNode
-}) {
-  return (
-    <section className="flex flex-col gap-5">
-      <div className="flex flex-col gap-1">
-        <span className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
-          {kicker}
-        </span>
-        <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
-      </div>
-      {children}
-    </section>
-  )
-}
-
-const team: ListItem[] = [
+const transactions: ListItem[] = [
   {
     id: "1",
-    title: "Ada Lovelace",
-    subtitle: "Engineering · Online",
-    leading: <Avatar name="Ada Lovelace" />,
-    trailing: <Badge variant="success">Active</Badge>,
+    title: "Blue Bottle Coffee",
+    subtitle: "Food & Drink",
+    leading: (
+      <TxnIcon>
+        <Coffee />
+      </TxnIcon>
+    ),
+    trailing: <span className="text-sm text-muted-foreground">Today</span>,
   },
   {
     id: "2",
-    title: "Grace Hopper",
-    subtitle: "Design · Away",
-    leading: <Avatar name="Grace Hopper" />,
-    trailing: <Badge variant="warning">Away</Badge>,
+    title: "Whole Foods Market",
+    subtitle: "Groceries",
+    leading: (
+      <TxnIcon>
+        <ShoppingCart />
+      </TxnIcon>
+    ),
+    trailing: <span className="text-sm text-muted-foreground">Yesterday</span>,
   },
   {
     id: "3",
-    title: "Alan Turing",
-    subtitle: "Research · Offline",
-    leading: <Avatar name="Alan Turing" />,
-    trailing: <Badge variant="secondary">Offline</Badge>,
+    title: "Stripe Payout",
+    subtitle: "Income",
+    leading: (
+      <TxnIcon>
+        <CreditCard />
+      </TxnIcon>
+    ),
+    trailing: <Badge variant="success">+ $2,500</Badge>,
+  },
+  {
+    id: "4",
+    title: "Uber Technologies",
+    subtitle: "Transport",
+    leading: (
+      <TxnIcon>
+        <Car />
+      </TxnIcon>
+    ),
+    trailing: <span className="text-sm text-muted-foreground">Oct 11</span>,
   },
 ]
-
-const templates = [
-  {
-    id: "a",
-    title: "CRM Starter",
-    description: "Contacts, deals, and a pipeline board.",
-    footer: (
-      <>
-        <Badge variant="secondary">8 screens</Badge>
-        <Badge variant="outline">Kanban</Badge>
-      </>
-    ),
-  },
-  {
-    id: "b",
-    title: "Field Inspector",
-    description: "Offline-first checklists with photo capture.",
-    footer: (
-      <>
-        <Badge variant="secondary">5 screens</Badge>
-        <Badge variant="outline">Forms</Badge>
-      </>
-    ),
-  },
-  {
-    id: "c",
-    title: "Event Hub",
-    description: "Agenda, speakers, and a live feed.",
-    footer: (
-      <>
-        <Badge variant="secondary">6 screens</Badge>
-        <Badge variant="outline">Calendar</Badge>
-      </>
-    ),
-  },
-]
-
-const mediaBlock = (
-  <div className="flex h-24 items-center justify-center bg-gradient-to-br from-primary/15 to-primary/5">
-    <LayoutGrid className="size-6 text-primary/60" />
-  </div>
-)
 
 export default function Home() {
-  const [selected, setSelected] = React.useState<ListItem | null>(null)
+  const [amount, setAmount] = React.useState(2500)
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-14 px-6 py-12">
-      <header className="flex items-start justify-between gap-4">
-        <div className="flex flex-col gap-2">
+    <main className="mx-auto flex min-h-screen max-w-6xl flex-col gap-6 px-6 py-10">
+      <header className="flex items-end justify-between gap-4">
+        <div className="flex flex-col gap-1">
           <span className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
-            Phase 1 + a taste of 2 &amp; 3
+            Demo dashboard · built from the registry
           </span>
-          <h1 className="text-3xl font-semibold tracking-tight">brimba</h1>
-          <p className="max-w-prose text-sm text-muted-foreground">
-            A live slice to react to. Toggle the theme, click a list row, open
-            the dialog. Everything here is built from the layered registry —
-            tokens → primitives → collections.
-          </p>
+          <h1 className="text-2xl font-semibold tracking-tight">brimba</h1>
         </div>
         <ModeToggle />
       </header>
 
-      <Section kicker="Layer 1" title="Primitives">
-        <Card>
+      <div className="grid gap-4 lg:grid-cols-3">
+        {/* Contribution history — CSS bar chart using the chart-2 (amber) token */}
+        <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Buttons</CardTitle>
-            <CardDescription>
-              One component, variants instead of new files.
-            </CardDescription>
+            <CardTitle>Contribution History</CardTitle>
+            <CardDescription>Last 6 months of activity</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <Button>Default</Button>
-              <Button variant="secondary">Secondary</Button>
-              <Button variant="outline">Outline</Button>
-              <Button variant="ghost">Ghost</Button>
-              <Button variant="destructive">Destructive</Button>
-              <Button variant="link">Link</Button>
+          <CardContent className="flex flex-col gap-3">
+            <div className="flex h-40 gap-3">
+              {contributions.map((c) => (
+                <div
+                  key={c.month}
+                  className="flex h-full flex-1 flex-col items-center justify-end gap-2"
+                >
+                  <div
+                    className="w-full rounded-t-md bg-chart-2 transition-all"
+                    style={{ height: `${c.value}%` }}
+                  />
+                  <span className="text-xs text-muted-foreground">
+                    {c.month}
+                  </span>
+                </div>
+              ))}
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Button size="sm">Small</Button>
-              <Button>Default</Button>
-              <Button size="lg">Large</Button>
-              <Button size="icon" aria-label="Add">
-                <Plus />
-              </Button>
-              <Button>
-                <Rocket /> With icon
-              </Button>
+            <Separator />
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <TrendingUp className="size-4 text-success" />
+              Trending up 12% vs. the prior period
             </div>
           </CardContent>
         </Card>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Form inputs</CardTitle>
-              <CardDescription>Label, Input, and Switch.</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="you@example.com" />
-              </div>
+        {/* Payout threshold — Select + Slider + Textarea + Button */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Payout Threshold</CardTitle>
+            <CardDescription>
+              Minimum balance before a payout triggers.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-5">
+            <div className="flex flex-col gap-2">
+              <Label>Preferred Currency</Label>
+              <Select defaultValue="usd">
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="usd">USD — US Dollar</SelectItem>
+                  <SelectItem value="eur">EUR — Euro</SelectItem>
+                  <SelectItem value="gbp">GBP — British Pound</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
-                <Label htmlFor="notify">Email notifications</Label>
-                <Switch id="notify" defaultChecked />
+                <Label>Minimum Payout</Label>
+                <span className="text-lg font-semibold tabular-nums">
+                  ${amount.toLocaleString()}
+                </span>
               </div>
-            </CardContent>
-          </Card>
+              <Slider
+                value={[amount]}
+                min={50}
+                max={10000}
+                step={50}
+                onValueChange={([v]) => setAmount(v)}
+              />
+            </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Badges &amp; Dialog</CardTitle>
-              <CardDescription>Status pills and a modal.</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
-              <div className="flex flex-wrap gap-2">
-                <Badge>Default</Badge>
-                <Badge variant="secondary">Secondary</Badge>
-                <Badge variant="success">Success</Badge>
-                <Badge variant="warning">Warning</Badge>
-                <Badge variant="destructive">Destructive</Badge>
-                <Badge variant="outline">Outline</Badge>
+            <Textarea placeholder="Add any notes for this payout…" />
+            <Button className="w-full">Save Threshold</Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        {/* Savings targets — Progress stats */}
+        <Card>
+          <CardHeader className="flex-row items-center justify-between">
+            <div className="flex flex-col gap-1.5">
+              <CardTitle>Savings Targets</CardTitle>
+              <CardDescription>Active milestones for 2024</CardDescription>
+            </div>
+            <Button variant="outline" size="sm">
+              New Goal
+            </Button>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-6">
+            {targets.map((t) => (
+              <div key={t.label} className="flex flex-col gap-2">
+                <div className="flex items-baseline justify-between">
+                  <span className="text-xs tracking-wide text-muted-foreground uppercase">
+                    {t.label}
+                  </span>
+                  <span className="text-sm text-muted-foreground">{t.of}</span>
+                </div>
+                <div className="text-2xl font-semibold tabular-nums">
+                  {t.amount}
+                </div>
+                <Progress value={t.pct} />
+                <span className="text-xs text-muted-foreground">
+                  {t.pct}% achieved
+                </span>
               </div>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="outline">Open dialog</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Create a project</DialogTitle>
-                    <DialogDescription>
-                      A dialog assembled from Radix + tokens.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="project">Project name</Label>
-                    <Input id="project" placeholder="Untitled" />
-                  </div>
-                  <DialogFooter>
-                    <DialogClose asChild>
-                      <Button variant="ghost">Cancel</Button>
-                    </DialogClose>
-                    <DialogClose asChild>
-                      <Button>Create</Button>
-                    </DialogClose>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </CardContent>
-          </Card>
-        </div>
-      </Section>
+            ))}
+          </CardContent>
+        </Card>
 
-      <Section kicker="Layer 2" title="Collections — the Glide part">
-        <div className="grid gap-4">
-          <div className="flex flex-col gap-2">
-            <p className="text-sm text-muted-foreground">
-              <code className="text-foreground">&lt;List&gt;</code> — data in,
-              interactive rows out. Click one.
-            </p>
-            <List items={team} onItemClick={setSelected} />
-          </div>
+        {/* Recent transactions — the List collection */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Recent Transactions</CardTitle>
+            <CardDescription>Your latest account activity.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <List items={transactions} className="border-0 shadow-none" />
+          </CardContent>
+        </Card>
+      </div>
 
-          <div className="flex flex-col gap-2">
-            <p className="text-sm text-muted-foreground">
-              <code className="text-foreground">&lt;CardGrid&gt;</code> — the
-              same idea, as responsive cards.
-            </p>
-            <CardGrid
-              columns={3}
-              items={templates.map((t) => ({ ...t, media: mediaBlock }))}
-            />
-          </div>
-        </div>
-      </Section>
-
-      <Dialog
-        open={selected !== null}
-        onOpenChange={(open) => !open && setSelected(null)}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{selected?.title}</DialogTitle>
-            <DialogDescription>{selected?.subtitle}</DialogDescription>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            This dialog opened from a <code>&lt;List&gt;</code> row click —
-            collection event wired straight into a primitive.
-          </p>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button>Done</Button>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <footer className="border-t pt-6 text-sm text-muted-foreground">
-        Built from the registry · tokens → primitives → collections ·{" "}
-        <code className="text-foreground">npm run guardrails</code> keeps it
-        that way.
+      <footer className="border-t pt-5 text-sm text-muted-foreground">
+        Same components, new theme — a single token edit re-skinned everything.
+        tokens → primitives → collections ·{" "}
+        <code className="text-foreground">npm run guardrails</code> keeps the
+        layers honest.
       </footer>
     </main>
   )

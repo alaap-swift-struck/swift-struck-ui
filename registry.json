@@ -11,6 +11,11 @@
     { "name": "card", "type": "registry:ui", "layer": "primitives" },
     { "name": "switch", "type": "registry:ui", "layer": "primitives" },
     { "name": "dialog", "type": "registry:ui", "layer": "primitives" },
+    { "name": "progress", "type": "registry:ui", "layer": "primitives" },
+    { "name": "slider", "type": "registry:ui", "layer": "primitives" },
+    { "name": "select", "type": "registry:ui", "layer": "primitives" },
+    { "name": "separator", "type": "registry:ui", "layer": "primitives" },
+    { "name": "textarea", "type": "registry:ui", "layer": "primitives" },
     { "name": "mode-toggle", "type": "registry:ui", "layer": "primitives" },
     { "name": "list", "type": "registry:ui", "layer": "collections" },
     { "name": "card-grid", "type": "registry:ui", "layer": "collections" }

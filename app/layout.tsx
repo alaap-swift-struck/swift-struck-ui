@@ -1,7 +1,10 @@
 import type { Metadata } from "next"
+import { Inter } from "next/font/google"
 
 import { ThemeProvider } from "@/registry/tokens/theme-provider"
 import "./globals.css"
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 
 export const metadata: Metadata = {
   title: "brimba",
@@ -15,11 +18,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
       <body className="min-h-screen antialiased">
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
