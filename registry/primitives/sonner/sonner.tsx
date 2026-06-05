@@ -16,7 +16,7 @@ function Toaster(props: React.ComponentProps<typeof Sonner>) {
       className="toaster group"
       toastOptions={{
         classNames: {
-          // reuse the same liquid-glass finish as cards
+          // reuse the same frosted-glass finish as cards
           toast:
             "glass group-[.toaster]:rounded-xl group-[.toaster]:border group-[.toaster]:text-foreground group-[.toaster]:shadow-lg",
           description: "group-[.toast]:text-muted-foreground",
