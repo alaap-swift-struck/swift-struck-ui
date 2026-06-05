@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 
+import { AmbientBackground } from "@/registry/primitives/ambient-background/ambient-background"
 import { ThemeProvider } from "@/registry/tokens/theme-provider"
 import "./globals.css"
 
@@ -26,6 +27,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <AmbientBackground />
           {children}
         </ThemeProvider>
       </body>

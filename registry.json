@@ -17,6 +17,11 @@
     { "name": "separator", "type": "registry:ui", "layer": "primitives" },
     { "name": "textarea", "type": "registry:ui", "layer": "primitives" },
     { "name": "mode-toggle", "type": "registry:ui", "layer": "primitives" },
+    {
+      "name": "ambient-background",
+      "type": "registry:ui",
+      "layer": "primitives"
+    },
     { "name": "checkbox", "type": "registry:ui", "layer": "primitives" },
     { "name": "radio-group", "type": "registry:ui", "layer": "primitives" },
     { "name": "tabs", "type": "registry:ui", "layer": "primitives" },

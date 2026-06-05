@@ -216,6 +216,47 @@
     opacity: 0;
     animation: brimba-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
+
+  /* Ambient interactive background — drifting token-colored "smoke" that
+   * blooms softly toward the pointer. Very low opacity on purpose; it exists
+   * to make the glass finish pop. Driven by <AmbientBackground />. */
+  .ambient::before {
+    content: "";
+    position: absolute;
+    inset: -25%;
+    background:
+      radial-gradient(
+        26% 26% at 18% 28%,
+        color-mix(in oklch, var(--chart-3) 16%, transparent),
+        transparent 60%
+      ),
+      radial-gradient(
+        24% 24% at 82% 68%,
+        color-mix(in oklch, var(--chart-4) 14%, transparent),
+        transparent 60%
+      ),
+      radial-gradient(
+        22% 22% at 62% 16%,
+        color-mix(in oklch, var(--chart-2) 12%, transparent),
+        transparent 60%
+      );
+    filter: blur(72px) saturate(1.25);
+    opacity: 0.5;
+    animation: ambient-drift 26s ease-in-out infinite;
+  }
+  /* the pointer-following bloom (faint on move, brighter on tap) */
+  .ambient::after {
+    content: "";
+    position: absolute;
+    inset: -25%;
+    background: radial-gradient(
+      22% 22% at var(--mx, 50%) var(--my, 38%),
+      color-mix(in oklch, var(--primary) 36%, transparent),
+      transparent 55%
+    );
+    filter: blur(64px);
+    opacity: calc(0.12 + 0.5 * var(--bloom, 0));
+  }
 }
 
 @keyframes brimba-rise {
@@ -229,6 +270,16 @@
   }
 }
 
+@keyframes ambient-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(2%, -2%, 0) scale(1.08);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-rise {
     animation: none;
@@ -236,5 +287,8 @@
   }
   .hover-lift {
     transition: none;
+  }
+  .ambient::before {
+    animation: none;
   }
 }
