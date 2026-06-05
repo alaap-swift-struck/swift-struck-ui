@@ -13,8 +13,10 @@ base to build entire applications. Two kinds of building blocks:
 2. **Collections** — Glide-style data-bound views (List, Grid, Kanban,
    Calendar, Detail, Form…). This is where the leverage is.
 
-Distribution is **copy-in**: components are source you own, pulled into each
-project via a registry (the shadcn model), not an installed package.
+Distribution is a **workspace package**: brimba is imported by your apps (one
+workspace/monorepo) so a central fix propagates to every app instantly, while
+each app keeps its own per-component `config`. A copy-in registry may be layered
+on later for external/standalone use.
 
 ## The three layers
 
@@ -85,6 +87,41 @@ registry.json         Manifest of every registry item (drives the copy-in CLI)
 ARCHITECTURE.md       This file
 CONTRIBUTING.md       How to add a component without breaking the rules
 ```
+
+## Configuration (the Glide-style meta-fields)
+
+Every configurable component (especially collections like Choice, DataTable,
+Kanban) is driven by a single typed `config` prop. This is what lets the
+component code live centrally and update everywhere, while each app keeps its
+own settings.
+
+Two hard rules:
+
+1. **No omittable fields.** Each component exports a `XConfig` type in which
+   **every field is required** — no `?` optionals. You cannot render the
+   component without spelling out (or spreading) every setting, so no knob is
+   ever invisible. Adding a new field later is a deliberate, surfaced change at
+   every call site.
+2. **Ship a default template.** Each component also exports a fully-populated
+   `defaultXConfig: XConfig`. Start from it and override what you need:
+
+   ```tsx
+   import {
+     Choice,
+     defaultChoiceConfig,
+   } from "@/registry/primitives/choice/choice"
+
+   ;<Choice
+     options={tags}
+     value={value}
+     onChange={setValue}
+     config={{ ...defaultChoiceConfig, mode: "multi", display: "pills" }}
+   />
+   ```
+
+The component never merges partial configs — it consumes a complete one. This
+keeps configs serializable (savable per app) and guarantees the type is the
+single source of truth for "what can this component do."
 
 ## Roadmap
 

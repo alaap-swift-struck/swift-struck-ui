@@ -58,6 +58,15 @@ import {
   CommandShortcut,
 } from "@/registry/primitives/command/command"
 import {
+  Choice,
+  defaultChoiceConfig,
+} from "@/registry/primitives/choice/choice"
+import {
+  DataTable,
+  defaultDataTableConfig,
+  type DataTableConfig,
+} from "@/registry/collections/data-table/data-table"
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -144,7 +153,66 @@ const invoices = [
   { id: "INV-003", status: "Unpaid", total: "$350.00" },
 ]
 
+const tagOptions = [
+  { label: "Design", value: "design" },
+  { label: "Engineering", value: "eng" },
+  { label: "Marketing", value: "mkt" },
+  { label: "Product", value: "prod" },
+  { label: "Sales", value: "sales" },
+]
+
+const people = [
+  { name: "Ada Lovelace", role: "Engineering", status: "Active", commits: 128 },
+  { name: "Grace Hopper", role: "Design", status: "Away", commits: 96 },
+  { name: "Alan Turing", role: "Research", status: "Offline", commits: 212 },
+  {
+    name: "Katherine Johnson",
+    role: "Product",
+    status: "Active",
+    commits: 154,
+  },
+]
+
+const tableConfig: DataTableConfig = {
+  ...defaultDataTableConfig,
+  columns: [
+    {
+      key: "name",
+      header: "Name",
+      type: "text",
+      sortable: true,
+      align: "left",
+    },
+    {
+      key: "role",
+      header: "Role",
+      type: "text",
+      sortable: true,
+      align: "left",
+    },
+    {
+      key: "status",
+      header: "Status",
+      type: "badge",
+      sortable: false,
+      align: "left",
+    },
+    {
+      key: "commits",
+      header: "Commits",
+      type: "number",
+      sortable: true,
+      align: "right",
+    },
+  ],
+  rowActions: true,
+}
+
 export default function ComponentsGallery() {
+  const [picked, setPicked] = React.useState<string[]>(["eng", "design"])
+  const [plan, setPlan] = React.useState<string[]>(["prod"])
+  const [chips, setChips] = React.useState<string[]>(["design", "mkt"])
+
   return (
     <TooltipProvider>
       <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-10 px-6 py-10">
@@ -166,6 +234,82 @@ export default function ComponentsGallery() {
           </div>
           <ModeToggle />
         </header>
+
+        {/* --------------------- CONFIGURABLE (Glide layer) --------------------- */}
+        <section className="animate-rise flex flex-col gap-5">
+          <div className="flex flex-col gap-1">
+            <h2 className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
+              Configurable — driven by a typed config
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Same component, different <code>config</code>. Every field is
+              required, so no setting is ever hidden.
+            </p>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <Demo name="Choice · dropdown + search (multi)">
+              <div className="w-full">
+                <Choice
+                  options={tagOptions}
+                  value={picked}
+                  onChange={setPicked}
+                  config={{
+                    ...defaultChoiceConfig,
+                    mode: "multi",
+                    display: "dropdown",
+                    placeholder: "Select tags",
+                  }}
+                />
+              </div>
+            </Demo>
+
+            <Demo name="Choice · pills (single)">
+              <Choice
+                options={tagOptions}
+                value={plan}
+                onChange={setPlan}
+                config={{
+                  ...defaultChoiceConfig,
+                  mode: "single",
+                  display: "pills",
+                  searchable: false,
+                }}
+              />
+            </Demo>
+
+            <Demo name="Choice · chips (multi, max 3)">
+              <Choice
+                options={tagOptions}
+                value={chips}
+                onChange={setChips}
+                config={{
+                  ...defaultChoiceConfig,
+                  mode: "multi",
+                  display: "chips",
+                  max: 3,
+                }}
+              />
+            </Demo>
+          </div>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium">
+                DataTable · sortable · searchable · striped · row actions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DataTable
+                data={people}
+                config={tableConfig}
+                actions={[
+                  { label: "View", onSelect: () => {} },
+                  { label: "Edit", onSelect: () => {} },
+                ]}
+              />
+            </CardContent>
+          </Card>
+        </section>
 
         {/* ----------------------------- PRIMITIVES ----------------------------- */}
         <section className="animate-rise flex flex-col gap-5">

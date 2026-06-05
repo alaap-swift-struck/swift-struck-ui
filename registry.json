@@ -37,7 +37,9 @@
     { "name": "alert-dialog", "type": "registry:ui", "layer": "primitives" },
     { "name": "hover-card", "type": "registry:ui", "layer": "primitives" },
     { "name": "command", "type": "registry:ui", "layer": "primitives" },
+    { "name": "choice", "type": "registry:ui", "layer": "primitives" },
     { "name": "list", "type": "registry:ui", "layer": "collections" },
-    { "name": "card-grid", "type": "registry:ui", "layer": "collections" }
+    { "name": "card-grid", "type": "registry:ui", "layer": "collections" },
+    { "name": "data-table", "type": "registry:ui", "layer": "collections" }
   ]
 }

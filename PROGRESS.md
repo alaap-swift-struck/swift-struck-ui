@@ -3,7 +3,7 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 30** &nbsp;·&nbsp; **To build: ~28** &nbsp;·&nbsp; _last updated: batch 2 + ambient bg_
+> **Built: 33** &nbsp;·&nbsp; **To build: ~25** &nbsp;·&nbsp; _last updated: config system + Choice + DataTable_
 
 ---
 
@@ -51,6 +51,11 @@ what's built and what's left.
 - [x] tabs
 - [x] accordion
 
+### Configurable (config-driven) (2)
+
+- [x] choice (single/multi · dropdown+search / chips / pills · max)
+- [x] data-table (columns, types, sort, search, striped, density, row actions)
+
 ### Collections (2)
 
 - [x] list
@@ -62,7 +67,6 @@ what's built and what's left.
 
 ### Primitives — remaining
 
-- [ ] choice (configurable select/combobox — single/multi, search, chips, pills)
 - [ ] form (validation wiring)
 - [ ] toggle + toggle-group
 - [ ] input-otp
@@ -83,7 +87,7 @@ what's built and what's left.
 
 ### Collections — the Glide payoff (config-driven)
 
-- [ ] data-table (columns, sort, search, filter, striped, column types, row actions)
+- [ ] data-table: add column filters + pagination (base table done)
 - [ ] kanban
 - [ ] calendar-view
 - [ ] detail-view
@@ -92,6 +96,6 @@ what's built and what's left.
 
 ### Foundations (architecture)
 
-- [ ] configuration system (per-component typed `config` + defaults)
-- [ ] distribution model (central propagation — see open decisions)
+- [x] configuration system (per-component typed `config`, all fields required)
+- [ ] workspace-package restructure (central propagation — chosen, next up)
 - [ ] per-component MDX docs (backfilled once the look is locked)
