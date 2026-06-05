@@ -242,7 +242,7 @@ export default function Home() {
           <CardContent>
             <List
               items={transactions}
-              className="border-0 bg-transparent shadow-none"
+              className="hover-lift-none border-0 bg-transparent shadow-none"
             />
           </CardContent>
         </Card>

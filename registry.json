@@ -26,6 +26,12 @@
     { "name": "alert", "type": "registry:ui", "layer": "primitives" },
     { "name": "tooltip", "type": "registry:ui", "layer": "primitives" },
     { "name": "table", "type": "registry:ui", "layer": "primitives" },
+    { "name": "dropdown-menu", "type": "registry:ui", "layer": "primitives" },
+    { "name": "popover", "type": "registry:ui", "layer": "primitives" },
+    { "name": "sheet", "type": "registry:ui", "layer": "primitives" },
+    { "name": "alert-dialog", "type": "registry:ui", "layer": "primitives" },
+    { "name": "hover-card", "type": "registry:ui", "layer": "primitives" },
+    { "name": "command", "type": "registry:ui", "layer": "primitives" },
     { "name": "list", "type": "registry:ui", "layer": "collections" },
     { "name": "card-grid", "type": "registry:ui", "layer": "collections" }
   ]
