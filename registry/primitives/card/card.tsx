@@ -6,7 +6,9 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "rounded-xl border bg-card text-card-foreground shadow-sm",
+        // `glass` = frosted translucent surface (see globals.css). Add the
+        // `hover-lift` utility at the call site for interactive cards.
+        "glass rounded-xl border text-card-foreground shadow-sm",
         className
       )}
       {...props}

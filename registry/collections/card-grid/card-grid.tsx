@@ -56,7 +56,7 @@ function CardGrid<T extends CardGridItem>({
           onClick={interactive ? () => onItemClick?.(item) : undefined}
           className={cn(
             "overflow-hidden",
-            interactive && "cursor-pointer transition-colors hover:border-ring"
+            interactive && "hover-lift cursor-pointer"
           )}
         >
           {item.media != null && <div>{item.media}</div>}

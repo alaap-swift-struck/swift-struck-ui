@@ -41,7 +41,10 @@ function FadeUp({
   className?: string
 }) {
   return (
-    <div className={`pv-fade-up ${className}`} style={{ animationDelay: `${delay}ms` }}>
+    <div
+      className={`pv-fade-up ${className}`}
+      style={{ animationDelay: `${delay}ms` }}
+    >
       {children}
     </div>
   )
@@ -126,7 +129,9 @@ function SectionLabel({
       <span className="text-[11px] font-medium tracking-[0.2em] text-white/40 uppercase">
         Direction {n}
       </span>
-      <h2 className="text-xl font-semibold tracking-tight text-white">{title}</h2>
+      <h2 className="text-xl font-semibold tracking-tight text-white">
+        {title}
+      </h2>
       <p className="max-w-prose text-sm text-white/50">{desc}</p>
     </div>
   )
@@ -170,8 +175,16 @@ export default function Preview() {
             </FadeUp>
             <div className="grid gap-4 sm:grid-cols-3">
               {[
-                { label: "Revenue", value: `$${Math.round(revenue).toLocaleString()}`, sub: "+12.4% MoM" },
-                { label: "Active Users", value: Math.round(users).toLocaleString(), sub: "+4.1% WoW" },
+                {
+                  label: "Revenue",
+                  value: `$${Math.round(revenue).toLocaleString()}`,
+                  sub: "+12.4% MoM",
+                },
+                {
+                  label: "Active Users",
+                  value: Math.round(users).toLocaleString(),
+                  sub: "+4.1% WoW",
+                },
                 { label: "Conversion", value: "3.8%", sub: "+0.6pt" },
               ].map((s, i) => (
                 <FadeUp key={s.label} delay={100 + i * 90}>
@@ -280,9 +293,10 @@ export default function Preview() {
 
           <FadeUp>
             <footer className="border-t border-white/10 pt-6 text-sm text-white/40">
-              Temporary preview · <code className="text-white/70">app/preview/</code> ·
-              delete after we choose. Tell me A, B, C, or a mix — and what to dial
-              up or down.
+              Temporary preview ·{" "}
+              <code className="text-white/70">app/preview/</code> · delete after
+              we choose. Tell me A, B, C, or a mix — and what to dial up or
+              down.
             </footer>
           </FadeUp>
         </div>

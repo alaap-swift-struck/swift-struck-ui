@@ -29,13 +29,14 @@ import { Textarea } from "@/registry/primitives/textarea/textarea"
 import { List, type ListItem } from "@/registry/collections/list/list"
 
 const contributions = [
-  { month: "Dec", value: 55 },
-  { month: "Jan", value: 72 },
-  { month: "Feb", value: 60 },
-  { month: "Mar", value: 88 },
-  { month: "Apr", value: 47 },
-  { month: "May", value: 100 },
+  { month: "Dec", amount: 3200 },
+  { month: "Jan", amount: 4100 },
+  { month: "Feb", amount: 3500 },
+  { month: "Mar", amount: 5200 },
+  { month: "Apr", amount: 2800 },
+  { month: "May", amount: 5900 },
 ]
+const chartMax = Math.max(...contributions.map((c) => c.amount))
 
 const targets = [
   { label: "Retirement", amount: "$420,000", pct: 65, of: "$273,000" },
@@ -102,7 +103,7 @@ export default function Home() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-6xl flex-col gap-6 px-6 py-10">
-      <header className="flex items-end justify-between gap-4">
+      <header className="animate-rise flex items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
           <span className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
             Demo dashboard · built from the registry
@@ -117,9 +118,9 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="animate-rise grid gap-4 lg:grid-cols-3">
         {/* Contribution history — CSS bar chart using the chart-2 (amber) token */}
-        <Card className="lg:col-span-2">
+        <Card className="hover-lift lg:col-span-2">
           <CardHeader>
             <CardTitle>Contribution History</CardTitle>
             <CardDescription>Last 6 months of activity</CardDescription>
@@ -129,12 +130,17 @@ export default function Home() {
               {contributions.map((c) => (
                 <div
                   key={c.month}
-                  className="flex h-full flex-1 flex-col items-center justify-end gap-2"
+                  className="group/bar flex h-full flex-1 flex-col items-center justify-end gap-2"
                 >
                   <div
-                    className="w-full rounded-t-md bg-chart-2 transition-all"
-                    style={{ height: `${c.value}%` }}
-                  />
+                    className="relative w-full rounded-t-md bg-chart-2/70 transition-all duration-300 group-hover/bar:bg-chart-2"
+                    style={{ height: `${(c.amount / chartMax) * 100}%` }}
+                  >
+                    {/* value-on-hover tooltip */}
+                    <span className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 translate-y-1 rounded-md border bg-popover px-2 py-1 text-xs font-medium whitespace-nowrap text-popover-foreground opacity-0 shadow-md transition-all duration-200 group-hover/bar:translate-y-0 group-hover/bar:opacity-100">
+                      ${c.amount.toLocaleString()}
+                    </span>
+                  </div>
                   <span className="text-xs text-muted-foreground">
                     {c.month}
                   </span>
@@ -150,7 +156,7 @@ export default function Home() {
         </Card>
 
         {/* Payout threshold — Select + Slider + Textarea + Button */}
-        <Card>
+        <Card className="hover-lift">
           <CardHeader>
             <CardTitle>Payout Threshold</CardTitle>
             <CardDescription>
@@ -194,9 +200,9 @@ export default function Home() {
         </Card>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="animate-rise grid gap-4 lg:grid-cols-3">
         {/* Savings targets — Progress stats */}
-        <Card>
+        <Card className="hover-lift">
           <CardHeader className="flex-row items-center justify-between">
             <div className="flex flex-col gap-1.5">
               <CardTitle>Savings Targets</CardTitle>
@@ -228,13 +234,16 @@ export default function Home() {
         </Card>
 
         {/* Recent transactions — the List collection */}
-        <Card className="lg:col-span-2">
+        <Card className="hover-lift lg:col-span-2">
           <CardHeader>
             <CardTitle>Recent Transactions</CardTitle>
             <CardDescription>Your latest account activity.</CardDescription>
           </CardHeader>
           <CardContent>
-            <List items={transactions} className="border-0 shadow-none" />
+            <List
+              items={transactions}
+              className="border-0 bg-transparent shadow-none"
+            />
           </CardContent>
         </Card>
       </div>
