@@ -110,7 +110,6 @@ Two hard rules:
      Choice,
      defaultChoiceConfig,
    } from "@/registry/primitives/choice/choice"
-
    ;<Choice
      options={tags}
      value={value}

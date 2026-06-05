@@ -3,6 +3,11 @@
 import * as React from "react"
 import Link from "next/link"
 import {
+  AlignCenter,
+  AlignLeft,
+  AlignRight,
+  Bold,
+  ChevronsUpDown,
   CreditCard,
   Info,
   LogOut,
@@ -66,6 +71,36 @@ import {
   defaultDataTableConfig,
   type DataTableConfig,
 } from "@/registry/collections/data-table/data-table"
+import { AspectRatio } from "@/registry/primitives/aspect-ratio/aspect-ratio"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/registry/primitives/breadcrumb/breadcrumb"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/registry/primitives/collapsible/collapsible"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/registry/primitives/pagination/pagination"
+import { ScrollArea } from "@/registry/primitives/scroll-area/scroll-area"
+import { toast } from "@/registry/primitives/sonner/sonner"
+import { Toggle } from "@/registry/primitives/toggle/toggle"
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/registry/primitives/toggle-group/toggle-group"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -610,6 +645,119 @@ export default function ComponentsGallery() {
                   </CommandGroup>
                 </CommandList>
               </Command>
+            </Demo>
+          </div>
+        </section>
+
+        {/* ------------------- NAVIGATION & STRUCTURE — Batch 3 ------------------ */}
+        <section className="animate-rise flex flex-col gap-5">
+          <h2 className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
+            Navigation &amp; structure — Batch 3
+          </h2>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <Demo name="Toggle & Toggle Group">
+              <Toggle aria-label="Bold">
+                <Bold />
+              </Toggle>
+              <ToggleGroup type="single" defaultValue="left">
+                <ToggleGroupItem value="left" aria-label="Left">
+                  <AlignLeft />
+                </ToggleGroupItem>
+                <ToggleGroupItem value="center" aria-label="Center">
+                  <AlignCenter />
+                </ToggleGroupItem>
+                <ToggleGroupItem value="right" aria-label="Right">
+                  <AlignRight />
+                </ToggleGroupItem>
+              </ToggleGroup>
+            </Demo>
+
+            <Demo name="Breadcrumb">
+              <Breadcrumb>
+                <BreadcrumbList>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink href="#">Home</BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbLink href="#">Components</BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>Choice</BreadcrumbPage>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
+            </Demo>
+
+            <Demo name="Toast">
+              <Button
+                variant="outline"
+                onClick={() =>
+                  toast("Changes saved", {
+                    description: "Your settings have been updated.",
+                  })
+                }
+              >
+                Show toast
+              </Button>
+            </Demo>
+
+            <Demo name="Pagination">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious href="#" />
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationLink href="#">1</PaginationLink>
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationLink href="#" isActive>
+                      2
+                    </PaginationLink>
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationNext href="#" />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </Demo>
+
+            <Demo name="Collapsible">
+              <Collapsible className="w-full">
+                <CollapsibleTrigger asChild>
+                  <Button variant="outline" className="w-full justify-between">
+                    Toggle details
+                    <ChevronsUpDown className="size-4" />
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-2 rounded-lg border p-3 text-sm text-muted-foreground">
+                  Hidden content revealed on demand.
+                </CollapsibleContent>
+              </Collapsible>
+            </Demo>
+
+            <Demo name="Aspect Ratio (16:9)">
+              <div className="w-full">
+                <AspectRatio
+                  ratio={16 / 9}
+                  className="overflow-hidden rounded-lg border bg-gradient-to-br from-primary/20 to-chart-3/20"
+                />
+              </div>
+            </Demo>
+
+            <Demo name="Scroll Area">
+              <ScrollArea className="h-28 w-full rounded-lg border p-3">
+                <div className="flex flex-col gap-2 text-sm">
+                  {Array.from({ length: 12 }).map((_, i) => (
+                    <div key={i}>Item {i + 1}</div>
+                  ))}
+                </div>
+              </ScrollArea>
             </Demo>
           </div>
         </section>

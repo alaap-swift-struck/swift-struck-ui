@@ -3,7 +3,7 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 33** &nbsp;·&nbsp; **To build: ~25** &nbsp;·&nbsp; _last updated: config system + Choice + DataTable_
+> **Built: 41** &nbsp;·&nbsp; **To build: ~17** &nbsp;·&nbsp; _last updated: liquid-glass + nav/structure batch_
 
 ---
 
@@ -39,6 +39,16 @@ what's built and what's left.
 - [x] tooltip
 - [x] table
 
+### Primitives — navigation & structure (8)
+
+- [x] toggle + toggle-group
+- [x] breadcrumb
+- [x] pagination
+- [x] collapsible
+- [x] scroll-area
+- [x] aspect-ratio
+- [x] sonner (toasts)
+
 ### Primitives — overlays & nav (6)
 
 - [x] dialog
@@ -68,16 +78,9 @@ what's built and what's left.
 ### Primitives — remaining
 
 - [ ] form (validation wiring)
-- [ ] toggle + toggle-group
 - [ ] input-otp
 - [ ] calendar / date-picker
-- [ ] sonner (toasts)
 - [ ] navigation-menu
-- [ ] breadcrumb
-- [ ] pagination
-- [ ] collapsible
-- [ ] scroll-area
-- [ ] aspect-ratio
 - [ ] resizable
 - [ ] context-menu
 - [ ] menubar
