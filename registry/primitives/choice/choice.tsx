@@ -39,6 +39,10 @@ export interface ChoiceConfig {
   max: number | null
   /** Text shown when nothing is selected. */
   placeholder: string
+  /** Placeholder inside the search box. */
+  searchPlaceholder: string
+  /** Text shown when no options match the search. */
+  emptyText: string
 }
 
 export const defaultChoiceConfig: ChoiceConfig = {
@@ -48,6 +52,8 @@ export const defaultChoiceConfig: ChoiceConfig = {
   clearable: true,
   max: null,
   placeholder: "Select…",
+  searchPlaceholder: "Search…",
+  emptyText: "No options found.",
 }
 
 /* ------------------------------ component ------------------------------ */
@@ -123,9 +129,11 @@ function Choice({ options, value, onChange, config, className }: ChoiceProps) {
 
   const list = (
     <Command>
-      {config.searchable && <CommandInput placeholder="Search…" />}
+      {config.searchable && (
+        <CommandInput placeholder={config.searchPlaceholder} />
+      )}
       <CommandList>
-        <CommandEmpty>No options found.</CommandEmpty>
+        <CommandEmpty>{config.emptyText}</CommandEmpty>
         <CommandGroup>
           {ordered.map((o) => {
             const active = isSelected(o.value)

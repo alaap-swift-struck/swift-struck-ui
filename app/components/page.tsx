@@ -18,7 +18,7 @@ import {
   User,
 } from "lucide-react"
 
-import { ConfigEditor } from "./_playground/config-editor"
+import { ConfigEditor, JsonField } from "./_playground/config-editor"
 
 import {
   Accordion,
@@ -220,6 +220,8 @@ function Demo({
   config,
   setConfig,
   enums,
+  data,
+  setData,
 }: {
   name: string
   children: React.ReactNode
@@ -227,36 +229,61 @@ function Demo({
   config?: Record<string, unknown>
   setConfig?: (next: Record<string, unknown>) => void
   enums?: Record<string, string[]>
+  // Optional: also expose the component's data (its content) as editable JSON,
+  // so config toggles have visible context to act on.
+  data?: unknown
+  setData?: (next: unknown) => void
 }) {
   const query = React.useContext(SearchCtx)
   if (query && !name.toLowerCase().includes(query.toLowerCase())) return null
+
+  const hasConfig = Boolean(config && setConfig)
+  const hasData = Boolean(data !== undefined && setData)
 
   return (
     <Card>
       <CardHeader className="flex-row items-center justify-between gap-2 pb-3">
         <CardTitle className="text-sm font-medium">{name}</CardTitle>
-        {config && setConfig && (
+        {(hasConfig || hasData) && (
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
                 className="size-7"
-                aria-label={`Edit ${name} config`}
+                aria-label={`Edit ${name}`}
               >
                 <Settings2 />
               </Button>
             </PopoverTrigger>
             <PopoverContent align="end" className="w-80">
-              <p className="mb-3 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                Config · live
-              </p>
               <ScrollArea className="max-h-[60vh] pr-3">
-                <ConfigEditor
-                  config={config}
-                  onChange={setConfig}
-                  enums={enums}
-                />
+                <div className="flex flex-col gap-4">
+                  {hasConfig && (
+                    <div className="flex flex-col gap-3">
+                      <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                        Config · live
+                      </p>
+                      <ConfigEditor
+                        config={config!}
+                        onChange={setConfig!}
+                        enums={enums}
+                      />
+                    </div>
+                  )}
+                  {hasData && (
+                    <div className="flex flex-col gap-2 border-t pt-4">
+                      <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                        Data · live
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        The component's content — edit values here (e.g. each
+                        item's delta) and they update instantly.
+                      </p>
+                      <JsonField value={data} onCommit={(v) => setData!(v)} />
+                    </div>
+                  )}
+                </div>
               </ScrollArea>
             </PopoverContent>
           </Popover>
@@ -512,6 +539,13 @@ export default function ComponentsGallery() {
   )
   const [rating, setRating] = React.useState(4)
 
+  // Collection datasets held in state so the playground can live-edit each
+  // component's content (the values its config toggles act on).
+  const [peopleData, setPeopleData] = React.useState(people)
+  const [statData, setStatData] = React.useState(stats)
+  const [eventData, setEventData] = React.useState(events)
+  const [profileData, setProfileData] = React.useState(profile)
+
   return (
     <TooltipProvider>
       <SearchCtx.Provider value={query}>
@@ -608,9 +642,11 @@ export default function ComponentsGallery() {
               config={tableCfg}
               setConfig={setTableCfg}
               enums={dataTableEnums}
+              data={peopleData}
+              setData={(d) => setPeopleData(d as typeof people)}
             >
               <DataTable
-                data={people}
+                data={peopleData}
                 config={tableCfg as unknown as DataTableConfig}
                 actions={[
                   { label: "View", onSelect: () => {} },
@@ -630,6 +666,8 @@ export default function ComponentsGallery() {
               name="Kanban · drag cards between columns"
               config={kanbanCfg}
               setConfig={setKanbanCfg}
+              data={tasks}
+              setData={(d) => setTasks(d as typeof initialTasks)}
             >
               <Kanban
                 data={tasks}
@@ -644,9 +682,11 @@ export default function ComponentsGallery() {
               config={calCfg}
               setConfig={setCalCfg}
               enums={calendarEnums}
+              data={eventData}
+              setData={(d) => setEventData(d as typeof events)}
             >
               <CalendarView
-                data={events}
+                data={eventData}
                 config={calCfg as unknown as CalendarViewConfig}
                 initialMonth={calInitialMonth}
                 className="w-full"
@@ -657,9 +697,11 @@ export default function ComponentsGallery() {
               name="Detail view · record fields"
               config={detailCfg}
               setConfig={setDetailCfg}
+              data={profileData}
+              setData={(d) => setProfileData(d as typeof profile)}
             >
               <DetailView
-                record={profile}
+                record={profileData}
                 config={detailCfg as unknown as DetailViewConfig}
                 className="w-full"
               />
@@ -669,9 +711,11 @@ export default function ComponentsGallery() {
               name="Stat grid · big numbers"
               config={statCfg}
               setConfig={setStatCfg}
+              data={statData}
+              setData={(d) => setStatData(d as typeof stats)}
             >
               <StatGrid
-                items={stats}
+                items={statData}
                 config={statCfg as unknown as StatGridConfig}
                 className="w-full"
               />
@@ -681,6 +725,8 @@ export default function ComponentsGallery() {
               name="Checklist · tick items off"
               config={checkCfg}
               setConfig={setCheckCfg}
+              data={checkItems}
+              setData={(d) => setCheckItems(d as ChecklistItem[])}
             >
               <Checklist
                 items={checkItems}

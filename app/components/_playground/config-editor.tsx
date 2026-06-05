@@ -148,4 +148,4 @@ function ConfigEditor({ config, onChange, enums = {} }: ConfigEditorProps) {
   )
 }
 
-export { ConfigEditor }
+export { ConfigEditor, JsonField }

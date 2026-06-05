@@ -54,6 +54,10 @@ export interface DataTableConfig {
   density: DataTableDensity
   /** Trailing actions (⋯) column — supply `actions` to populate it. */
   rowActions: boolean
+  /** Placeholder inside the search box. */
+  searchPlaceholder: string
+  /** Text shown when no rows match. */
+  emptyText: string
 }
 
 export const defaultDataTableConfig: DataTableConfig = {
@@ -62,6 +66,8 @@ export const defaultDataTableConfig: DataTableConfig = {
   striped: true,
   density: "comfortable",
   rowActions: false,
+  searchPlaceholder: "Search…",
+  emptyText: "No results.",
 }
 
 /* ------------------------------ component ------------------------------ */
@@ -137,7 +143,7 @@ function DataTable<T extends Record<string, unknown>>({
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search…"
+            placeholder={config.searchPlaceholder}
             className="pl-8"
           />
         </div>
@@ -227,7 +233,7 @@ function DataTable<T extends Record<string, unknown>>({
                   colSpan={config.columns.length + (config.rowActions ? 1 : 0)}
                   className="py-8 text-center text-sm text-muted-foreground"
                 >
-                  No results.
+                  {config.emptyText}
                 </TableCell>
               </TableRow>
             )}

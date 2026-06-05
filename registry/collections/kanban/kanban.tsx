@@ -33,6 +33,8 @@ export interface KanbanConfig {
   badgeField: string
   /** Show a count badge next to each column heading. */
   showCount: boolean
+  /** Placeholder shown in an empty column. */
+  emptyColumnText: string
 }
 
 export const defaultKanbanConfig: KanbanConfig = {
@@ -42,6 +44,7 @@ export const defaultKanbanConfig: KanbanConfig = {
   subtitleField: "",
   badgeField: "",
   showCount: true,
+  emptyColumnText: "Drop here",
 }
 
 /* ------------------------------ component ------------------------------ */
@@ -128,7 +131,7 @@ function Kanban<T extends { id: string } & Record<string, unknown>>({
 
             {cards.length === 0 && (
               <div className="rounded-lg border border-dashed p-3 text-center text-xs text-muted-foreground">
-                Drop here
+                {config.emptyColumnText}
               </div>
             )}
           </div>
