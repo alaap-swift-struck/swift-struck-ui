@@ -3,7 +3,7 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 44** &nbsp;·&nbsp; **To build: ~14** &nbsp;·&nbsp; _last updated: Calendar + Detail views_
+> **Built: 52** &nbsp;·&nbsp; **To build: ~10** &nbsp;·&nbsp; _last updated: Glide-parity batch (see GLIDE-PARITY.md)_
 
 ---
 
@@ -68,6 +68,17 @@ what's built and what's left.
 - [x] kanban (config columns, group-by, card fields, drag between columns)
 - [x] calendar-view (month grid, date/title/accent fields, week start)
 - [x] detail-view (record fields, types, 1/2 columns)
+- [x] stat-grid (big-number metric cards, columns, delta/trend)
+- [x] checklist (tick items off, progress, strike completed)
+
+### Primitives — content & actions (6)
+
+- [x] rating (stars, configurable max, read-only)
+- [x] action-row (icon + title/subtitle + trailing/chevron, tappable)
+- [x] spinner (loading indicator, 3 sizes)
+- [x] web-embed (responsive framed iframe)
+- [x] spacer (fixed vertical gap)
+- [x] typography (Headline / Text / Hint)
 
 ### Collections (2)
 
@@ -94,8 +105,8 @@ what's built and what's left.
 ### Collections — the Glide payoff (config-driven)
 
 - [ ] data-table: add column filters + pagination (base table done)
-- [ ] stat-grid
-- [ ] gallery
+- [ ] comments + chat collections
+- [ ] title/hero blocks (Simple/Image/Profile/Cover)
 
 ### Foundations (architecture)
 

@@ -91,6 +91,28 @@ import {
   defaultDetailViewConfig,
   type DetailViewConfig,
 } from "@/registry/collections/detail-view/detail-view"
+import {
+  StatGrid,
+  defaultStatGridConfig,
+  type StatGridConfig,
+  type StatItem,
+} from "@/registry/collections/stat-grid/stat-grid"
+import {
+  Checklist,
+  defaultChecklistConfig,
+  type ChecklistConfig,
+  type ChecklistItem,
+} from "@/registry/collections/checklist/checklist"
+import { ActionRow } from "@/registry/primitives/action-row/action-row"
+import { Rating } from "@/registry/primitives/rating/rating"
+import { Spacer } from "@/registry/primitives/spacer/spacer"
+import { Spinner } from "@/registry/primitives/spinner/spinner"
+import {
+  Headline,
+  Hint,
+  Text as Body,
+} from "@/registry/primitives/typography/typography"
+import { WebEmbed } from "@/registry/primitives/web-embed/web-embed"
 import { AspectRatio } from "@/registry/primitives/aspect-ratio/aspect-ratio"
 import {
   Breadcrumb,
@@ -400,6 +422,36 @@ const detailViewConfig: DetailViewConfig = {
   ],
 }
 
+const stats: StatItem[] = [
+  {
+    id: "1",
+    label: "Revenue",
+    value: "$48,250",
+    delta: "+12.4% MoM",
+    trend: "up",
+  },
+  {
+    id: "2",
+    label: "Active Users",
+    value: "1,284",
+    delta: "+4.1% WoW",
+    trend: "up",
+  },
+  { id: "3", label: "Churn", value: "2.1%", delta: "-0.3pt", trend: "down" },
+]
+const statGridConfig: StatGridConfig = {
+  ...defaultStatGridConfig,
+  columns: 3,
+  showDelta: true,
+}
+
+const initialChecklist: ChecklistItem[] = [
+  { id: "1", label: "Scaffold the repo", done: true },
+  { id: "2", label: "Build the primitives", done: true },
+  { id: "3", label: "Build the collections", done: false },
+  { id: "4", label: "Backfill component docs", done: false },
+]
+
 // Allowed values for enum-type config fields (used by the live config editor).
 const choiceEnums = {
   mode: ["single", "multi"],
@@ -451,6 +503,14 @@ export default function ComponentsGallery() {
   const [detailCfg, setDetailCfg] = React.useState<Record<string, unknown>>(
     detailViewConfig as unknown as Record<string, unknown>
   )
+  const [statCfg, setStatCfg] = React.useState<Record<string, unknown>>(
+    statGridConfig as unknown as Record<string, unknown>
+  )
+  const [checkItems, setCheckItems] = React.useState(initialChecklist)
+  const [checkCfg, setCheckCfg] = React.useState<Record<string, unknown>>(
+    defaultChecklistConfig as unknown as Record<string, unknown>
+  )
+  const [rating, setRating] = React.useState(4)
 
   return (
     <TooltipProvider>
@@ -604,6 +664,88 @@ export default function ComponentsGallery() {
                 className="w-full"
               />
             </Demo>
+
+            <Demo
+              name="Stat grid · big numbers"
+              config={statCfg}
+              setConfig={setStatCfg}
+            >
+              <StatGrid
+                items={stats}
+                config={statCfg as unknown as StatGridConfig}
+                className="w-full"
+              />
+            </Demo>
+
+            <Demo
+              name="Checklist · tick items off"
+              config={checkCfg}
+              setConfig={setCheckCfg}
+            >
+              <Checklist
+                items={checkItems}
+                onChange={setCheckItems}
+                config={checkCfg as unknown as ChecklistConfig}
+                className="w-full"
+              />
+            </Demo>
+          </section>
+
+          {/* ------------------- CONTENT & ACTIONS — Glide parity ----------------- */}
+          <section className="animate-rise flex flex-col gap-5">
+            <h2 className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
+              Content &amp; actions
+            </h2>
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              <Demo name="Rating">
+                <Rating value={rating} onChange={setRating} />
+                <Rating value={3} readOnly />
+              </Demo>
+
+              <Demo name="Spinner">
+                <div className="flex items-center gap-4">
+                  <Spinner size="sm" />
+                  <Spinner />
+                  <Spinner size="lg" />
+                </div>
+              </Demo>
+
+              <Demo name="Typography">
+                <Headline className="text-lg">Headline</Headline>
+                <Body>Body text for paragraphs and descriptions.</Body>
+                <Hint>A small muted hint or caption.</Hint>
+              </Demo>
+
+              <Demo name="Action Row">
+                <div className="w-full">
+                  <ActionRow
+                    icon={<User />}
+                    title="Profile"
+                    subtitle="Name, photo, bio"
+                    onClick={() => {}}
+                  />
+                  <ActionRow
+                    icon={<CreditCard />}
+                    title="Billing"
+                    trailing={<Badge variant="secondary">Pro</Badge>}
+                  />
+                </div>
+              </Demo>
+
+              <Demo name="Spacer">
+                <Badge>Above</Badge>
+                <Spacer size="lg" />
+                <Badge>Below (8 units apart)</Badge>
+              </Demo>
+
+              <Demo name="Web Embed">
+                <WebEmbed
+                  src="https://www.openstreetmap.org/export/embed.html?bbox=-0.135%2C51.503%2C-0.10%2C51.520&layer=mapnik"
+                  title="Map"
+                  className="w-full"
+                />
+              </Demo>
+            </div>
           </section>
 
           {/* ----------------------------- PRIMITIVES ----------------------------- */}

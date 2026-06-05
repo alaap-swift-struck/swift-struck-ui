@@ -46,6 +46,12 @@
     { "name": "scroll-area", "type": "registry:ui", "layer": "primitives" },
     { "name": "aspect-ratio", "type": "registry:ui", "layer": "primitives" },
     { "name": "sonner", "type": "registry:ui", "layer": "primitives" },
+    { "name": "spinner", "type": "registry:ui", "layer": "primitives" },
+    { "name": "rating", "type": "registry:ui", "layer": "primitives" },
+    { "name": "action-row", "type": "registry:ui", "layer": "primitives" },
+    { "name": "web-embed", "type": "registry:ui", "layer": "primitives" },
+    { "name": "spacer", "type": "registry:ui", "layer": "primitives" },
+    { "name": "typography", "type": "registry:ui", "layer": "primitives" },
     { "name": "list", "type": "registry:ui", "layer": "collections" },
     { "name": "card-grid", "type": "registry:ui", "layer": "collections" },
     { "name": "data-table", "type": "registry:ui", "layer": "collections" },
@@ -55,6 +61,8 @@
       "type": "registry:ui",
       "layer": "collections"
     },
-    { "name": "detail-view", "type": "registry:ui", "layer": "collections" }
+    { "name": "detail-view", "type": "registry:ui", "layer": "collections" },
+    { "name": "stat-grid", "type": "registry:ui", "layer": "collections" },
+    { "name": "checklist", "type": "registry:ui", "layer": "collections" }
   ]
 }
