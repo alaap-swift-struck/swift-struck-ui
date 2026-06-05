@@ -76,6 +76,11 @@ import {
   defaultDataTableConfig,
   type DataTableConfig,
 } from "@/registry/collections/data-table/data-table"
+import {
+  Kanban,
+  defaultKanbanConfig,
+  type KanbanConfig,
+} from "@/registry/collections/kanban/kanban"
 import { AspectRatio } from "@/registry/primitives/aspect-ratio/aspect-ratio"
 import {
   Breadcrumb,
@@ -293,6 +298,58 @@ const tableConfig: DataTableConfig = {
   rowActions: true,
 }
 
+const initialTasks = [
+  {
+    id: "1",
+    title: "Design login screen",
+    assignee: "Ada",
+    priority: "High",
+    status: "todo",
+  },
+  {
+    id: "2",
+    title: "Set up CI pipeline",
+    assignee: "Grace",
+    priority: "Medium",
+    status: "inprogress",
+  },
+  {
+    id: "3",
+    title: "Write component docs",
+    assignee: "Alan",
+    priority: "Low",
+    status: "todo",
+  },
+  {
+    id: "4",
+    title: "Ship v1 release",
+    assignee: "Katherine",
+    priority: "High",
+    status: "done",
+  },
+  {
+    id: "5",
+    title: "Polish pagination",
+    assignee: "Ada",
+    priority: "Medium",
+    status: "inprogress",
+  },
+]
+
+const kanbanConfig: KanbanConfig = {
+  ...defaultKanbanConfig,
+  groupBy: "status",
+  columns: [
+    { value: "todo", label: "To do" },
+    { value: "inprogress", label: "In progress" },
+    { value: "done", label: "Done" },
+  ],
+  titleField: "title",
+  subtitleField: "assignee",
+  badgeField: "priority",
+  showCount: true,
+}
+
 // Allowed values for enum-type config fields (used by the live config editor).
 const choiceEnums = {
   mode: ["single", "multi"],
@@ -330,6 +387,12 @@ export default function ComponentsGallery() {
   })
   const [tableCfg, setTableCfg] = React.useState<Record<string, unknown>>(
     tableConfig as unknown as Record<string, unknown>
+  )
+
+  // Kanban data is mutable (cards move between columns on drag).
+  const [tasks, setTasks] = React.useState(initialTasks)
+  const [kanbanCfg, setKanbanCfg] = React.useState<Record<string, unknown>>(
+    kanbanConfig as unknown as Record<string, unknown>
   )
 
   return (
@@ -436,6 +499,25 @@ export default function ComponentsGallery() {
                   { label: "View", onSelect: () => {} },
                   { label: "Edit", onSelect: () => {} },
                 ]}
+                className="w-full"
+              />
+            </Demo>
+          </section>
+
+          {/* ----------------------------- COLLECTIONS ---------------------------- */}
+          <section className="animate-rise flex flex-col gap-5">
+            <h2 className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
+              Collections — data views
+            </h2>
+            <Demo
+              name="Kanban · drag cards between columns"
+              config={kanbanCfg}
+              setConfig={setKanbanCfg}
+            >
+              <Kanban
+                data={tasks}
+                onDataChange={setTasks}
+                config={kanbanCfg as unknown as KanbanConfig}
                 className="w-full"
               />
             </Demo>

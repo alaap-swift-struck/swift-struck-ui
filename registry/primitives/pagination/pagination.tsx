@@ -21,7 +21,15 @@ function PaginationContent({
   className,
   ...props
 }: React.ComponentProps<"ul">) {
-  return <ul className={cn("flex items-center gap-1", className)} {...props} />
+  return (
+    <ul
+      className={cn(
+        "flex flex-wrap items-center justify-center gap-1",
+        className
+      )}
+      {...props}
+    />
+  )
 }
 
 function PaginationItem(props: React.ComponentProps<"li">) {

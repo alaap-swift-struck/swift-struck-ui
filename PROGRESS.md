@@ -3,7 +3,7 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 41** &nbsp;·&nbsp; **To build: ~17** &nbsp;·&nbsp; _last updated: liquid-glass + nav/structure batch_
+> **Built: 42** &nbsp;·&nbsp; **To build: ~16** &nbsp;·&nbsp; _last updated: Kanban + pagination fix_
 
 ---
 
@@ -65,6 +65,7 @@ what's built and what's left.
 
 - [x] choice (single/multi · dropdown+search / chips / pills · max)
 - [x] data-table (columns, types, sort, search, striped, density, row actions)
+- [x] kanban (config columns, group-by, card fields, drag between columns)
 
 ### Collections (2)
 
@@ -91,7 +92,6 @@ what's built and what's left.
 ### Collections — the Glide payoff (config-driven)
 
 - [ ] data-table: add column filters + pagination (base table done)
-- [ ] kanban
 - [ ] calendar-view
 - [ ] detail-view
 - [ ] stat-grid
