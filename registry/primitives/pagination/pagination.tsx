@@ -1,5 +1,10 @@
 // Pagination — the "1 2 3 … Next" control for stepping through pages of
 // results. Built from links/buttons so it works with any router.
+//
+// It stays on a single, centered line at any size: the nav is a CSS
+// *container*, and the Previous/Next text labels collapse to icon-only when
+// the container itself is narrow (`@[24rem]`) — so it adapts to the box it's
+// dropped into, not the screen width. No wrapping, no overflow.
 
 import * as React from "react"
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
@@ -11,7 +16,7 @@ function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
     <nav
       aria-label="pagination"
-      className={cn("mx-auto flex w-full justify-center", className)}
+      className={cn("@container mx-auto flex w-full justify-center", className)}
       {...props}
     />
   )
@@ -23,10 +28,7 @@ function PaginationContent({
 }: React.ComponentProps<"ul">) {
   return (
     <ul
-      className={cn(
-        "flex flex-wrap items-center justify-center gap-1",
-        className
-      )}
+      className={cn("flex items-center justify-center gap-1", className)}
       {...props}
     />
   )
@@ -66,14 +68,14 @@ function PaginationPrevious({
     <a
       aria-label="Go to previous page"
       className={cn(
-        buttonVariants({ variant: "ghost" }),
-        "cursor-pointer gap-1 pl-2.5",
+        buttonVariants({ variant: "ghost", size: "icon" }),
+        "cursor-pointer gap-1 @[24rem]:w-auto @[24rem]:px-3",
         className
       )}
       {...props}
     >
       <ChevronLeft />
-      <span>Previous</span>
+      <span className="hidden @[24rem]:inline">Previous</span>
     </a>
   )
 }
@@ -83,13 +85,13 @@ function PaginationNext({ className, ...props }: React.ComponentProps<"a">) {
     <a
       aria-label="Go to next page"
       className={cn(
-        buttonVariants({ variant: "ghost" }),
-        "cursor-pointer gap-1 pr-2.5",
+        buttonVariants({ variant: "ghost", size: "icon" }),
+        "cursor-pointer gap-1 @[24rem]:w-auto @[24rem]:px-3",
         className
       )}
       {...props}
     >
-      <span>Next</span>
+      <span className="hidden @[24rem]:inline">Next</span>
       <ChevronRight />
     </a>
   )

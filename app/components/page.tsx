@@ -81,6 +81,16 @@ import {
   defaultKanbanConfig,
   type KanbanConfig,
 } from "@/registry/collections/kanban/kanban"
+import {
+  CalendarView,
+  defaultCalendarViewConfig,
+  type CalendarViewConfig,
+} from "@/registry/collections/calendar-view/calendar-view"
+import {
+  DetailView,
+  defaultDetailViewConfig,
+  type DetailViewConfig,
+} from "@/registry/collections/detail-view/detail-view"
 import { AspectRatio } from "@/registry/primitives/aspect-ratio/aspect-ratio"
 import {
   Breadcrumb,
@@ -350,12 +360,53 @@ const kanbanConfig: KanbanConfig = {
   showCount: true,
 }
 
+// Fixed dates keep the calendar demo deterministic (no SSR/hydration drift).
+const events = [
+  { id: "1", date: "2024-06-04", title: "Standup", team: "Eng" },
+  { id: "2", date: "2024-06-04", title: "Design review", team: "Design" },
+  { id: "3", date: "2024-06-11", title: "Sprint planning", team: "Product" },
+  { id: "4", date: "2024-06-11", title: "1:1 with Ada", team: "Eng" },
+  { id: "5", date: "2024-06-18", title: "Launch", team: "Product" },
+  { id: "6", date: "2024-06-25", title: "Retro", team: "Eng" },
+]
+const calInitialMonth = new Date(2024, 5, 1)
+const calendarViewConfig: CalendarViewConfig = {
+  ...defaultCalendarViewConfig,
+  dateField: "date",
+  titleField: "title",
+  accentField: "team",
+  weekStartsOn: "sunday",
+  maxPerDay: 2,
+}
+
+const profile = {
+  name: "Ada Lovelace",
+  role: "Staff Engineer",
+  status: "Active",
+  location: "London",
+  joined: "2021-03-14",
+  commits: 1284,
+}
+const detailViewConfig: DetailViewConfig = {
+  ...defaultDetailViewConfig,
+  columns: 2,
+  fields: [
+    { key: "name", label: "Name", type: "text" },
+    { key: "role", label: "Role", type: "text" },
+    { key: "status", label: "Status", type: "badge" },
+    { key: "location", label: "Location", type: "text" },
+    { key: "joined", label: "Joined", type: "date" },
+    { key: "commits", label: "Commits", type: "number" },
+  ],
+}
+
 // Allowed values for enum-type config fields (used by the live config editor).
 const choiceEnums = {
   mode: ["single", "multi"],
   display: ["dropdown", "chips", "pills"],
 }
 const dataTableEnums = { density: ["comfortable", "compact"] }
+const calendarEnums = { weekStartsOn: ["sunday", "monday"] }
 
 export default function ComponentsGallery() {
   const [query, setQuery] = React.useState("")
@@ -393,6 +444,12 @@ export default function ComponentsGallery() {
   const [tasks, setTasks] = React.useState(initialTasks)
   const [kanbanCfg, setKanbanCfg] = React.useState<Record<string, unknown>>(
     kanbanConfig as unknown as Record<string, unknown>
+  )
+  const [calCfg, setCalCfg] = React.useState<Record<string, unknown>>(
+    calendarViewConfig as unknown as Record<string, unknown>
+  )
+  const [detailCfg, setDetailCfg] = React.useState<Record<string, unknown>>(
+    detailViewConfig as unknown as Record<string, unknown>
   )
 
   return (
@@ -518,6 +575,32 @@ export default function ComponentsGallery() {
                 data={tasks}
                 onDataChange={setTasks}
                 config={kanbanCfg as unknown as KanbanConfig}
+                className="w-full"
+              />
+            </Demo>
+
+            <Demo
+              name="Calendar · month grid"
+              config={calCfg}
+              setConfig={setCalCfg}
+              enums={calendarEnums}
+            >
+              <CalendarView
+                data={events}
+                config={calCfg as unknown as CalendarViewConfig}
+                initialMonth={calInitialMonth}
+                className="w-full"
+              />
+            </Demo>
+
+            <Demo
+              name="Detail view · record fields"
+              config={detailCfg}
+              setConfig={setDetailCfg}
+            >
+              <DetailView
+                record={profile}
+                config={detailCfg as unknown as DetailViewConfig}
                 className="w-full"
               />
             </Demo>

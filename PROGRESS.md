@@ -3,7 +3,7 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 42** &nbsp;·&nbsp; **To build: ~16** &nbsp;·&nbsp; _last updated: Kanban + pagination fix_
+> **Built: 44** &nbsp;·&nbsp; **To build: ~14** &nbsp;·&nbsp; _last updated: Calendar + Detail views_
 
 ---
 
@@ -66,6 +66,8 @@ what's built and what's left.
 - [x] choice (single/multi · dropdown+search / chips / pills · max)
 - [x] data-table (columns, types, sort, search, striped, density, row actions)
 - [x] kanban (config columns, group-by, card fields, drag between columns)
+- [x] calendar-view (month grid, date/title/accent fields, week start)
+- [x] detail-view (record fields, types, 1/2 columns)
 
 ### Collections (2)
 
@@ -92,8 +94,6 @@ what's built and what's left.
 ### Collections — the Glide payoff (config-driven)
 
 - [ ] data-table: add column filters + pagination (base table done)
-- [ ] calendar-view
-- [ ] detail-view
 - [ ] stat-grid
 - [ ] gallery
 
