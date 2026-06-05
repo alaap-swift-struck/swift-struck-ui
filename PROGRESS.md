@@ -100,5 +100,6 @@ what's built and what's left.
 ### Foundations (architecture)
 
 - [x] configuration system (per-component typed `config`, all fields required)
+- [x] config playground (harness-only: per-component ⚙ live editor + search)
 - [ ] workspace-package restructure (central propagation — chosen, next up)
 - [ ] per-component MDX docs (backfilled once the look is locked)
