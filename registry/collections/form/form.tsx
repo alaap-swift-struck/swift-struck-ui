@@ -98,22 +98,29 @@ function Form({
               {f.label}
               {f.required && <span className="text-destructive"> *</span>}
             </Label>
-            {f.type === "textarea" ? (
-              <Textarea
-                id={f.name}
-                placeholder={f.placeholder}
-                onChange={(e) => set(f.name, e.target.value)}
-              />
-            ) : f.type === "switch" ? (
-              <Switch id={f.name} onCheckedChange={(c) => set(f.name, c)} />
-            ) : (
-              <Input
-                id={f.name}
-                type={f.type === "number" ? "number" : f.type}
-                placeholder={f.placeholder}
-                onChange={(e) => set(f.name, e.target.value)}
-              />
-            )}
+            {/* required text-like fields get the animated teal ring */}
+            <div
+              className={cn(
+                f.required && f.type !== "switch" && "required-ring"
+              )}
+            >
+              {f.type === "textarea" ? (
+                <Textarea
+                  id={f.name}
+                  placeholder={f.placeholder}
+                  onChange={(e) => set(f.name, e.target.value)}
+                />
+              ) : f.type === "switch" ? (
+                <Switch id={f.name} onCheckedChange={(c) => set(f.name, c)} />
+              ) : (
+                <Input
+                  id={f.name}
+                  type={f.type === "number" ? "number" : f.type}
+                  placeholder={f.placeholder}
+                  onChange={(e) => set(f.name, e.target.value)}
+                />
+              )}
+            </div>
             {errors[f.name] && (
               <span className="text-xs text-destructive">{errors[f.name]}</span>
             )}

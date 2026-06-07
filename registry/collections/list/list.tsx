@@ -87,7 +87,10 @@ function List<T extends ListItem>({
             {content}
           </button>
         ) : (
-          <div key={item.id} className={rowClass}>
+          <div
+            key={item.id}
+            className={cn(rowClass, "transition-colors hover:bg-accent/40")}
+          >
             {content}
           </div>
         )

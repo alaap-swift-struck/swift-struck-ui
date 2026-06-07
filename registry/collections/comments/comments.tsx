@@ -27,9 +27,19 @@ function Comments({
   className?: string
 }) {
   const [draft, setDraft] = React.useState("")
+  // Newest comments sit at the bottom; keep them in view on load / new add.
+  const listRef = React.useRef<HTMLDivElement>(null)
+  React.useEffect(() => {
+    const el = listRef.current
+    if (el) el.scrollTop = el.scrollHeight
+  }, [items])
+
   return (
     <div className={cn("flex w-full flex-col gap-4", className)}>
-      <div className="flex flex-col gap-4">
+      <div
+        ref={listRef}
+        className="flex max-h-72 flex-col gap-4 overflow-y-auto pr-1"
+      >
         {items.map((c) => (
           <div key={c.id} className="flex gap-3">
             <Avatar className="size-8">

@@ -27,6 +27,14 @@ function Chat({
   className?: string
 }) {
   const [draft, setDraft] = React.useState("")
+  // Keep the newest message in view (on load and as messages arrive), like a
+  // chat app — no scrolling to the bottom by hand.
+  const listRef = React.useRef<HTMLDivElement>(null)
+  React.useEffect(() => {
+    const el = listRef.current
+    if (el) el.scrollTop = el.scrollHeight
+  }, [messages])
+
   function send() {
     if (!draft.trim()) return
     onSend?.(draft)
@@ -34,7 +42,10 @@ function Chat({
   }
   return (
     <div className={cn("flex w-full flex-col gap-3", className)}>
-      <div className="flex flex-col gap-2">
+      <div
+        ref={listRef}
+        className="flex max-h-72 flex-col gap-2 overflow-y-auto pr-1"
+      >
         {messages.map((m) => (
           <div
             key={m.id}

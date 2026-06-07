@@ -283,6 +283,55 @@
   }
 }
 
+/* ---------------------------------------------------------------------------
+ * REQUIRED-FIELD RING — a thin teal gradient that slowly runs around a field,
+ * signalling "this is required" (paired with the red asterisk). Wrap the input
+ * in <div class="required-ring">. Global rule for forms/edit containers.
+ * ------------------------------------------------------------------------- */
+@property --brimba-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@layer components {
+  .required-ring {
+    position: relative;
+    border-radius: var(--radius-md);
+  }
+  .required-ring::before {
+    content: "";
+    position: absolute;
+    inset: -1.5px;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: conic-gradient(
+      from var(--brimba-angle),
+      transparent 0deg,
+      color-mix(in oklch, var(--primary) 90%, transparent) 70deg,
+      transparent 150deg,
+      transparent 360deg
+    );
+    /* mask so only the 1.5px padding shows = a ring, not a filled box */
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    animation: brimba-rotate 3.5s linear infinite;
+    pointer-events: none;
+  }
+}
+
+@keyframes brimba-rotate {
+  to {
+    --brimba-angle: 360deg;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-rise {
     animation: none;
@@ -292,6 +341,9 @@
     transition: none;
   }
   .ambient::before {
+    animation: none;
+  }
+  .required-ring::before {
     animation: none;
   }
 }
