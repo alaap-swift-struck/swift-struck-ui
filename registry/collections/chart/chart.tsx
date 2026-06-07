@@ -35,7 +35,9 @@ import {
 
 import { useTheme } from "next-themes"
 
+import { type BaseConfig, defaultBaseConfig } from "@/lib/config"
 import { cn } from "@/lib/utils"
+import { useIsVisible } from "@/registry/primitives/visibility/visibility"
 
 /* ------------------------------- config ------------------------------- */
 
@@ -51,7 +53,7 @@ export interface ChartSeries {
 }
 
 /** Every field is required on purpose — see ARCHITECTURE.md "Configuration". */
-export interface ChartConfig {
+export interface ChartConfig extends BaseConfig {
   type: ChartType
   /** Category / x-axis field (also the slice-name field for pie/radial). */
   xKey: string
@@ -81,6 +83,7 @@ export interface ChartConfig {
 }
 
 export const defaultChartConfig: ChartConfig = {
+  ...defaultBaseConfig,
   type: "bar",
   xKey: "label",
   series: [{ key: "value", label: "Value", color: "chart-1" }],
@@ -154,6 +157,7 @@ function Chart<T extends Record<string, unknown>>({
   // Recharts sets fill/stroke as SVG attributes, where `var(--…)` does NOT
   // resolve. So read the tokens' real values from CSS and re-read on theme
   // change. Resolved after mount → first render matches SSR (no mismatch).
+  const visible = useIsVisible(config)
   const { resolvedTheme } = useTheme()
   const [palette, setPalette] = React.useState<Record<string, string>>({})
   React.useEffect(() => {
@@ -391,6 +395,8 @@ function Chart<T extends Record<string, unknown>>({
       </RadialBarChart>
     )
   }
+
+  if (!visible) return null
 
   return (
     <div

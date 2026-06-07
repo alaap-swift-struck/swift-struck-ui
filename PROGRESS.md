@@ -3,7 +3,7 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 65** &nbsp;·&nbsp; **To build: ~1** &nbsp;·&nbsp; _Glide-palette parity essentially complete — see GLIDE-PARITY.md_
+> **Built: 66** &nbsp;·&nbsp; **To build: ~1** &nbsp;·&nbsp; _Glide parity complete + config foundation (base config + visibility) shipped_
 
 ---
 
@@ -109,5 +109,11 @@ what's built and what's left.
 
 - [x] configuration system (per-component typed `config`, all fields required)
 - [x] config playground (harness-only: per-component ⚙ live editor + search)
+- [x] base config + visibility rule engine (lib/config.ts) on every
+      configurable component; self-hide via useIsVisible + VisibilityProvider
+- [x] component taxonomy documented (Input/Content/Action/Collection/Nav/Overlay/Layout)
+- [ ] adopt category mixins per component (FieldConfig validation, ActionConfig
+      triggers, CollectionConfig filter execution)
+- [ ] visual rule-builder UI in the playground (rules editable as JSON today)
 - [ ] workspace-package restructure (central propagation — chosen, next up)
 - [ ] per-component MDX docs (backfilled once the look is locked)

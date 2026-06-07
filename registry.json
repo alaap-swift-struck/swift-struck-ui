@@ -22,6 +22,7 @@
       "type": "registry:ui",
       "layer": "primitives"
     },
+    { "name": "visibility", "type": "registry:ui", "layer": "primitives" },
     { "name": "checkbox", "type": "registry:ui", "layer": "primitives" },
     { "name": "radio-group", "type": "registry:ui", "layer": "primitives" },
     { "name": "tabs", "type": "registry:ui", "layer": "primitives" },

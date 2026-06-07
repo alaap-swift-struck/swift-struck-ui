@@ -6,13 +6,15 @@
 import * as React from "react"
 import { Minus, TrendingDown, TrendingUp } from "lucide-react"
 
+import { type BaseConfig, defaultBaseConfig } from "@/lib/config"
 import { cn } from "@/lib/utils"
 import { Card } from "@/registry/primitives/card/card"
+import { useIsVisible } from "@/registry/primitives/visibility/visibility"
 
 /* ------------------------------- config ------------------------------- */
 
 /** Every field is required on purpose — see ARCHITECTURE.md "Configuration". */
-export interface StatGridConfig {
+export interface StatGridConfig extends BaseConfig {
   /** Cards per row at the widest breakpoint (responsive below). */
   columns: 2 | 3 | 4
   /** Show the delta line under each value. */
@@ -20,6 +22,7 @@ export interface StatGridConfig {
 }
 
 export const defaultStatGridConfig: StatGridConfig = {
+  ...defaultBaseConfig,
   columns: 3,
   showDelta: true,
 }
@@ -55,6 +58,7 @@ function StatGrid({
   config: StatGridConfig
   className?: string
 }) {
+  if (!useIsVisible(config)) return null
   return (
     <div
       className={cn(

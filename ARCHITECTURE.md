@@ -122,6 +122,46 @@ The component never merges partial configs — it consumes a complete one. This
 keeps configs serializable (savable per app) and guarantees the type is the
 single source of truth for "what can this component do."
 
+## Component taxonomy (orthogonal to layers)
+
+Two different axes — don't conflate them:
+
+- **Layers** (tokens → primitives → collections) are the _dependency_ rules
+  (what can import what). Internal/architectural.
+- **Categories** are a _human/config_ taxonomy. A `Button` is a layer-1
+  primitive **and** category **Action**; a `DataTable` is a layer-2 collection
+  **and** category **Collection**. Orthogonal.
+
+| Category   | What it is                                            | Examples                                                                                    |
+| ---------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Input      | collects user input                                   | input, choice, checkbox, switch, slider, date-picker, file-upload, signature, notes, rating |
+| Content    | displays data, read-only                              | typography, image, video, map, stat-grid, progress, chart, detail-view, badge               |
+| Action     | interacting triggers a side-effect (api/workflow/nav) | button, action-row, link                                                                    |
+| Collection | data-bound view over a list/table                     | list, card-grid, data-table, kanban, calendar, checklist, comments, chat                    |
+| Navigation | move between pages/views                              | tabs, breadcrumb, pagination, nav-menu                                                      |
+| Overlay    | floats above content                                  | dialog, sheet, popover, dropdown, tooltip, command, toast                                   |
+| Layout     | structure & space                                     | card, separator, spacer, scroll-area, accordion                                             |
+
+## Configuration model (layered)
+
+Config composes, it doesn't repeat (see [`lib/config.ts`](lib/config.ts)):
+
+1. **BaseConfig** — on **every** component: `visible` + `visibilityRules`.
+2. **Category mixin** — `FieldConfig` (label/required/validation),
+   `ActionConfig` (what a tap triggers), `CollectionConfig` (dataSource /
+   filter / sort — _declared_ here, _executed_ by the data layer), `ContentConfig`.
+3. **Per-component knobs** — e.g. `ChartConfig` type/series.
+
+So `ChoiceConfig = BaseConfig & { mode, display, … }`, built by spreading
+`defaultBaseConfig` into `defaultChoiceConfig`. Every component therefore shares
+the same base and self-hides via `useIsVisible(config)`.
+
+**Visibility / filtering rules** are one shape (`Rule`): `source` (row / user /
+app) + `field` + `op` + `value`, ANDed (or ORed) and evaluated against a
+`VisibilityContext` provided by `<VisibilityProvider>`. The same `Rule[]` powers
+collection **data filtering** — declared in config, executed at the future
+D1/SQL query layer (the component just receives rows).
+
 ## Roadmap
 
 | Phase | Goal                                                         |

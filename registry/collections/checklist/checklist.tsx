@@ -5,14 +5,16 @@
 
 import * as React from "react"
 
+import { type BaseConfig, defaultBaseConfig } from "@/lib/config"
 import { cn } from "@/lib/utils"
 import { Checkbox } from "@/registry/primitives/checkbox/checkbox"
+import { useIsVisible } from "@/registry/primitives/visibility/visibility"
 import { Progress } from "@/registry/primitives/progress/progress"
 
 /* ------------------------------- config ------------------------------- */
 
 /** Every field is required on purpose — see ARCHITECTURE.md "Configuration". */
-export interface ChecklistConfig {
+export interface ChecklistConfig extends BaseConfig {
   /** Show a progress bar with the done/total count. */
   showProgress: boolean
   /** Strike through and mute items once completed. */
@@ -20,6 +22,7 @@ export interface ChecklistConfig {
 }
 
 export const defaultChecklistConfig: ChecklistConfig = {
+  ...defaultBaseConfig,
   showProgress: true,
   strikeCompleted: true,
 }
@@ -49,6 +52,8 @@ function Checklist({
   function toggle(id: string, checked: boolean) {
     onChange(items.map((i) => (i.id === id ? { ...i, done: checked } : i)))
   }
+
+  if (!useIsVisible(config)) return null
 
   return (
     <div className={cn("flex w-full flex-col gap-3", className)}>

@@ -6,8 +6,10 @@
 
 import * as React from "react"
 
+import { type BaseConfig, defaultBaseConfig } from "@/lib/config"
 import { cn } from "@/lib/utils"
 import { Button } from "@/registry/primitives/button/button"
+import { useIsVisible } from "@/registry/primitives/visibility/visibility"
 import { Input } from "@/registry/primitives/input/input"
 import { Label } from "@/registry/primitives/label/label"
 import { Switch } from "@/registry/primitives/switch/switch"
@@ -26,13 +28,14 @@ export interface FormField {
 }
 
 /** Every field is required on purpose — see ARCHITECTURE.md "Configuration". */
-export interface FormConfig {
+export interface FormConfig extends BaseConfig {
   fields: FormField[]
   submitLabel: string
   columns: 1 | 2
 }
 
 export const defaultFormConfig: FormConfig = {
+  ...defaultBaseConfig,
   fields: [],
   submitLabel: "Submit",
   columns: 1,
@@ -73,6 +76,8 @@ function Form({
     setErrors(next)
     if (Object.keys(next).length === 0) onSubmit?.(values)
   }
+
+  if (!useIsVisible(config)) return null
 
   return (
     <form

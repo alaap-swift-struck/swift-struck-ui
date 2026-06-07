@@ -9,8 +9,10 @@ import {
   Search,
 } from "lucide-react"
 
+import { type BaseConfig, defaultBaseConfig } from "@/lib/config"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/registry/primitives/badge/badge"
+import { useIsVisible } from "@/registry/primitives/visibility/visibility"
 import { Button } from "@/registry/primitives/button/button"
 import {
   DropdownMenu,
@@ -45,7 +47,7 @@ export interface DataTableColumn {
 }
 
 /** Every field is required on purpose — see ARCHITECTURE.md "Configuration". */
-export interface DataTableConfig {
+export interface DataTableConfig extends BaseConfig {
   columns: DataTableColumn[]
   /** Global search box over all columns. */
   searchable: boolean
@@ -61,6 +63,7 @@ export interface DataTableConfig {
 }
 
 export const defaultDataTableConfig: DataTableConfig = {
+  ...defaultBaseConfig,
   columns: [],
   searchable: true,
   striped: true,
@@ -134,6 +137,8 @@ function DataTable<T extends Record<string, unknown>>({
       s?.key === key ? (s.dir === 1 ? { key, dir: -1 } : null) : { key, dir: 1 }
     )
   }
+
+  if (!useIsVisible(config)) return null
 
   return (
     <div className={cn("flex flex-col gap-3", className)}>

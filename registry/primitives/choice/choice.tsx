@@ -3,8 +3,10 @@
 import * as React from "react"
 import { Check, ChevronsUpDown, X } from "lucide-react"
 
+import { type BaseConfig, defaultBaseConfig } from "@/lib/config"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/registry/primitives/badge/badge"
+import { useIsVisible } from "@/registry/primitives/visibility/visibility"
 import { Button } from "@/registry/primitives/button/button"
 import {
   Command,
@@ -26,7 +28,7 @@ export type ChoiceMode = "single" | "multi"
 export type ChoiceDisplay = "dropdown" | "chips" | "pills"
 
 /** Every field is required on purpose — see ARCHITECTURE.md "Configuration". */
-export interface ChoiceConfig {
+export interface ChoiceConfig extends BaseConfig {
   /** Pick one value or many. */
   mode: ChoiceMode
   /** dropdown = trigger + searchable list · chips = removable + add · pills = inline toggles. */
@@ -46,6 +48,7 @@ export interface ChoiceConfig {
 }
 
 export const defaultChoiceConfig: ChoiceConfig = {
+  ...defaultBaseConfig,
   mode: "single",
   display: "dropdown",
   searchable: true,
@@ -101,6 +104,9 @@ function Choice({ options, value, onChange, config, className }: ChoiceProps) {
       ),
     [options, value] // eslint-disable-line react-hooks/exhaustive-deps
   )
+
+  const visible = useIsVisible(config)
+  if (!visible) return null
 
   /* ---- pills: inline toggles, no popover ---- */
   if (config.display === "pills") {

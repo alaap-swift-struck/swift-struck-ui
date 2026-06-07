@@ -7,15 +7,17 @@
 import * as React from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
+import { type BaseConfig, defaultBaseConfig } from "@/lib/config"
 import { cn } from "@/lib/utils"
 import { Button } from "@/registry/primitives/button/button"
+import { useIsVisible } from "@/registry/primitives/visibility/visibility"
 
 /* ------------------------------- config ------------------------------- */
 
 export type WeekStart = "sunday" | "monday"
 
 /** Every field is required on purpose — see ARCHITECTURE.md "Configuration". */
-export interface CalendarViewConfig {
+export interface CalendarViewConfig extends BaseConfig {
   /** Field holding an ISO date string, e.g. "2024-06-11". */
   dateField: string
   /** Field used as the event's label. */
@@ -28,6 +30,7 @@ export interface CalendarViewConfig {
 }
 
 export const defaultCalendarViewConfig: CalendarViewConfig = {
+  ...defaultBaseConfig,
   dateField: "date",
   titleField: "title",
   accentField: "",
@@ -122,6 +125,8 @@ function CalendarView<T extends Record<string, unknown>>({
     (_, i) =>
       new Date(start.getFullYear(), start.getMonth(), start.getDate() + i)
   )
+
+  if (!useIsVisible(config)) return null
 
   return (
     <div className={cn("flex w-full flex-col gap-3", className)}>

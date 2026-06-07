@@ -6,8 +6,10 @@
 
 import * as React from "react"
 
+import { type BaseConfig, defaultBaseConfig } from "@/lib/config"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/registry/primitives/badge/badge"
+import { useIsVisible } from "@/registry/primitives/visibility/visibility"
 
 /* ------------------------------- config ------------------------------- */
 
@@ -20,7 +22,7 @@ export interface KanbanColumnDef {
 
 /** Every field is required on purpose — see ARCHITECTURE.md "Configuration".
  * For the optional card slots, use an empty string ("") to hide them. */
-export interface KanbanConfig {
+export interface KanbanConfig extends BaseConfig {
   /** Record field whose value sorts a card into a column (e.g. "status"). */
   groupBy: string
   /** The columns, in display order. */
@@ -38,6 +40,7 @@ export interface KanbanConfig {
 }
 
 export const defaultKanbanConfig: KanbanConfig = {
+  ...defaultBaseConfig,
   groupBy: "status",
   columns: [],
   titleField: "title",
@@ -75,6 +78,8 @@ function Kanban<T extends { id: string } & Record<string, unknown>>({
       )
     )
   }
+
+  if (!useIsVisible(config)) return null
 
   return (
     <div className={cn("flex gap-3 overflow-x-auto pb-2", className)}>

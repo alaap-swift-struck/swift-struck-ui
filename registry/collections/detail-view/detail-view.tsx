@@ -6,8 +6,10 @@
 
 import * as React from "react"
 
+import { type BaseConfig, defaultBaseConfig } from "@/lib/config"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/registry/primitives/badge/badge"
+import { useIsVisible } from "@/registry/primitives/visibility/visibility"
 
 /* ------------------------------- config ------------------------------- */
 
@@ -20,13 +22,14 @@ export interface DetailField {
 }
 
 /** Every field is required on purpose — see ARCHITECTURE.md "Configuration". */
-export interface DetailViewConfig {
+export interface DetailViewConfig extends BaseConfig {
   fields: DetailField[]
   /** 1 = stacked, 2 = two-column grid. */
   columns: 1 | 2
 }
 
 export const defaultDetailViewConfig: DetailViewConfig = {
+  ...defaultBaseConfig,
   fields: [],
   columns: 2,
 }
@@ -44,6 +47,7 @@ function DetailView<T extends Record<string, unknown>>({
   config,
   className,
 }: DetailViewProps<T>) {
+  if (!useIsVisible(config)) return null
   return (
     <dl
       className={cn(
