@@ -52,6 +52,15 @@
     { "name": "web-embed", "type": "registry:ui", "layer": "primitives" },
     { "name": "spacer", "type": "registry:ui", "layer": "primitives" },
     { "name": "typography", "type": "registry:ui", "layer": "primitives" },
+    { "name": "image", "type": "registry:ui", "layer": "primitives" },
+    { "name": "video", "type": "registry:ui", "layer": "primitives" },
+    { "name": "map", "type": "registry:ui", "layer": "primitives" },
+    { "name": "stopwatch", "type": "registry:ui", "layer": "primitives" },
+    { "name": "signature", "type": "registry:ui", "layer": "primitives" },
+    { "name": "file-upload", "type": "registry:ui", "layer": "primitives" },
+    { "name": "date-picker", "type": "registry:ui", "layer": "primitives" },
+    { "name": "rich-text", "type": "registry:ui", "layer": "primitives" },
+    { "name": "title", "type": "registry:ui", "layer": "primitives" },
     { "name": "list", "type": "registry:ui", "layer": "collections" },
     { "name": "card-grid", "type": "registry:ui", "layer": "collections" },
     { "name": "data-table", "type": "registry:ui", "layer": "collections" },
@@ -64,6 +73,9 @@
     { "name": "detail-view", "type": "registry:ui", "layer": "collections" },
     { "name": "stat-grid", "type": "registry:ui", "layer": "collections" },
     { "name": "checklist", "type": "registry:ui", "layer": "collections" },
-    { "name": "chart", "type": "registry:ui", "layer": "collections" }
+    { "name": "chart", "type": "registry:ui", "layer": "collections" },
+    { "name": "form", "type": "registry:ui", "layer": "collections" },
+    { "name": "comments", "type": "registry:ui", "layer": "collections" },
+    { "name": "chat", "type": "registry:ui", "layer": "collections" }
   ]
 }

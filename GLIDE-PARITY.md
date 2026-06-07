@@ -15,9 +15,9 @@ intentionally skipped (niche / out of scope for now)
 
 ## Title (hero headers)
 
-| Glide                            | brimba           | Notes                                                         |
-| -------------------------------- | ---------------- | ------------------------------------------------------------- |
-| Simple / Image / Profile / Cover | ⏳ `title-block` | A small set of hero/header blocks (one component, `variant`). |
+| Glide                            | brimba   | Notes                                                         |
+| -------------------------------- | -------- | ------------------------------------------------------------- |
+| Simple / Image / Profile / Cover | ✅ title | A small set of hero/header blocks (one component, `variant`). |
 
 ## Collections
 
@@ -30,8 +30,8 @@ intentionally skipped (niche / out of scope for now)
 | Checklist | ✅ checklist     |                                              |
 | Calendar  | ✅ calendar-view |                                              |
 | Kanban    | ✅ kanban        |                                              |
-| Comments  | ⏳ comments      | Threaded comments collection.                |
-| Chat      | ⏳ chat          | Message thread UI.                           |
+| Comments  | ✅ comments      | Threaded comments collection.                |
+| Chat      | ✅ chat          | Message thread UI.                           |
 | Custom    | ➖               | App-specific.                                |
 
 ## Layout
@@ -45,9 +45,9 @@ intentionally skipped (niche / out of scope for now)
 
 ## Text
 
-| Glide                                      | brimba        | Notes                                              |
-| ------------------------------------------ | ------------- | -------------------------------------------------- |
-| Text / Headline / Notes / Rich Text / Hint | ✅ typography | Headline + Text + Hint now; Rich Text (editor) ⏳. |
+| Glide                                      | brimba                    | Notes                                                               |
+| ------------------------------------------ | ------------------------- | ------------------------------------------------------------------- |
+| Text / Headline / Notes / Rich Text / Hint | ✅ typography + rich-text | Headline / Text / Hint, plus a rich-text editor (bold/italic/list). |
 
 ## Content
 
@@ -56,9 +56,9 @@ intentionally skipped (niche / out of scope for now)
 | Fields                      | ✅ detail-view |                                                                                      |
 | Big Numbers                 | ✅ stat-grid   |                                                                                      |
 | Progress                    | ✅ progress    |                                                                                      |
-| Image                       | ⏳ image       | With AspectRatio (have) + fallback.                                                  |
-| Video                       | ⏳ video       |                                                                                      |
-| Location / Map              | ⏳ map         | Needs a maps dependency.                                                             |
+| Image                       | ✅ image       | With AspectRatio (have) + fallback.                                                  |
+| Video                       | ✅ video       |                                                                                      |
+| Location / Map              | ✅ map         | OpenStreetMap embed by lat/lng — no dependency, no API key.                          |
 | Audio / Audio Recorder      | ➖             | Niche; revisit on demand.                                                            |
 | Bar / Line / Radial / Chart | ✅ chart       | One config-driven Recharts component (bar/line/area/pie/radar/radial, multi-series). |
 
@@ -76,9 +76,9 @@ intentionally skipped (niche / out of scope for now)
 
 ## Forms
 
-| Glide                         | brimba  | Notes                               |
-| ----------------------------- | ------- | ----------------------------------- |
-| Form Container / Contact Form | ⏳ form | react-hook-form batch (validation). |
+| Glide                         | brimba  | Notes                                            |
+| ----------------------------- | ------- | ------------------------------------------------ |
+| Form Container / Contact Form | ✅ form | Config-driven, native required/email validation. |
 
 ## Form elements
 
@@ -88,8 +88,8 @@ intentionally skipped (niche / out of scope for now)
 | Switch                              | ✅ switch      |                              |
 | Choice                              | ✅ choice      |                              |
 | Checkbox                            | ✅ checkbox    |                              |
-| Date / Date Time                    | ⏳ date-picker | Calendar-input batch.        |
-| Image Picker / File Picker          | ⏳ file-upload | Upload batch.                |
+| Date / Date Time                    | ✅ date-picker | Calendar-input batch.        |
+| Image Picker / File Picker          | ✅ file-upload | Upload batch.                |
 
 ## Advanced
 
@@ -99,8 +99,8 @@ intentionally skipped (niche / out of scope for now)
 | Tabs        | ✅ tabs       |                                  |
 | Web Embed   | ✅ web-embed  |                                  |
 | Spinner     | ✅ spinner    |                                  |
-| Signature   | ⏳ signature  | Canvas capture.                  |
-| Stopwatch   | ⏳ stopwatch  |                                  |
+| Signature   | ✅ signature  | Canvas capture.                  |
+| Stopwatch   | ✅ stopwatch  |                                  |
 | Scanner     | ➖            | Hardware/business; out of scope. |
 
 ## Custom
@@ -111,8 +111,8 @@ intentionally skipped (niche / out of scope for now)
 
 ---
 
-**Summary:** the core primitives + the marquee collections are covered. This
-batch closes Checklist, Stat-grid, Action-row, Rating, Spinner, Web-embed,
-Spacer, and Typography. The remaining ⏳ items cluster into a few dependency-
-gated batches: **charts** (Recharts), **forms** (react-hook-form),
-**date/file inputs**, **media** (image/video/map), and **comments/chat**.
+**Summary:** Glide-palette parity is essentially complete — every component is
+built except **Contact** (a trivial composition of action-row + avatar, ⏳) and
+the intentionally-skipped (➖) niche items (AI Custom, Audio/Recorder, Scanner,
+Voice Transcription, Dynamic Content). Everything is token-backed, config-driven
+where it matters, and live-editable in the gallery playground.

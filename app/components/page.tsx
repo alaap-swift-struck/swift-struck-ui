@@ -118,6 +118,25 @@ import {
   Text as Body,
 } from "@/registry/primitives/typography/typography"
 import { WebEmbed } from "@/registry/primitives/web-embed/web-embed"
+import { Image } from "@/registry/primitives/image/image"
+import { Video } from "@/registry/primitives/video/video"
+import { Map } from "@/registry/primitives/map/map"
+import { Stopwatch } from "@/registry/primitives/stopwatch/stopwatch"
+import { Signature } from "@/registry/primitives/signature/signature"
+import { FileUpload } from "@/registry/primitives/file-upload/file-upload"
+import { DatePicker } from "@/registry/primitives/date-picker/date-picker"
+import { RichText } from "@/registry/primitives/rich-text/rich-text"
+import { Title } from "@/registry/primitives/title/title"
+import {
+  Form,
+  defaultFormConfig,
+  type FormConfig,
+} from "@/registry/collections/form/form"
+import {
+  Comments,
+  type CommentItem,
+} from "@/registry/collections/comments/comments"
+import { Chat, type ChatMessage } from "@/registry/collections/chat/chat"
 import { AspectRatio } from "@/registry/primitives/aspect-ratio/aspect-ratio"
 import {
   Breadcrumb,
@@ -503,6 +522,70 @@ const initialChecklist: ChecklistItem[] = [
   { id: "4", label: "Backfill component docs", done: false },
 ]
 
+const formConfig: FormConfig = {
+  ...defaultFormConfig,
+  columns: 2,
+  submitLabel: "Create account",
+  fields: [
+    {
+      name: "name",
+      label: "Full name",
+      type: "text",
+      placeholder: "Ada Lovelace",
+      required: true,
+    },
+    {
+      name: "email",
+      label: "Email",
+      type: "email",
+      placeholder: "you@example.com",
+      required: true,
+    },
+    {
+      name: "role",
+      label: "Role",
+      type: "text",
+      placeholder: "Engineer",
+      required: false,
+    },
+    {
+      name: "bio",
+      label: "Bio",
+      type: "textarea",
+      placeholder: "A few words…",
+      required: false,
+    },
+    {
+      name: "notify",
+      label: "Email notifications",
+      type: "switch",
+      placeholder: "",
+      required: false,
+    },
+  ],
+}
+
+const initialComments: CommentItem[] = [
+  {
+    id: "1",
+    author: "Ada Lovelace",
+    body: "Love the new chart component!",
+    time: "2h ago",
+  },
+  {
+    id: "2",
+    author: "Grace Hopper",
+    body: "The live config gear is genius.",
+    time: "1h ago",
+  },
+]
+
+const initialMessages: ChatMessage[] = [
+  { id: "1", from: "them", text: "Did the dashboard ship?", time: "09:41" },
+  { id: "2", from: "me", text: "Yep — charts are live 🎉", time: "09:42" },
+  { id: "3", from: "them", text: "Beautiful.", time: "09:42" },
+]
+
 // Allowed values for enum-type config fields (used by the live config editor).
 const choiceEnums = {
   mode: ["single", "multi"],
@@ -569,6 +652,12 @@ export default function ComponentsGallery() {
   const [chartCfg, setChartCfg] = React.useState<Record<string, unknown>>(
     chartViewConfig as unknown as Record<string, unknown>
   )
+  const [formCfg, setFormCfg] = React.useState<Record<string, unknown>>(
+    formConfig as unknown as Record<string, unknown>
+  )
+  const [comments, setComments] = React.useState(initialComments)
+  const [messages, setMessages] = React.useState(initialMessages)
+  const [date, setDate] = React.useState<string | null>(null)
 
   // Collection datasets held in state so the playground can live-edit each
   // component's content (the values its config toggles act on).
@@ -781,6 +870,56 @@ export default function ComponentsGallery() {
                 className="w-full"
               />
             </Demo>
+
+            <Demo
+              name="Form · validated, config-driven"
+              config={formCfg}
+              setConfig={setFormCfg}
+            >
+              <Form
+                config={formCfg as unknown as FormConfig}
+                onSubmit={() => {}}
+                className="w-full"
+              />
+            </Demo>
+
+            <div className="grid gap-5 lg:grid-cols-2">
+              <Demo name="Comments · thread">
+                <Comments
+                  items={comments}
+                  onAdd={(body) =>
+                    setComments((c) => [
+                      ...c,
+                      {
+                        id: String(c.length + 1),
+                        author: "You",
+                        body,
+                        time: "now",
+                      },
+                    ])
+                  }
+                  className="w-full"
+                />
+              </Demo>
+
+              <Demo name="Chat · message thread">
+                <Chat
+                  messages={messages}
+                  onSend={(text) =>
+                    setMessages((m) => [
+                      ...m,
+                      {
+                        id: String(m.length + 1),
+                        from: "me",
+                        text,
+                        time: "now",
+                      },
+                    ])
+                  }
+                  className="w-full"
+                />
+              </Demo>
+            </div>
           </section>
 
           {/* ------------------- CONTENT & ACTIONS — Glide parity ----------------- */}
@@ -1262,6 +1401,75 @@ export default function ComponentsGallery() {
                     ))}
                   </div>
                 </ScrollArea>
+              </Demo>
+            </div>
+          </section>
+          {/* ------------------------------- MEDIA -------------------------------- */}
+          <section className="animate-rise flex flex-col gap-5">
+            <h2 className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
+              Media &amp; titles
+            </h2>
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              <Demo name="Title (profile / cover)">
+                <Title
+                  variant="profile"
+                  title="Ada Lovelace"
+                  subtitle="Staff Engineer · London"
+                  image="https://github.com/shadcn.png"
+                  className="w-full"
+                />
+              </Demo>
+
+              <Demo name="Image">
+                <Image
+                  src="https://github.com/shadcn.png"
+                  alt="Sample"
+                  ratio={16 / 9}
+                  className="w-full"
+                />
+              </Demo>
+
+              <Demo name="Map">
+                <Map lat={51.505} lng={-0.09} zoom={12} className="w-full" />
+              </Demo>
+
+              <Demo name="Video">
+                <Video
+                  src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+                  poster="https://github.com/shadcn.png"
+                  className="w-full"
+                />
+              </Demo>
+            </div>
+          </section>
+
+          {/* -------------------------- INPUTS & ADVANCED ------------------------- */}
+          <section className="animate-rise flex flex-col gap-5">
+            <h2 className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
+              Inputs &amp; advanced
+            </h2>
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              <Demo name="Date Picker">
+                <DatePicker value={date} onChange={setDate} />
+              </Demo>
+
+              <Demo name="Stopwatch">
+                <Stopwatch />
+              </Demo>
+
+              <Demo name="Rich Text">
+                <RichText
+                  defaultValue="<p>Edit <b>me</b> — try <i>bold</i> and lists.</p>"
+                  className="w-full"
+                />
+              </Demo>
+
+              <Demo name="File Upload">
+                <FileUpload accept="image/*" multiple className="w-full" />
+              </Demo>
+
+              <Demo name="Signature">
+                <Signature className="w-full" />
               </Demo>
             </div>
           </section>

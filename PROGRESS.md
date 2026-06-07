@@ -3,7 +3,7 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 53** &nbsp;·&nbsp; **To build: ~9** &nbsp;·&nbsp; _last updated: Chart (bar/line/area/pie/radar/radial)_
+> **Built: 65** &nbsp;·&nbsp; **To build: ~1** &nbsp;·&nbsp; _Glide-palette parity essentially complete — see GLIDE-PARITY.md_
 
 ---
 
@@ -88,26 +88,22 @@ what's built and what's left.
 
 ---
 
+## ✅ Built — media, inputs, forms & social (this batch)
+
+- [x] title (hero blocks: simple/image/profile/cover)
+- [x] image · video · map
+- [x] date-picker · file-upload · signature · stopwatch · rich-text
+- [x] form (collection, config-driven + validation)
+- [x] comments · chat (collections)
+
 ## ⬜ To build
 
-### Primitives — remaining
+### Nice-to-have / polish
 
-- [ ] form (validation wiring)
-- [ ] input-otp
-- [ ] calendar / date-picker
-- [ ] navigation-menu
-- [ ] resizable
-- [ ] context-menu
-- [ ] menubar
-- [ ] carousel
-- [ ] chart (typed wrappers)
-- [ ] drawer
-
-### Collections — the Glide payoff (config-driven)
-
-- [ ] data-table: add column filters + pagination (base table done)
-- [ ] comments + chat collections
-- [ ] title/hero blocks (Simple/Image/Profile/Cover)
+- [ ] contact (trivial composition: action-row + avatar)
+- [ ] data-table: column filters + pagination (base table done)
+- [ ] extra primitives if needed: navigation-menu, context-menu, menubar,
+      resizable, carousel, input-otp, drawer
 
 ### Foundations (architecture)
 
