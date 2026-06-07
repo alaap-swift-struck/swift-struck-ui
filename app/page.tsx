@@ -27,6 +27,11 @@ import { Separator } from "@/registry/primitives/separator/separator"
 import { Slider } from "@/registry/primitives/slider/slider"
 import { Textarea } from "@/registry/primitives/textarea/textarea"
 import { List, type ListItem } from "@/registry/collections/list/list"
+import {
+  Chart,
+  defaultChartConfig,
+  type ChartConfig,
+} from "@/registry/collections/chart/chart"
 
 const contributions = [
   { month: "Dec", amount: 3200 },
@@ -36,7 +41,16 @@ const contributions = [
   { month: "Apr", amount: 2800 },
   { month: "May", amount: 5900 },
 ]
-const chartMax = Math.max(...contributions.map((c) => c.amount))
+const contributionChart: ChartConfig = {
+  ...defaultChartConfig,
+  type: "area",
+  xKey: "month",
+  series: [{ key: "amount", label: "Contributions", color: "chart-2" }],
+  showLegend: false,
+  showDataLabels: false,
+  fillOpacity: 1,
+  height: 220,
+}
 
 const targets = [
   { label: "Retirement", amount: "$420,000", pct: 65, of: "$273,000" },
@@ -126,27 +140,7 @@ export default function Home() {
             <CardDescription>Last 6 months of activity</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
-            <div className="flex h-40 gap-3">
-              {contributions.map((c) => (
-                <div
-                  key={c.month}
-                  className="group/bar flex h-full flex-1 flex-col items-center justify-end gap-2"
-                >
-                  <div
-                    className="relative w-full rounded-t-md bg-chart-2/70 transition-all duration-300 group-hover/bar:bg-chart-2"
-                    style={{ height: `${(c.amount / chartMax) * 100}%` }}
-                  >
-                    {/* value-on-hover tooltip */}
-                    <span className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 translate-y-1 rounded-md border bg-popover px-2 py-1 text-xs font-medium whitespace-nowrap text-popover-foreground opacity-0 shadow-md transition-all duration-200 group-hover/bar:translate-y-0 group-hover/bar:opacity-100">
-                      ${c.amount.toLocaleString()}
-                    </span>
-                  </div>
-                  <span className="text-xs text-muted-foreground">
-                    {c.month}
-                  </span>
-                </div>
-              ))}
-            </div>
+            <Chart data={contributions} config={contributionChart} />
             <Separator />
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <TrendingUp className="size-4 text-success" />

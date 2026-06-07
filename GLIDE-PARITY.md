@@ -51,16 +51,16 @@ intentionally skipped (niche / out of scope for now)
 
 ## Content
 
-| Glide                       | brimba         | Notes                               |
-| --------------------------- | -------------- | ----------------------------------- |
-| Fields                      | ✅ detail-view |                                     |
-| Big Numbers                 | ✅ stat-grid   |                                     |
-| Progress                    | ✅ progress    |                                     |
-| Image                       | ⏳ image       | With AspectRatio (have) + fallback. |
-| Video                       | ⏳ video       |                                     |
-| Location / Map              | ⏳ map         | Needs a maps dependency.            |
-| Audio / Audio Recorder      | ➖             | Niche; revisit on demand.           |
-| Bar / Line / Radial / Chart | ⏳ chart       | One Recharts-backed batch.          |
+| Glide                       | brimba         | Notes                                                                                |
+| --------------------------- | -------------- | ------------------------------------------------------------------------------------ |
+| Fields                      | ✅ detail-view |                                                                                      |
+| Big Numbers                 | ✅ stat-grid   |                                                                                      |
+| Progress                    | ✅ progress    |                                                                                      |
+| Image                       | ⏳ image       | With AspectRatio (have) + fallback.                                                  |
+| Video                       | ⏳ video       |                                                                                      |
+| Location / Map              | ⏳ map         | Needs a maps dependency.                                                             |
+| Audio / Audio Recorder      | ➖             | Niche; revisit on demand.                                                            |
+| Bar / Line / Radial / Chart | ✅ chart       | One config-driven Recharts component (bar/line/area/pie/radar/radial, multi-series). |
 
 ## Actions
 

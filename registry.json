@@ -63,6 +63,7 @@
     },
     { "name": "detail-view", "type": "registry:ui", "layer": "collections" },
     { "name": "stat-grid", "type": "registry:ui", "layer": "collections" },
-    { "name": "checklist", "type": "registry:ui", "layer": "collections" }
+    { "name": "checklist", "type": "registry:ui", "layer": "collections" },
+    { "name": "chart", "type": "registry:ui", "layer": "collections" }
   ]
 }

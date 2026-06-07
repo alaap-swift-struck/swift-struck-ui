@@ -103,6 +103,11 @@ import {
   type ChecklistConfig,
   type ChecklistItem,
 } from "@/registry/collections/checklist/checklist"
+import {
+  Chart,
+  defaultChartConfig,
+  type ChartConfig,
+} from "@/registry/collections/chart/chart"
 import { ActionRow } from "@/registry/primitives/action-row/action-row"
 import { Rating } from "@/registry/primitives/rating/rating"
 import { Spacer } from "@/registry/primitives/spacer/spacer"
@@ -472,6 +477,25 @@ const statGridConfig: StatGridConfig = {
   showDelta: true,
 }
 
+const chartData = [
+  { month: "Jan", revenue: 4200, expenses: 2400 },
+  { month: "Feb", revenue: 4800, expenses: 2600 },
+  { month: "Mar", revenue: 5200, expenses: 3100 },
+  { month: "Apr", revenue: 4600, expenses: 2800 },
+  { month: "May", revenue: 5900, expenses: 3200 },
+  { month: "Jun", revenue: 6400, expenses: 3500 },
+]
+const chartViewConfig: ChartConfig = {
+  ...defaultChartConfig,
+  type: "bar",
+  xKey: "month",
+  series: [
+    { key: "revenue", label: "Revenue", color: "chart-1" },
+    { key: "expenses", label: "Expenses", color: "chart-2" },
+  ],
+  height: 300,
+}
+
 const initialChecklist: ChecklistItem[] = [
   { id: "1", label: "Scaffold the repo", done: true },
   { id: "2", label: "Build the primitives", done: true },
@@ -486,6 +510,9 @@ const choiceEnums = {
 }
 const dataTableEnums = { density: ["comfortable", "compact"] }
 const calendarEnums = { weekStartsOn: ["sunday", "monday"] }
+const chartEnums = {
+  type: ["bar", "line", "area", "pie", "radar", "radial"],
+}
 
 export default function ComponentsGallery() {
   const [query, setQuery] = React.useState("")
@@ -538,6 +565,10 @@ export default function ComponentsGallery() {
     defaultChecklistConfig as unknown as Record<string, unknown>
   )
   const [rating, setRating] = React.useState(4)
+  const [chartRows, setChartRows] = React.useState(chartData)
+  const [chartCfg, setChartCfg] = React.useState<Record<string, unknown>>(
+    chartViewConfig as unknown as Record<string, unknown>
+  )
 
   // Collection datasets held in state so the playground can live-edit each
   // component's content (the values its config toggles act on).
@@ -662,6 +693,21 @@ export default function ComponentsGallery() {
             <h2 className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
               Collections — data views
             </h2>
+            <Demo
+              name="Chart · bar / line / area / pie / radar / radial"
+              config={chartCfg}
+              setConfig={setChartCfg}
+              enums={chartEnums}
+              data={chartRows}
+              setData={(d) => setChartRows(d as typeof chartData)}
+            >
+              <Chart
+                data={chartRows}
+                config={chartCfg as unknown as ChartConfig}
+                className="w-full"
+              />
+            </Demo>
+
             <Demo
               name="Kanban · drag cards between columns"
               config={kanbanCfg}

@@ -3,7 +3,7 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 52** &nbsp;·&nbsp; **To build: ~10** &nbsp;·&nbsp; _last updated: Glide-parity batch (see GLIDE-PARITY.md)_
+> **Built: 53** &nbsp;·&nbsp; **To build: ~9** &nbsp;·&nbsp; _last updated: Chart (bar/line/area/pie/radar/radial)_
 
 ---
 
@@ -65,6 +65,7 @@ what's built and what's left.
 
 - [x] choice (single/multi · dropdown+search / chips / pills · max)
 - [x] data-table (columns, types, sort, search, striped, density, row actions)
+- [x] chart (bar/line/area/pie/radar/radial, multi-series, stack, animate)
 - [x] kanban (config columns, group-by, card fields, drag between columns)
 - [x] calendar-view (month grid, date/title/accent fields, week start)
 - [x] detail-view (record fields, types, 1/2 columns)
