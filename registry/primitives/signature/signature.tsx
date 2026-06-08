@@ -29,8 +29,18 @@ function Signature({
   }
   function start(e: React.PointerEvent) {
     drawing.current = true
+    // capture the pointer so a fast stroke that briefly leaves the canvas keeps
+    // drawing instead of silently ending.
+    e.currentTarget.setPointerCapture(e.pointerId)
     const ctx = ref.current!.getContext("2d")!
     const p = point(e)
+    const color = getComputedStyle(ref.current!).color
+    // a single tap should leave a dot — draw one immediately.
+    ctx.fillStyle = color
+    ctx.beginPath()
+    ctx.arc(p.x, p.y, 1, 0, Math.PI * 2)
+    ctx.fill()
+    // then begin the stroke path from the same point.
     ctx.beginPath()
     ctx.moveTo(p.x, p.y)
   }
@@ -41,6 +51,7 @@ function Signature({
     ctx.strokeStyle = getComputedStyle(ref.current!).color
     ctx.lineWidth = 2
     ctx.lineCap = "round"
+    ctx.lineJoin = "round"
     ctx.lineTo(p.x, p.y)
     ctx.stroke()
   }
@@ -64,7 +75,7 @@ function Signature({
         onPointerDown={start}
         onPointerMove={move}
         onPointerUp={end}
-        onPointerLeave={end}
+        onPointerCancel={end}
         className="w-full touch-none rounded-xl border bg-card text-foreground"
       />
       <Button

@@ -125,7 +125,13 @@ import { Stopwatch } from "@/registry/primitives/stopwatch/stopwatch"
 import { Signature } from "@/registry/primitives/signature/signature"
 import { FileUpload } from "@/registry/primitives/file-upload/file-upload"
 import { DatePicker } from "@/registry/primitives/date-picker/date-picker"
-import { RichText } from "@/registry/primitives/rich-text/rich-text"
+import { Notes } from "@/registry/primitives/notes/notes"
+import { Field, fieldProps } from "@/registry/primitives/field/field"
+import {
+  defaultFieldConfig,
+  validateField,
+  type FieldConfig,
+} from "@/lib/config"
 import { Title } from "@/registry/primitives/title/title"
 import {
   Form,
@@ -599,6 +605,23 @@ const chartEnums = {
 
 export default function ComponentsGallery() {
   const [query, setQuery] = React.useState("")
+
+  // a required, validated Field demo (label + ring + live error from config)
+  const usernameCfg: FieldConfig = {
+    ...defaultFieldConfig,
+    label: "Username",
+    required: true,
+    helpText: "3–16 characters. Letters, numbers, and underscores.",
+    validation: {
+      min: null,
+      max: null,
+      minLength: 3,
+      maxLength: 16,
+      pattern: "^[A-Za-z0-9_]+$",
+    },
+  }
+  const [username, setUsername] = React.useState("")
+  const [usernameTouched, setUsernameTouched] = React.useState(false)
 
   // selected values for the Choice demos
   const [picked, setPicked] = React.useState<string[]>(["eng", "design"])
@@ -1117,13 +1140,11 @@ export default function ComponentsGallery() {
                 </Alert>
               </Demo>
 
-              <Demo name="Skeleton">
-                <div className="flex w-full items-center gap-3">
-                  <Skeleton className="size-10 rounded-full" />
-                  <div className="flex flex-1 flex-col gap-2">
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </div>
+              <Demo name="Skeleton · variants">
+                <div className="flex w-full flex-col gap-4">
+                  <Skeleton variant="media" />
+                  <Skeleton variant="text" lines={3} />
+                  <Skeleton variant="list" lines={2} />
                 </div>
               </Demo>
 
@@ -1457,19 +1478,48 @@ export default function ComponentsGallery() {
                 <Stopwatch />
               </Demo>
 
-              <Demo name="Rich Text">
-                <RichText
-                  defaultValue="<p>Edit <b>me</b> — try <i>bold</i> and lists.</p>"
+              <Demo name="Notes">
+                <Notes
+                  defaultValue="<p>Edit <b>me</b> — try <i>bold</i>, lists, and a separator.</p>"
                   className="w-full"
                 />
+              </Demo>
+
+              <Demo name="Field · required + validation">
+                <Field
+                  config={usernameCfg}
+                  htmlFor="username"
+                  error={
+                    usernameTouched
+                      ? (validateField(username, usernameCfg) ?? undefined)
+                      : undefined
+                  }
+                >
+                  <Input
+                    id="username"
+                    value={username}
+                    placeholder="ada_lovelace"
+                    onChange={(e) => setUsername(e.target.value)}
+                    onBlur={() => setUsernameTouched(true)}
+                    {...fieldProps(usernameCfg)}
+                  />
+                </Field>
               </Demo>
 
               <Demo name="File Upload">
                 <FileUpload accept="image/*" multiple className="w-full" />
               </Demo>
 
-              <Demo name="Signature">
-                <Signature className="w-full" />
+              <Demo name="Signature · required">
+                <Field
+                  config={{
+                    ...defaultFieldConfig,
+                    label: "Signature",
+                    required: true,
+                  }}
+                >
+                  <Signature className="w-full" />
+                </Field>
               </Demo>
             </div>
           </section>

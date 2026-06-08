@@ -92,7 +92,8 @@ what's built and what's left.
 
 - [x] title (hero blocks: simple/image/profile/cover)
 - [x] image · video · map
-- [x] date-picker · file-upload · signature · stopwatch · rich-text
+- [x] date-picker · file-upload · signature · stopwatch · notes (was rich-text)
+- [x] field (FieldConfig wrapper: label + required-ring + helpText + validation)
 - [x] form (collection, config-driven + validation)
 - [x] comments · chat (collections)
 
@@ -112,8 +113,9 @@ what's built and what's left.
 - [x] base config + visibility rule engine (lib/config.ts) on every
       configurable component; self-hide via useIsVisible + VisibilityProvider
 - [x] component taxonomy documented (Input/Content/Action/Collection/Nav/Overlay/Layout)
-- [ ] adopt category mixins per component (FieldConfig validation, ActionConfig
-      triggers, CollectionConfig filter execution)
+- [~] adopt category mixins per component — FieldConfig adopted via the `field`
+  wrapper (label/required-ring/helpText/validation); ActionConfig triggers and
+  CollectionConfig filter execution still to wire
 - [ ] visual rule-builder UI in the playground (rules editable as JSON today)
 - [ ] workspace-package restructure (central propagation — chosen, next up)
 - [ ] per-component MDX docs (backfilled once the look is locked)

@@ -45,9 +45,9 @@ intentionally skipped (niche / out of scope for now)
 
 ## Text
 
-| Glide                                      | brimba                    | Notes                                                               |
-| ------------------------------------------ | ------------------------- | ------------------------------------------------------------------- |
-| Text / Headline / Notes / Rich Text / Hint | ✅ typography + rich-text | Headline / Text / Hint, plus a rich-text editor (bold/italic/list). |
+| Glide                                      | brimba                | Notes                                                                                               |
+| ------------------------------------------ | --------------------- | --------------------------------------------------------------------------------------------------- |
+| Text / Headline / Notes / Rich Text / Hint | ✅ typography + notes | Headline / Text / Hint, plus a notes editor (bold/italic/highlight/bullet/numbered list/separator). |
 
 ## Content
 

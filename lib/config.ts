@@ -126,6 +126,32 @@ export const defaultFieldConfig: FieldConfig = {
   validation: { ...defaultFieldValidation },
 }
 
+/** Check a string value against a FieldConfig. Returns an error message to show
+ * the user, or null when the value is valid. Numeric min/max only apply when the
+ * value parses as a number; length/pattern apply to the raw string. */
+export function validateField(
+  value: string,
+  config: FieldConfig
+): string | null {
+  const v = config.validation
+  const name = config.label || "This field"
+  if (value.trim() === "") {
+    return config.required ? `${name} is required.` : null
+  }
+  if (v.minLength != null && value.length < v.minLength)
+    return `Must be at least ${v.minLength} characters.`
+  if (v.maxLength != null && value.length > v.maxLength)
+    return `Must be at most ${v.maxLength} characters.`
+  const num = Number(value)
+  if (!Number.isNaN(num) && value.trim() !== "") {
+    if (v.min != null && num < v.min) return `Must be ${v.min} or more.`
+    if (v.max != null && num > v.max) return `Must be ${v.max} or less.`
+  }
+  if (v.pattern && !new RegExp(v.pattern).test(value))
+    return `${name} is not in the expected format.`
+  return null
+}
+
 /** Action components — interacting triggers a side-effect. */
 export type ActionKind = "none" | "navigate" | "workflow" | "api"
 
