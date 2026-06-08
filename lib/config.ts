@@ -142,8 +142,11 @@ export function validateField(
     return `Must be at least ${v.minLength} characters.`
   if (v.maxLength != null && value.length > v.maxLength)
     return `Must be at most ${v.maxLength} characters.`
-  const num = Number(value)
-  if (!Number.isNaN(num) && value.trim() !== "") {
+  // Numeric min/max only apply to a plain decimal value — the regex stops
+  // Number() from coercing "0x10" / "1e3" / "Infinity" into a passing number.
+  // (A blank value already returned above, so "" never reaches here.)
+  if (/^-?\d*\.?\d+$/.test(value.trim())) {
+    const num = Number(value)
     if (v.min != null && num < v.min) return `Must be ${v.min} or more.`
     if (v.max != null && num > v.max) return `Must be ${v.max} or less.`
   }

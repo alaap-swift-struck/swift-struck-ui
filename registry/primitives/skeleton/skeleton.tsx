@@ -1,12 +1,13 @@
+// Skeleton — a shimmering placeholder shown while content loads. Use the bare
+// `default` for a custom shape (size it with className), or a ready-made
+// `variant` that composes into a common shape: a block of `text` lines, a
+// `card`, a `media` rectangle, or a `list` of avatar+text rows.
+
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 
-// Skeleton — a shimmering placeholder shown while content loads. Use the bare
-// `default` for a custom shape (size it with className), or a ready-made
-// `variant` that composes into a common shape: a block of `text` lines, a
-// `card`, a `media` rectangle, or a `list` of avatar+text rows.
 const skeletonVariants = cva("animate-pulse rounded-md bg-muted", {
   variants: {
     variant: {

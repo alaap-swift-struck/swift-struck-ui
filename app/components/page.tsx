@@ -257,7 +257,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/registry/primitives/tooltip/tooltip"
-import { cn } from "@/lib/utils"
 
 // The current search text, shared so each Demo can hide itself when filtered.
 const SearchCtx = React.createContext("")
@@ -297,7 +296,7 @@ function Demo({
         : ""
 
   return (
-    <Card className={spanClass}>
+    <Card className={`min-w-0 ${spanClass}`}>
       <CardHeader className="flex-row items-center justify-between gap-2 pb-3">
         <CardTitle className="text-sm font-medium">{name}</CardTitle>
         {(hasConfig || hasData) && (
@@ -366,7 +365,9 @@ function Section({
         </h2>
         {hint && <p className="text-sm text-muted-foreground">{hint}</p>}
       </div>
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{children}</div>
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {children}
+      </div>
     </section>
   )
 }

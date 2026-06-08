@@ -33,6 +33,8 @@ function Notes({
   const ref = React.useRef<HTMLDivElement>(null)
 
   const emit = () => onChange?.(ref.current?.innerHTML ?? "")
+  // execCommand is deprecated but still the lightest way to do inline rich text
+  // in every browser today; the top comment notes the Tiptap upgrade path.
   const run = (command: string) => {
     document.execCommand(command, false)
     ref.current?.focus()
