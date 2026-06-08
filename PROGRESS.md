@@ -3,7 +3,25 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 66** &nbsp;·&nbsp; **To build: ~1** &nbsp;·&nbsp; _Glide parity complete + config foundation (base config + visibility) shipped_
+> **Built: 68** &nbsp;·&nbsp; **To build: ~1** &nbsp;·&nbsp; _Glide parity complete · gallery restructured to mirror Glide (Collections / Display / Inputs & Pickers / Actions / Layout / Navigation / Overlays) · every demo card is one configuration with its own ⚙ · collections wear a shared frame (title + live count + search + pagination + limit)_
+
+> **Glide config reference:** see `GLIDE-CONFIG-RESEARCH.md` — every component's real Glide config options, the source of truth for parity.
+
+---
+
+## ✅ Built — Glide-parity gallery revamp (this batch)
+
+- [x] gallery regrouped into Glide-mirrored sections (Collections · Display ·
+      Inputs & Pickers · Actions · Layout · Navigation · Overlays)
+- [x] Fields (detail-view) & Big Numbers (stat-grid) moved out of Collections
+      into Display — they show ONE record, so they're Components, not Collections
+- [x] every demo is a configuration with its own ⚙ (53 live editors), via a
+      keyed knob store + `VariantGroup` helper (no per-card state hooks)
+- [x] `collection-frame` — one shared chrome: title + live "Showing X of Y" +
+      search + pagination (itemsPerPage) + total limit; powers List & Card
+- [x] Card collection surfaced; List & Card seeded with 36 rows, paginated
+- [x] required-ring fixed to hug only the input (Signature rings just its canvas)
+- [x] `GLIDE-CONFIG-RESEARCH.md` — per-component Glide config reference
 
 ---
 

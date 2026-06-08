@@ -65,6 +65,11 @@
     { "name": "title", "type": "registry:ui", "layer": "primitives" },
     { "name": "list", "type": "registry:ui", "layer": "collections" },
     { "name": "card-grid", "type": "registry:ui", "layer": "collections" },
+    {
+      "name": "collection-frame",
+      "type": "registry:ui",
+      "layer": "collections"
+    },
     { "name": "data-table", "type": "registry:ui", "layer": "collections" },
     { "name": "kanban", "type": "registry:ui", "layer": "collections" },
     {

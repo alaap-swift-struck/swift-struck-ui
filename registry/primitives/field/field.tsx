@@ -25,6 +25,7 @@ function Field({
   config,
   htmlFor,
   error,
+  ringed = true,
   className,
   children,
 }: {
@@ -33,6 +34,9 @@ function Field({
   htmlFor?: string
   /** validation message to show (overrides helpText while present). */
   error?: string
+  /** Wrap the input in the required-ring. Set false for composite controls
+   * (e.g. Signature) that draw their own ring around just the input part. */
+  ringed?: boolean
   className?: string
   children: React.ReactNode
 }) {
@@ -47,7 +51,9 @@ function Field({
         </Label>
       )}
       {/* required inputs get the slow teal ring (see globals.css .required-ring) */}
-      <div className={cn(config.required && "required-ring")}>{children}</div>
+      <div className={cn(config.required && ringed && "required-ring")}>
+        {children}
+      </div>
       {error ? (
         <p className="text-xs text-destructive">{error}</p>
       ) : config.helpText ? (

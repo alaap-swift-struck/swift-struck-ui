@@ -11,9 +11,12 @@ import { Button } from "@/registry/primitives/button/button"
 
 function Signature({
   onChange,
+  required = false,
   className,
 }: {
   onChange?: (dataUrl: string | null) => void
+  /** Draw the animated teal required-ring around the canvas (only). */
+  required?: boolean
   className?: string
 }) {
   const ref = React.useRef<HTMLCanvasElement>(null)
@@ -68,16 +71,19 @@ function Signature({
 
   return (
     <div className={cn("flex w-full flex-col gap-2", className)}>
-      <canvas
-        ref={ref}
-        width={480}
-        height={180}
-        onPointerDown={start}
-        onPointerMove={move}
-        onPointerUp={end}
-        onPointerCancel={end}
-        className="w-full touch-none rounded-xl border bg-card text-foreground"
-      />
+      {/* the ring hugs just the canvas, not the Clear button below it */}
+      <div className={cn("rounded-xl", required && "required-ring")}>
+        <canvas
+          ref={ref}
+          width={480}
+          height={180}
+          onPointerDown={start}
+          onPointerMove={move}
+          onPointerUp={end}
+          onPointerCancel={end}
+          className="w-full touch-none rounded-xl border bg-card text-foreground"
+        />
+      </div>
       <Button
         type="button"
         variant="outline"

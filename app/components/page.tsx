@@ -14,7 +14,6 @@ import {
   Search,
   Settings,
   Settings2,
-  Terminal,
   User,
 } from "lucide-react"
 
@@ -52,6 +51,7 @@ import { Button } from "@/registry/primitives/button/button"
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/registry/primitives/card/card"
@@ -108,6 +108,9 @@ import {
   defaultChartConfig,
   type ChartConfig,
 } from "@/registry/collections/chart/chart"
+import { List } from "@/registry/collections/list/list"
+import { CardGrid } from "@/registry/collections/card-grid/card-grid"
+import { CollectionFrame } from "@/registry/collections/collection-frame/collection-frame"
 import { ActionRow } from "@/registry/primitives/action-row/action-row"
 import { Rating } from "@/registry/primitives/rating/rating"
 import { Spacer } from "@/registry/primitives/spacer/spacer"
@@ -128,8 +131,10 @@ import { DatePicker } from "@/registry/primitives/date-picker/date-picker"
 import { Notes } from "@/registry/primitives/notes/notes"
 import { Field, fieldProps } from "@/registry/primitives/field/field"
 import {
+  defaultCollectionConfig,
   defaultFieldConfig,
   validateField,
+  type CollectionConfig,
   type FieldConfig,
 } from "@/lib/config"
 import { Title } from "@/registry/primitives/title/title"
@@ -157,6 +162,16 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/registry/primitives/collapsible/collapsible"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/registry/primitives/dialog/dialog"
 import {
   Pagination,
   PaginationContent,
@@ -207,6 +222,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/registry/primitives/select/select"
+import { Separator } from "@/registry/primitives/separator/separator"
 import {
   Sheet,
   SheetClose,
@@ -234,12 +250,14 @@ import {
   TabsTrigger,
 } from "@/registry/primitives/tabs/tabs"
 import { Textarea } from "@/registry/primitives/textarea/textarea"
+import { Switch } from "@/registry/primitives/switch/switch"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/registry/primitives/tooltip/tooltip"
+import { cn } from "@/lib/utils"
 
 // The current search text, shared so each Demo can hide itself when filtered.
 const SearchCtx = React.createContext("")
@@ -252,6 +270,7 @@ function Demo({
   enums,
   data,
   setData,
+  span = 1,
 }: {
   name: string
   children: React.ReactNode
@@ -259,19 +278,26 @@ function Demo({
   config?: Record<string, unknown>
   setConfig?: (next: Record<string, unknown>) => void
   enums?: Record<string, string[]>
-  // Optional: also expose the component's data (its content) as editable JSON,
-  // so config toggles have visible context to act on.
+  // Optional: also expose the component's data (its content) as editable JSON.
   data?: unknown
   setData?: (next: unknown) => void
+  // How many grid columns this card spans (1–3). Big demos use 2–3.
+  span?: 1 | 2 | 3
 }) {
   const query = React.useContext(SearchCtx)
   if (query && !name.toLowerCase().includes(query.toLowerCase())) return null
 
   const hasConfig = Boolean(config && setConfig)
   const hasData = Boolean(data !== undefined && setData)
+  const spanClass =
+    span === 3
+      ? "sm:col-span-2 lg:col-span-3"
+      : span === 2
+        ? "sm:col-span-2"
+        : ""
 
   return (
-    <Card>
+    <Card className={spanClass}>
       <CardHeader className="flex-row items-center justify-between gap-2 pb-3">
         <CardTitle className="text-sm font-medium">{name}</CardTitle>
         {(hasConfig || hasData) && (
@@ -306,10 +332,6 @@ function Demo({
                       <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
                         Data · live
                       </p>
-                      <p className="text-xs text-muted-foreground">
-                        The component's content — edit values here (e.g. each
-                        item's delta) and they update instantly.
-                      </p>
                       <JsonField value={data} onCommit={(v) => setData!(v)} />
                     </div>
                   )}
@@ -325,6 +347,66 @@ function Demo({
     </Card>
   )
 }
+
+// A section header + a responsive grid of demo cards.
+function Section({
+  title,
+  hint,
+  children,
+}: {
+  title: string
+  hint?: string
+  children: React.ReactNode
+}) {
+  return (
+    <section className="animate-rise flex flex-col gap-5">
+      <div className="flex flex-col gap-1">
+        <h2 className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
+          {title}
+        </h2>
+        {hint && <p className="text-sm text-muted-foreground">{hint}</p>}
+      </div>
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{children}</div>
+    </section>
+  )
+}
+
+// VariantGroup — renders one demo card PER preset, each with its own ⚙ gear,
+// all reading/writing a shared keyed config store. This is how we show "the top
+// few configurations of a component, side by side, each editable" without
+// hand-writing a state hook per card.
+function VariantGroup({
+  items,
+  configs,
+  onChange,
+  enums,
+  render,
+}: {
+  items: { id: string; name: string; span?: 1 | 2 | 3 }[]
+  configs: Record<string, Record<string, unknown>>
+  onChange: (id: string, next: Record<string, unknown>) => void
+  enums?: Record<string, string[]>
+  render: (cfg: Record<string, unknown>, id: string) => React.ReactNode
+}) {
+  return (
+    <>
+      {items.map(({ id, name, span }) => (
+        <Demo
+          key={id}
+          name={name}
+          span={span}
+          config={configs[id]}
+          setConfig={(next) => onChange(id, next)}
+          enums={enums}
+        >
+          {render(configs[id], id)}
+        </Demo>
+      ))}
+    </>
+  )
+}
+
+/* ------------------------------- demo data -------------------------------- */
 
 const invoices = [
   { id: "INV-001", status: "Paid", total: "$250.00" },
@@ -351,6 +433,59 @@ const people = [
     commits: 154,
   },
 ]
+
+// A bigger dataset (deterministic — no Math.random/Date) so pagination, the
+// live count, and search have something real to act on.
+const FIRST = [
+  "Ada",
+  "Grace",
+  "Alan",
+  "Katherine",
+  "Linus",
+  "Margaret",
+  "Edsger",
+  "Barbara",
+  "Tim",
+  "Radia",
+  "Donald",
+  "Hedy",
+]
+const LAST = [
+  "Lovelace",
+  "Hopper",
+  "Turing",
+  "Johnson",
+  "Torvalds",
+  "Hamilton",
+  "Dijkstra",
+  "Liskov",
+  "Berners-Lee",
+  "Perlman",
+  "Knuth",
+  "Lamarr",
+]
+const ROLES = [
+  "Engineering",
+  "Design",
+  "Research",
+  "Product",
+  "Marketing",
+  "Sales",
+]
+const STATUSES = ["Active", "Away", "Offline"]
+const peopleLarge = Array.from({ length: 36 }, (_, i) => ({
+  id: String(i + 1),
+  name: `${FIRST[i % FIRST.length]} ${LAST[(i * 5) % LAST.length]}`,
+  role: ROLES[i % ROLES.length],
+  status: STATUSES[i % STATUSES.length],
+  commits: 40 + ((i * 37) % 260),
+}))
+
+// Map a status string to a Badge variant — reused across collection demos.
+const statusVariant = (
+  s: string
+): React.ComponentProps<typeof Badge>["variant"] =>
+  s === "Active" ? "success" : s === "Away" ? "warning" : "outline"
 
 const tableConfig: DataTableConfig = {
   ...defaultDataTableConfig,
@@ -592,44 +727,237 @@ const initialMessages: ChatMessage[] = [
   { id: "3", from: "them", text: "Beautiful.", time: "09:42" },
 ]
 
-// Allowed values for enum-type config fields (used by the live config editor).
+// A required, validated Field demo config.
+const usernameCfg: FieldConfig = {
+  ...defaultFieldConfig,
+  label: "Username",
+  required: true,
+  helpText: "3–16 characters. Letters, numbers, and underscores.",
+  validation: {
+    min: null,
+    max: null,
+    minLength: 3,
+    maxLength: 16,
+    pattern: "^[A-Za-z0-9_]+$",
+  },
+}
+
+/* ----------------------- enum + initial knob configs ----------------------- */
+
 const choiceEnums = {
   mode: ["single", "multi"],
   display: ["dropdown", "chips", "pills"],
 }
 const dataTableEnums = { density: ["comfortable", "compact"] }
 const calendarEnums = { weekStartsOn: ["sunday", "monday"] }
-const chartEnums = {
-  type: ["bar", "line", "area", "pie", "radar", "radial"],
+const chartEnums = { type: ["bar", "line", "area", "pie", "radar", "radial"] }
+const collectionEnums = { sortDir: ["asc", "desc"] }
+const buttonEnums = {
+  variant: ["default", "secondary", "outline", "ghost", "destructive", "link"],
+  size: ["sm", "default", "lg"],
 }
+const badgeEnums = {
+  variant: [
+    "default",
+    "secondary",
+    "success",
+    "warning",
+    "destructive",
+    "outline",
+  ],
+}
+const spinnerEnums = { size: ["sm", "default", "lg"] }
+const spacerEnums = { size: ["sm", "default", "lg", "xl"] }
+const titleEnums = { variant: ["simple", "image", "profile", "cover"] }
+const entryEnums = { type: ["text", "email", "number", "tel"] }
+const checkEnums = { style: ["checkbox", "switch"] }
+const accordionEnums = { type: ["single", "multiple"] }
+
+const SHADCN = "https://github.com/shadcn.png"
+
+// Every simple-primitive demo card's editable settings live here, keyed by id.
+const initialKnobs: Record<string, Record<string, unknown>> = {
+  // Actions
+  "btn-default": {
+    label: "Get started",
+    variant: "default",
+    size: "default",
+    disabled: false,
+  },
+  "btn-secondary": {
+    label: "Secondary",
+    variant: "secondary",
+    size: "default",
+    disabled: false,
+  },
+  "btn-outline": {
+    label: "Outline",
+    variant: "outline",
+    size: "default",
+    disabled: false,
+  },
+  "btn-destructive": {
+    label: "Delete",
+    variant: "destructive",
+    size: "default",
+    disabled: false,
+  },
+  "link-one": {
+    label: "Visit brimba",
+    variant: "link",
+    size: "default",
+    disabled: false,
+  },
+  "actionrow-one": {
+    title: "Profile",
+    subtitle: "Name, photo, bio",
+    trailing: "",
+  },
+  "actionrow-two": {
+    title: "Billing",
+    subtitle: "Plan & invoices",
+    trailing: "Pro",
+  },
+  // Display
+  "badge-default": { label: "New", variant: "default" },
+  "badge-success": { label: "Active", variant: "success" },
+  "badge-warning": { label: "Pending", variant: "warning" },
+  "badge-outline": { label: "Draft", variant: "outline" },
+  "rating-edit": { value: 4, max: 5, readOnly: false },
+  "rating-readonly": { value: 3, max: 5, readOnly: true },
+  "progress-a": { label: "Storage used", value: 62 },
+  "progress-b": { label: "Upload", value: 28 },
+  "title-profile": {
+    variant: "profile",
+    title: "Ada Lovelace",
+    subtitle: "Staff Engineer · London",
+    image: SHADCN,
+  },
+  "title-cover": {
+    variant: "cover",
+    title: "Release v1",
+    subtitle: "Shipping June 2024",
+    image: SHADCN,
+  },
+  "title-image": {
+    variant: "image",
+    title: "What's new",
+    subtitle: "Notes & highlights",
+    image: SHADCN,
+  },
+  "typography-one": {
+    headline: "Headline",
+    body: "Body copy for paragraphs and descriptions.",
+    hint: "A small muted hint or caption.",
+  },
+  "image-one": { alt: "Sample image" },
+  "map-one": { zoom: 12 },
+  // Inputs
+  "entry-text": {
+    label: "Full name",
+    type: "text",
+    placeholder: "Ada Lovelace",
+    multiline: false,
+  },
+  "entry-email": {
+    label: "Email",
+    type: "email",
+    placeholder: "you@example.com",
+    multiline: false,
+  },
+  "entry-number": {
+    label: "Age",
+    type: "number",
+    placeholder: "30",
+    multiline: false,
+  },
+  "entry-multiline": {
+    label: "Bio (multi-line)",
+    type: "text",
+    placeholder: "A few words…",
+    multiline: true,
+  },
+  "check-box": { label: "Accept terms", checked: true, style: "checkbox" },
+  "check-switch": {
+    label: "Email notifications",
+    checked: true,
+    style: "switch",
+  },
+  "slider-one": { value: 40, max: 100, step: 1 },
+  "select-one": { disabled: false },
+  // Layout
+  "spacer-one": { size: "lg" },
+  "spinner-one": { size: "default" },
+  "separator-one": { label: "OR" },
+  "card-one": {
+    title: "Project Atlas",
+    body: "A container surface built from tokens.",
+  },
+  // Navigation
+  "toggle-one": { type: "single" },
+  "accordion-one": { type: "single" },
+  // Overlays — editable trigger/title/description text
+  "ov-dialog": {
+    trigger: "Open dialog",
+    title: "Edit profile",
+    description: "Make changes and save when you're done.",
+  },
+  "ov-sheet": {
+    trigger: "Open sheet",
+    title: "Edit profile",
+    description: "Make changes and save when you're done.",
+  },
+  "ov-popover": {
+    trigger: "Open popover",
+    title: "Dimensions",
+    description: "Set the width and height.",
+  },
+  "ov-hover": {
+    trigger: "@brimba",
+    title: "brimba",
+    description: "The component library.",
+  },
+  "ov-alert": {
+    trigger: "Delete",
+    title: "Are you sure?",
+    description: "This action cannot be undone.",
+  },
+}
+
+/* -------------------------------------------------------------------------- */
 
 export default function ComponentsGallery() {
   const [query, setQuery] = React.useState("")
 
-  // a required, validated Field demo (label + ring + live error from config)
-  const usernameCfg: FieldConfig = {
-    ...defaultFieldConfig,
-    label: "Username",
-    required: true,
-    helpText: "3–16 characters. Letters, numbers, and underscores.",
-    validation: {
-      min: null,
-      max: null,
-      minLength: 3,
-      maxLength: 16,
-      pattern: "^[A-Za-z0-9_]+$",
-    },
-  }
+  // Keyed store for all the simple-primitive demo cards.
+  const [knobs, setKnobs] = React.useState(initialKnobs)
+  const putKnob = (id: string, next: Record<string, unknown>) =>
+    setKnobs((k) => ({ ...k, [id]: next }))
+
+  // Collection demos driven by the shared CollectionFrame.
+  const [listCfg, setListCfg] = React.useState<Record<string, unknown>>({
+    ...defaultCollectionConfig,
+    title: "Team",
+    itemsPerPage: 6,
+    showCount: true,
+    searchable: true,
+  })
+  const [cardCfg, setCardCfg] = React.useState<Record<string, unknown>>({
+    ...defaultCollectionConfig,
+    title: "People",
+    itemsPerPage: 6,
+    showCount: true,
+    searchable: true,
+  })
+
+  // Field validation demo.
   const [username, setUsername] = React.useState("")
   const [usernameTouched, setUsernameTouched] = React.useState(false)
 
-  // selected values for the Choice demos
+  // Choice demos.
   const [picked, setPicked] = React.useState<string[]>(["eng", "design"])
   const [plan, setPlan] = React.useState<string[]>(["prod"])
   const [chips, setChips] = React.useState<string[]>(["design", "mkt"])
-
-  // live, editable configs (Record-typed so the playground editor can mutate
-  // any field; cast back to the component's config type at the call site)
   const [pickedCfg, setPickedCfg] = React.useState<Record<string, unknown>>({
     ...defaultChoiceConfig,
     mode: "multi",
@@ -648,11 +976,11 @@ export default function ComponentsGallery() {
     display: "chips",
     max: 3,
   })
+
+  // Data-driven collection/content demos.
   const [tableCfg, setTableCfg] = React.useState<Record<string, unknown>>(
     tableConfig as unknown as Record<string, unknown>
   )
-
-  // Kanban data is mutable (cards move between columns on drag).
   const [tasks, setTasks] = React.useState(initialTasks)
   const [kanbanCfg, setKanbanCfg] = React.useState<Record<string, unknown>>(
     kanbanConfig as unknown as Record<string, unknown>
@@ -670,7 +998,6 @@ export default function ComponentsGallery() {
   const [checkCfg, setCheckCfg] = React.useState<Record<string, unknown>>(
     defaultChecklistConfig as unknown as Record<string, unknown>
   )
-  const [rating, setRating] = React.useState(4)
   const [chartRows, setChartRows] = React.useState(chartData)
   const [chartCfg, setChartCfg] = React.useState<Record<string, unknown>>(
     chartViewConfig as unknown as Record<string, unknown>
@@ -681,10 +1008,7 @@ export default function ComponentsGallery() {
   const [comments, setComments] = React.useState(initialComments)
   const [messages, setMessages] = React.useState(initialMessages)
   const [date, setDate] = React.useState<string | null>(null)
-
-  // Collection datasets held in state so the playground can live-edit each
-  // component's content (the values its config toggles act on).
-  const [peopleData, setPeopleData] = React.useState(people)
+  const [peopleData, setPeopleData] = React.useState(peopleLarge)
   const [statData, setStatData] = React.useState(stats)
   const [eventData, setEventData] = React.useState(events)
   const [profileData, setProfileData] = React.useState(profile)
@@ -705,8 +1029,8 @@ export default function ComponentsGallery() {
                 Component Gallery
               </h1>
               <p className="text-sm text-muted-foreground">
-                Search components, then click the ⚙ on any configurable one to
-                edit its config live.
+                Grouped like Glide. Each card is one configuration — click the ⚙
+                to tweak it live, or search to filter.
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -723,70 +1047,85 @@ export default function ComponentsGallery() {
             </div>
           </header>
 
-          {/* --------------------- CONFIGURABLE (Glide layer) --------------------- */}
-          <section className="animate-rise flex flex-col gap-5">
-            <div className="flex flex-col gap-1">
-              <h2 className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
-                Configurable — driven by a typed config
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Same component, different <code>config</code>. Every field is
-                required, so no setting is ever hidden.
-              </p>
-            </div>
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              <Demo
-                name="Choice · dropdown + search (multi)"
-                config={pickedCfg}
-                setConfig={setPickedCfg}
-                enums={choiceEnums}
-              >
-                <div className="w-full">
-                  <Choice
-                    options={tagOptions}
-                    value={picked}
-                    onChange={setPicked}
-                    config={pickedCfg as unknown as ChoiceConfig}
+          {/* ============================ COLLECTIONS ============================ */}
+          <Section
+            title="Collections — data views"
+            hint="Multi-row views. Every one wears the same chrome: a title, a live count, search, and pagination."
+          >
+            <Demo
+              name="List · paginated"
+              span={3}
+              config={listCfg}
+              setConfig={setListCfg}
+              enums={collectionEnums}
+              data={peopleData}
+              setData={(d) => setPeopleData(d as typeof peopleLarge)}
+            >
+              <CollectionFrame
+                config={listCfg as unknown as CollectionConfig}
+                data={peopleData}
+                searchKeys={["name", "role", "status"]}
+                renderItems={(rows) => (
+                  <List
+                    items={rows.map((p) => ({
+                      id: p.id,
+                      title: p.name,
+                      subtitle: p.role,
+                      leading: (
+                        <Avatar className="size-9">
+                          <AvatarFallback>{p.name.slice(0, 2)}</AvatarFallback>
+                        </Avatar>
+                      ),
+                      trailing: (
+                        <Badge variant={statusVariant(p.status)}>
+                          {p.status}
+                        </Badge>
+                      ),
+                    }))}
                   />
-                </div>
-              </Demo>
-
-              <Demo
-                name="Choice · pills (single)"
-                config={planCfg}
-                setConfig={setPlanCfg}
-                enums={choiceEnums}
-              >
-                <Choice
-                  options={tagOptions}
-                  value={plan}
-                  onChange={setPlan}
-                  config={planCfg as unknown as ChoiceConfig}
-                />
-              </Demo>
-
-              <Demo
-                name="Choice · chips (multi, max 3)"
-                config={chipsCfg}
-                setConfig={setChipsCfg}
-                enums={choiceEnums}
-              >
-                <Choice
-                  options={tagOptions}
-                  value={chips}
-                  onChange={setChips}
-                  config={chipsCfg as unknown as ChoiceConfig}
-                />
-              </Demo>
-            </div>
+                )}
+              />
+            </Demo>
 
             <Demo
-              name="DataTable · sortable · searchable · striped · row actions"
+              name="Card · grid collection"
+              span={3}
+              config={cardCfg}
+              setConfig={setCardCfg}
+              enums={collectionEnums}
+              data={peopleData}
+              setData={(d) => setPeopleData(d as typeof peopleLarge)}
+            >
+              <CollectionFrame
+                config={cardCfg as unknown as CollectionConfig}
+                data={peopleData}
+                searchKeys={["name", "role", "status"]}
+                renderItems={(rows) => (
+                  <CardGrid
+                    columns={3}
+                    items={rows.map((p) => ({
+                      id: p.id,
+                      title: p.name,
+                      description: p.role,
+                      footer: (
+                        <Badge variant={statusVariant(p.status)}>
+                          {p.status}
+                        </Badge>
+                      ),
+                    }))}
+                  />
+                )}
+              />
+            </Demo>
+
+            <Demo
+              name="DataTable · sortable · searchable · row actions"
+              span={3}
               config={tableCfg}
               setConfig={setTableCfg}
               enums={dataTableEnums}
               data={peopleData}
-              setData={(d) => setPeopleData(d as typeof people)}
+              setData={(d) => setPeopleData(d as typeof peopleLarge)}
             >
               <DataTable
                 data={peopleData}
@@ -798,30 +1137,10 @@ export default function ComponentsGallery() {
                 className="w-full"
               />
             </Demo>
-          </section>
-
-          {/* ----------------------------- COLLECTIONS ---------------------------- */}
-          <section className="animate-rise flex flex-col gap-5">
-            <h2 className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
-              Collections — data views
-            </h2>
-            <Demo
-              name="Chart · bar / line / area / pie / radar / radial"
-              config={chartCfg}
-              setConfig={setChartCfg}
-              enums={chartEnums}
-              data={chartRows}
-              setData={(d) => setChartRows(d as typeof chartData)}
-            >
-              <Chart
-                data={chartRows}
-                config={chartCfg as unknown as ChartConfig}
-                className="w-full"
-              />
-            </Demo>
 
             <Demo
               name="Kanban · drag cards between columns"
+              span={3}
               config={kanbanCfg}
               setConfig={setKanbanCfg}
               data={tasks}
@@ -837,6 +1156,7 @@ export default function ComponentsGallery() {
 
             <Demo
               name="Calendar · month grid"
+              span={3}
               config={calCfg}
               setConfig={setCalCfg}
               enums={calendarEnums}
@@ -852,35 +1172,8 @@ export default function ComponentsGallery() {
             </Demo>
 
             <Demo
-              name="Detail view · record fields"
-              config={detailCfg}
-              setConfig={setDetailCfg}
-              data={profileData}
-              setData={(d) => setProfileData(d as typeof profile)}
-            >
-              <DetailView
-                record={profileData}
-                config={detailCfg as unknown as DetailViewConfig}
-                className="w-full"
-              />
-            </Demo>
-
-            <Demo
-              name="Stat grid · big numbers"
-              config={statCfg}
-              setConfig={setStatCfg}
-              data={statData}
-              setData={(d) => setStatData(d as typeof stats)}
-            >
-              <StatGrid
-                items={statData}
-                config={statCfg as unknown as StatGridConfig}
-                className="w-full"
-              />
-            </Demo>
-
-            <Demo
               name="Checklist · tick items off"
+              span={1}
               config={checkCfg}
               setConfig={setCheckCfg}
               data={checkItems}
@@ -894,142 +1187,428 @@ export default function ComponentsGallery() {
               />
             </Demo>
 
-            <Demo
-              name="Form · validated, config-driven"
-              config={formCfg}
-              setConfig={setFormCfg}
-            >
-              <Form
-                config={formCfg as unknown as FormConfig}
-                onSubmit={() => {}}
+            <Demo name="Comments · thread">
+              <Comments
+                items={comments}
+                onAdd={(body) =>
+                  setComments((c) => [
+                    ...c,
+                    {
+                      id: String(c.length + 1),
+                      author: "You",
+                      body,
+                      time: "now",
+                    },
+                  ])
+                }
                 className="w-full"
               />
             </Demo>
 
-            <div className="grid gap-5 lg:grid-cols-2">
-              <Demo name="Comments · thread">
-                <Comments
-                  items={comments}
-                  onAdd={(body) =>
-                    setComments((c) => [
-                      ...c,
-                      {
-                        id: String(c.length + 1),
-                        author: "You",
-                        body,
-                        time: "now",
-                      },
-                    ])
-                  }
-                  className="w-full"
-                />
-              </Demo>
+            <Demo name="Chat · message thread">
+              <Chat
+                messages={messages}
+                onSend={(text) =>
+                  setMessages((m) => [
+                    ...m,
+                    { id: String(m.length + 1), from: "me", text, time: "now" },
+                  ])
+                }
+                className="w-full"
+              />
+            </Demo>
+          </Section>
 
-              <Demo name="Chat · message thread">
-                <Chat
-                  messages={messages}
-                  onSend={(text) =>
-                    setMessages((m) => [
-                      ...m,
-                      {
-                        id: String(m.length + 1),
-                        from: "me",
-                        text,
-                        time: "now",
-                      },
-                    ])
-                  }
-                  className="w-full"
-                />
-              </Demo>
-            </div>
-          </section>
+          {/* ============================== DISPLAY ============================= */}
+          <Section
+            title="Display — single-record content"
+            hint="Read-mostly blocks that show one record or value (Glide's Fields, Big Numbers, Charts, media…)."
+          >
+            <Demo
+              name="Fields · record detail"
+              span={2}
+              config={detailCfg}
+              setConfig={setDetailCfg}
+              data={profileData}
+              setData={(d) => setProfileData(d as typeof profile)}
+            >
+              <DetailView
+                record={profileData}
+                config={detailCfg as unknown as DetailViewConfig}
+                className="w-full"
+              />
+            </Demo>
 
-          {/* ------------------- CONTENT & ACTIONS — Glide parity ----------------- */}
-          <section className="animate-rise flex flex-col gap-5">
-            <h2 className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
-              Content &amp; actions
-            </h2>
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              <Demo name="Rating">
-                <Rating value={rating} onChange={setRating} />
-                <Rating value={3} readOnly />
-              </Demo>
+            <Demo
+              name="Big Numbers · stat grid"
+              config={statCfg}
+              setConfig={setStatCfg}
+              data={statData}
+              setData={(d) => setStatData(d as typeof stats)}
+            >
+              <StatGrid
+                items={statData}
+                config={statCfg as unknown as StatGridConfig}
+                className="w-full"
+              />
+            </Demo>
 
-              <Demo name="Spinner">
-                <div className="flex items-center gap-4">
-                  <Spinner size="sm" />
-                  <Spinner />
-                  <Spinner size="lg" />
-                </div>
-              </Demo>
+            <Demo
+              name="Chart · bar / line / area / pie / radar"
+              span={3}
+              config={chartCfg}
+              setConfig={setChartCfg}
+              enums={chartEnums}
+              data={chartRows}
+              setData={(d) => setChartRows(d as typeof chartData)}
+            >
+              <Chart
+                data={chartRows}
+                config={chartCfg as unknown as ChartConfig}
+                className="w-full"
+              />
+            </Demo>
 
-              <Demo name="Typography">
-                <Headline className="text-lg">Headline</Headline>
-                <Body>Body text for paragraphs and descriptions.</Body>
-                <Hint>A small muted hint or caption.</Hint>
-              </Demo>
-
-              <Demo name="Action Row">
-                <div className="w-full">
-                  <ActionRow
-                    icon={<User />}
-                    title="Profile"
-                    subtitle="Name, photo, bio"
-                    onClick={() => {}}
-                  />
-                  <ActionRow
-                    icon={<CreditCard />}
-                    title="Billing"
-                    trailing={<Badge variant="secondary">Pro</Badge>}
-                  />
-                </div>
-              </Demo>
-
-              <Demo name="Spacer">
-                <Badge>Above</Badge>
-                <Spacer size="lg" />
-                <Badge>Below (8 units apart)</Badge>
-              </Demo>
-
-              <Demo name="Web Embed">
-                <WebEmbed
-                  src="https://www.openstreetmap.org/export/embed.html?bbox=-0.135%2C51.503%2C-0.10%2C51.520&layer=mapnik"
-                  title="Map"
-                  className="w-full"
-                />
-              </Demo>
-            </div>
-          </section>
-
-          {/* ----------------------------- PRIMITIVES ----------------------------- */}
-          <section className="animate-rise flex flex-col gap-5">
-            <h2 className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
-              Primitives
-            </h2>
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              <Demo name="Buttons">
-                <div className="flex flex-wrap gap-2">
-                  <Button>Primary</Button>
-                  <Button variant="secondary">Secondary</Button>
-                  <Button variant="outline">Outline</Button>
-                  <Button variant="ghost">Ghost</Button>
-                </div>
-              </Demo>
-
-              <Demo name="Inputs">
+            <VariantGroup
+              items={[
+                { id: "progress-a", name: "Progress · bar" },
+                { id: "progress-b", name: "Progress · low" },
+              ]}
+              configs={knobs}
+              onChange={putKnob}
+              render={(c) => (
                 <div className="flex w-full flex-col gap-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="you@example.com"
-                  />
+                  <div className="flex justify-between text-sm">
+                    <span>{String(c.label)}</span>
+                    <span className="text-muted-foreground tabular-nums">
+                      {Number(c.value)}%
+                    </span>
+                  </div>
+                  <Progress value={Number(c.value)} />
                 </div>
-              </Demo>
+              )}
+            />
 
-              <Demo name="Select">
-                <Select defaultValue="next">
+            <VariantGroup
+              items={[
+                { id: "title-profile", name: "Title · profile" },
+                { id: "title-cover", name: "Title · cover" },
+                { id: "title-image", name: "Title · image" },
+              ]}
+              configs={knobs}
+              onChange={putKnob}
+              enums={titleEnums}
+              render={(c) => (
+                <Title
+                  variant={
+                    c.variant as React.ComponentProps<typeof Title>["variant"]
+                  }
+                  title={String(c.title)}
+                  subtitle={String(c.subtitle)}
+                  image={String(c.image)}
+                  className="w-full"
+                />
+              )}
+            />
+
+            <VariantGroup
+              items={[{ id: "typography-one", name: "Typography" }]}
+              configs={knobs}
+              onChange={putKnob}
+              render={(c) => (
+                <>
+                  <Headline className="text-lg">{String(c.headline)}</Headline>
+                  <Body>{String(c.body)}</Body>
+                  <Hint>{String(c.hint)}</Hint>
+                </>
+              )}
+            />
+
+            <VariantGroup
+              items={[
+                { id: "badge-default", name: "Badge · default" },
+                { id: "badge-success", name: "Badge · success" },
+                { id: "badge-warning", name: "Badge · warning" },
+                { id: "badge-outline", name: "Badge · outline" },
+              ]}
+              configs={knobs}
+              onChange={putKnob}
+              enums={badgeEnums}
+              render={(c) => (
+                <Badge
+                  variant={
+                    c.variant as React.ComponentProps<typeof Badge>["variant"]
+                  }
+                >
+                  {String(c.label)}
+                </Badge>
+              )}
+            />
+
+            <VariantGroup
+              items={[
+                { id: "rating-edit", name: "Rating · interactive" },
+                { id: "rating-readonly", name: "Rating · read-only" },
+              ]}
+              configs={knobs}
+              onChange={putKnob}
+              render={(c, id) => (
+                <Rating
+                  value={Number(c.value)}
+                  max={Number(c.max)}
+                  readOnly={Boolean(c.readOnly)}
+                  onChange={(v) => putKnob(id, { ...c, value: v })}
+                />
+              )}
+            />
+
+            <VariantGroup
+              items={[{ id: "image-one", name: "Image" }]}
+              configs={knobs}
+              onChange={putKnob}
+              render={(c) => (
+                <Image
+                  src={SHADCN}
+                  alt={String(c.alt)}
+                  ratio={16 / 9}
+                  className="w-full"
+                />
+              )}
+            />
+
+            <Demo name="Video">
+              <Video
+                src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+                poster={SHADCN}
+                className="w-full"
+              />
+            </Demo>
+
+            <VariantGroup
+              items={[{ id: "map-one", name: "Map" }]}
+              configs={knobs}
+              onChange={putKnob}
+              render={(c) => (
+                <Map
+                  lat={51.505}
+                  lng={-0.09}
+                  zoom={Number(c.zoom)}
+                  className="w-full"
+                />
+              )}
+            />
+
+            <Demo name="Web Embed">
+              <WebEmbed
+                src="https://www.openstreetmap.org/export/embed.html?bbox=-0.135%2C51.503%2C-0.10%2C51.520&layer=mapnik"
+                title="Map"
+                className="w-full"
+              />
+            </Demo>
+
+            <Demo name="Avatar & Tooltip">
+              <div className="flex items-center gap-3">
+                <Avatar>
+                  <AvatarImage src={SHADCN} alt="@cn" />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+                <Avatar>
+                  <AvatarFallback>AL</AvatarFallback>
+                </Avatar>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      Hover
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>A token-styled tooltip</TooltipContent>
+                </Tooltip>
+              </div>
+            </Demo>
+
+            <Demo name="Skeleton · variants">
+              <div className="flex w-full flex-col gap-4">
+                <Skeleton variant="media" />
+                <Skeleton variant="text" lines={3} />
+                <Skeleton variant="list" lines={2} />
+              </div>
+            </Demo>
+
+            <Demo name="Alert">
+              <Alert>
+                <Info />
+                <AlertTitle>Heads up</AlertTitle>
+                <AlertDescription>The default variant.</AlertDescription>
+              </Alert>
+            </Demo>
+          </Section>
+
+          {/* ========================= INPUTS & PICKERS ======================== */}
+          <Section
+            title="Inputs & pickers"
+            hint="Everything that collects input. Required fields get the animated teal ring; validation messages come from the config."
+          >
+            <Demo
+              name="Choice · dropdown + search (multi)"
+              config={pickedCfg}
+              setConfig={setPickedCfg}
+              enums={choiceEnums}
+            >
+              <div className="w-full">
+                <Choice
+                  options={tagOptions}
+                  value={picked}
+                  onChange={setPicked}
+                  config={pickedCfg as unknown as ChoiceConfig}
+                />
+              </div>
+            </Demo>
+            <Demo
+              name="Choice · pills (single)"
+              config={planCfg}
+              setConfig={setPlanCfg}
+              enums={choiceEnums}
+            >
+              <Choice
+                options={tagOptions}
+                value={plan}
+                onChange={setPlan}
+                config={planCfg as unknown as ChoiceConfig}
+              />
+            </Demo>
+            <Demo
+              name="Choice · chips (multi, max 3)"
+              config={chipsCfg}
+              setConfig={setChipsCfg}
+              enums={choiceEnums}
+            >
+              <Choice
+                options={tagOptions}
+                value={chips}
+                onChange={setChips}
+                config={chipsCfg as unknown as ChoiceConfig}
+              />
+            </Demo>
+
+            <VariantGroup
+              items={[
+                { id: "entry-text", name: "Entry · text" },
+                { id: "entry-email", name: "Entry · email" },
+                { id: "entry-number", name: "Entry · number" },
+                { id: "entry-multiline", name: "Entry · multi-line (size)" },
+              ]}
+              configs={knobs}
+              onChange={putKnob}
+              enums={entryEnums}
+              render={(c, id) => (
+                <div className="flex w-full flex-col gap-1.5">
+                  <Label htmlFor={id}>{String(c.label)}</Label>
+                  {c.multiline ? (
+                    <Textarea
+                      id={id}
+                      rows={3}
+                      placeholder={String(c.placeholder)}
+                    />
+                  ) : (
+                    <Input
+                      id={id}
+                      type={String(c.type)}
+                      placeholder={String(c.placeholder)}
+                    />
+                  )}
+                </div>
+              )}
+            />
+
+            <Demo name="Field · required + live validation">
+              <Field
+                config={usernameCfg}
+                htmlFor="username"
+                error={
+                  usernameTouched
+                    ? (validateField(username, usernameCfg) ?? undefined)
+                    : undefined
+                }
+              >
+                <Input
+                  id="username"
+                  value={username}
+                  placeholder="ada_lovelace"
+                  onChange={(e) => setUsername(e.target.value)}
+                  onBlur={() => setUsernameTouched(true)}
+                  {...fieldProps(usernameCfg)}
+                />
+              </Field>
+            </Demo>
+
+            <VariantGroup
+              items={[
+                { id: "check-box", name: "Checkbox" },
+                { id: "check-switch", name: "Switch" },
+              ]}
+              configs={knobs}
+              onChange={putKnob}
+              enums={checkEnums}
+              render={(c, id) => (
+                <div className="flex items-center gap-2">
+                  {c.style === "switch" ? (
+                    <Switch
+                      id={id}
+                      checked={Boolean(c.checked)}
+                      onCheckedChange={(v) => putKnob(id, { ...c, checked: v })}
+                    />
+                  ) : (
+                    <Checkbox
+                      id={id}
+                      checked={Boolean(c.checked)}
+                      onCheckedChange={(v) =>
+                        putKnob(id, { ...c, checked: Boolean(v) })
+                      }
+                    />
+                  )}
+                  <Label htmlFor={id}>{String(c.label)}</Label>
+                </div>
+              )}
+            />
+
+            <Demo name="Radio Group">
+              <RadioGroup defaultValue="monthly" className="flex gap-4">
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="monthly" id="m" />
+                  <Label htmlFor="m">Monthly</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="yearly" id="y" />
+                  <Label htmlFor="y">Yearly</Label>
+                </div>
+              </RadioGroup>
+            </Demo>
+
+            <VariantGroup
+              items={[{ id: "slider-one", name: "Slider" }]}
+              configs={knobs}
+              onChange={putKnob}
+              render={(c, id) => (
+                <div className="flex w-full flex-col gap-2">
+                  <Slider
+                    value={[Number(c.value)]}
+                    max={Number(c.max)}
+                    step={Number(c.step)}
+                    onValueChange={(v) => putKnob(id, { ...c, value: v[0] })}
+                  />
+                  <span className="text-xs text-muted-foreground tabular-nums">
+                    {Number(c.value)}
+                  </span>
+                </div>
+              )}
+            />
+
+            <VariantGroup
+              items={[{ id: "select-one", name: "Select" }]}
+              configs={knobs}
+              onChange={putKnob}
+              render={(c) => (
+                <Select defaultValue="next" disabled={Boolean(c.disabled)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -1039,189 +1618,485 @@ export default function ComponentsGallery() {
                     <SelectItem value="astro">Astro</SelectItem>
                   </SelectContent>
                 </Select>
-              </Demo>
+              )}
+            />
 
-              <Demo name="Checkbox & Radio">
-                <div className="flex items-center gap-2">
-                  <Checkbox id="terms" defaultChecked />
-                  <Label htmlFor="terms">Accept terms</Label>
+            <Demo name="Date Picker">
+              <Field config={{ ...defaultFieldConfig, label: "Due date" }}>
+                <DatePicker value={date} onChange={setDate} />
+              </Field>
+            </Demo>
+
+            <Demo name="File Upload">
+              <Field config={{ ...defaultFieldConfig, label: "Attachments" }}>
+                <FileUpload accept="image/*" multiple className="w-full" />
+              </Field>
+            </Demo>
+
+            <Demo name="Signature · required">
+              <Field
+                config={{
+                  ...defaultFieldConfig,
+                  label: "Signature",
+                  required: true,
+                }}
+                ringed={false}
+              >
+                <Signature required className="w-full" />
+              </Field>
+            </Demo>
+
+            <Demo name="Notes · editor">
+              <Field config={{ ...defaultFieldConfig, label: "Notes" }}>
+                <Notes
+                  defaultValue="<p>Edit <b>me</b> — try <i>bold</i>, lists, and a separator.</p>"
+                  className="w-full"
+                />
+              </Field>
+            </Demo>
+
+            <Demo name="Stopwatch">
+              <Stopwatch />
+            </Demo>
+
+            <Demo
+              name="Form · validated, config-driven"
+              span={2}
+              config={formCfg}
+              setConfig={setFormCfg}
+            >
+              <Form
+                config={formCfg as unknown as FormConfig}
+                onSubmit={() => {}}
+                className="w-full"
+              />
+            </Demo>
+          </Section>
+
+          {/* ============================== ACTIONS ============================ */}
+          <Section
+            title="Actions"
+            hint="Interacting fires a side-effect (navigate, workflow, API)."
+          >
+            <VariantGroup
+              items={[
+                { id: "btn-default", name: "Button · primary" },
+                { id: "btn-secondary", name: "Button · secondary" },
+                { id: "btn-outline", name: "Button · outline" },
+                { id: "btn-destructive", name: "Button · destructive" },
+              ]}
+              configs={knobs}
+              onChange={putKnob}
+              enums={buttonEnums}
+              render={(c) => (
+                <Button
+                  variant={
+                    c.variant as React.ComponentProps<typeof Button>["variant"]
+                  }
+                  size={c.size as React.ComponentProps<typeof Button>["size"]}
+                  disabled={Boolean(c.disabled)}
+                >
+                  {String(c.label)}
+                </Button>
+              )}
+            />
+
+            <VariantGroup
+              items={[{ id: "link-one", name: "Link (button asChild)" }]}
+              configs={knobs}
+              onChange={putKnob}
+              render={(c) => (
+                <Button variant="link" asChild>
+                  <a href="#">{String(c.label)}</a>
+                </Button>
+              )}
+            />
+
+            <VariantGroup
+              items={[
+                { id: "actionrow-one", name: "Action Row · profile" },
+                { id: "actionrow-two", name: "Action Row · trailing" },
+              ]}
+              configs={knobs}
+              onChange={putKnob}
+              render={(c) => (
+                <div className="w-full">
+                  <ActionRow
+                    icon={<User />}
+                    title={String(c.title)}
+                    subtitle={String(c.subtitle)}
+                    trailing={
+                      c.trailing ? (
+                        <Badge variant="secondary">{String(c.trailing)}</Badge>
+                      ) : undefined
+                    }
+                    onClick={() => {}}
+                  />
                 </div>
-                <RadioGroup defaultValue="monthly" className="flex gap-4">
-                  <div className="flex items-center gap-2">
-                    <RadioGroupItem value="monthly" id="m" />
-                    <Label htmlFor="m">Monthly</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <RadioGroupItem value="yearly" id="y" />
-                    <Label htmlFor="y">Yearly</Label>
-                  </div>
-                </RadioGroup>
-              </Demo>
+              )}
+            />
+          </Section>
 
-              <Demo name="Badges">
-                <div className="flex flex-wrap gap-2">
-                  <Badge>Default</Badge>
-                  <Badge variant="success">Success</Badge>
-                  <Badge variant="warning">Warning</Badge>
-                  <Badge variant="destructive">Error</Badge>
-                  <Badge variant="outline">Outline</Badge>
+          {/* ============================== LAYOUT ============================= */}
+          <Section title="Layout" hint="Structure & spacing.">
+            <VariantGroup
+              items={[{ id: "card-one", name: "Card (container)" }]}
+              configs={knobs}
+              onChange={putKnob}
+              render={(c) => (
+                <Card className="w-full">
+                  <CardHeader>
+                    <CardTitle>{String(c.title)}</CardTitle>
+                    <CardDescription>{String(c.body)}</CardDescription>
+                  </CardHeader>
+                </Card>
+              )}
+            />
+
+            <VariantGroup
+              items={[{ id: "separator-one", name: "Separator" }]}
+              configs={knobs}
+              onChange={putKnob}
+              render={(c) => (
+                <div className="flex w-full items-center gap-3 text-xs text-muted-foreground">
+                  <Separator className="flex-1" />
+                  {String(c.label)}
+                  <Separator className="flex-1" />
                 </div>
-              </Demo>
+              )}
+            />
 
-              <Demo name="Progress & Slider">
-                <div className="flex w-full flex-col gap-4">
-                  <Progress value={62} />
-                  <Slider defaultValue={[40]} max={100} step={1} />
+            <VariantGroup
+              items={[{ id: "spacer-one", name: "Spacer" }]}
+              configs={knobs}
+              onChange={putKnob}
+              enums={spacerEnums}
+              render={(c) => (
+                <>
+                  <Badge>Above</Badge>
+                  <Spacer size={c.size as "sm" | "default" | "lg" | "xl"} />
+                  <Badge>Below</Badge>
+                </>
+              )}
+            />
+
+            <VariantGroup
+              items={[{ id: "spinner-one", name: "Spinner" }]}
+              configs={knobs}
+              onChange={putKnob}
+              enums={spinnerEnums}
+              render={(c) => (
+                <Spinner
+                  size={c.size as React.ComponentProps<typeof Spinner>["size"]}
+                />
+              )}
+            />
+
+            <VariantGroup
+              items={[{ id: "accordion-one", name: "Accordion" }]}
+              configs={knobs}
+              onChange={putKnob}
+              enums={accordionEnums}
+              render={(c) =>
+                c.type === "multiple" ? (
+                  <Accordion type="multiple" className="w-full">
+                    <AccordionItem value="1">
+                      <AccordionTrigger>Is it accessible?</AccordionTrigger>
+                      <AccordionContent>
+                        Yes, via Radix + ARIA.
+                      </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="2">
+                      <AccordionTrigger>Is it themed?</AccordionTrigger>
+                      <AccordionContent>Yes, from tokens.</AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                ) : (
+                  <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value="1">
+                      <AccordionTrigger>Is it accessible?</AccordionTrigger>
+                      <AccordionContent>
+                        Yes, via Radix + ARIA.
+                      </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="2">
+                      <AccordionTrigger>Is it themed?</AccordionTrigger>
+                      <AccordionContent>Yes, from tokens.</AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                )
+              }
+            />
+
+            <Demo name="Tabs">
+              <Tabs defaultValue="a" className="w-full">
+                <TabsList>
+                  <TabsTrigger value="a">Account</TabsTrigger>
+                  <TabsTrigger value="b">Billing</TabsTrigger>
+                </TabsList>
+                <TabsContent
+                  value="a"
+                  className="text-sm text-muted-foreground"
+                >
+                  Account settings.
+                </TabsContent>
+                <TabsContent
+                  value="b"
+                  className="text-sm text-muted-foreground"
+                >
+                  Billing details.
+                </TabsContent>
+              </Tabs>
+            </Demo>
+
+            <Demo name="Collapsible">
+              <Collapsible className="w-full">
+                <CollapsibleTrigger asChild>
+                  <Button variant="outline" className="w-full justify-between">
+                    Toggle details
+                    <ChevronsUpDown className="size-4" />
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-2 rounded-lg border p-3 text-sm text-muted-foreground">
+                  Hidden content revealed on demand.
+                </CollapsibleContent>
+              </Collapsible>
+            </Demo>
+
+            <Demo name="Aspect Ratio (16:9)">
+              <div className="w-full">
+                <AspectRatio
+                  ratio={16 / 9}
+                  className="overflow-hidden rounded-lg border bg-gradient-to-br from-primary/20 to-chart-3/20"
+                />
+              </div>
+            </Demo>
+
+            <Demo name="Scroll Area">
+              <ScrollArea className="h-28 w-full rounded-lg border p-3">
+                <div className="flex flex-col gap-2 text-sm">
+                  {Array.from({ length: 12 }).map((_, i) => (
+                    <div key={i}>Item {i + 1}</div>
+                  ))}
                 </div>
-              </Demo>
+              </ScrollArea>
+            </Demo>
 
-              <Demo name="Tabs">
-                <Tabs defaultValue="a" className="w-full">
-                  <TabsList>
-                    <TabsTrigger value="a">Account</TabsTrigger>
-                    <TabsTrigger value="b">Billing</TabsTrigger>
-                  </TabsList>
-                  <TabsContent
-                    value="a"
-                    className="text-sm text-muted-foreground"
-                  >
-                    Account settings.
-                  </TabsContent>
-                  <TabsContent
-                    value="b"
-                    className="text-sm text-muted-foreground"
-                  >
-                    Billing details.
-                  </TabsContent>
-                </Tabs>
-              </Demo>
-
-              <Demo name="Accordion">
-                <Accordion type="single" collapsible className="w-full">
-                  <AccordionItem value="1">
-                    <AccordionTrigger>Is it accessible?</AccordionTrigger>
-                    <AccordionContent>Yes, via Radix + ARIA.</AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="2">
-                    <AccordionTrigger>Is it themed?</AccordionTrigger>
-                    <AccordionContent>Yes, from tokens.</AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </Demo>
-
-              <Demo name="Avatar & Tooltip">
-                <div className="flex items-center gap-3">
-                  <Avatar>
-                    <AvatarImage
-                      src="https://github.com/shadcn.png"
-                      alt="@cn"
-                    />
-                    <AvatarFallback>CN</AvatarFallback>
-                  </Avatar>
-                  <Avatar>
-                    <AvatarFallback>AL</AvatarFallback>
-                  </Avatar>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        Hover
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>A token-styled tooltip</TooltipContent>
-                  </Tooltip>
-                </div>
-              </Demo>
-
-              <Demo name="Alert">
-                <Alert>
-                  <Info />
-                  <AlertTitle>Heads up</AlertTitle>
-                  <AlertDescription>The default variant.</AlertDescription>
-                </Alert>
-              </Demo>
-
-              <Demo name="Skeleton · variants">
-                <div className="flex w-full flex-col gap-4">
-                  <Skeleton variant="media" />
-                  <Skeleton variant="text" lines={3} />
-                  <Skeleton variant="list" lines={2} />
-                </div>
-              </Demo>
-
-              <Demo name="Table">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Invoice</TableHead>
-                      <TableHead className="text-right">Total</TableHead>
+            <Demo name="Table (primitive)">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Invoice</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {invoices.map((inv) => (
+                    <TableRow key={inv.id}>
+                      <TableCell className="font-medium">{inv.id}</TableCell>
+                      <TableCell className="text-right tabular-nums">
+                        {inv.total}
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {invoices.map((inv) => (
-                      <TableRow key={inv.id}>
-                        <TableCell className="font-medium">{inv.id}</TableCell>
-                        <TableCell className="text-right tabular-nums">
-                          {inv.total}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </Demo>
-            </div>
-          </section>
+                  ))}
+                </TableBody>
+              </Table>
+            </Demo>
+          </Section>
 
-          {/* ------------------------------ OVERLAYS ------------------------------ */}
-          <section className="animate-rise flex flex-col gap-5">
-            <h2 className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
-              Overlays — Batch 2
-            </h2>
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              <Demo name="Dropdown Menu">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline">Open menu</Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-52">
-                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <User /> Profile{" "}
-                      <DropdownMenuShortcut>⇧P</DropdownMenuShortcut>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
+          {/* =========================== NAVIGATION =========================== */}
+          <Section title="Navigation" hint="Move between pages & views.">
+            <VariantGroup
+              items={[{ id: "toggle-one", name: "Toggle & Toggle Group" }]}
+              configs={knobs}
+              onChange={putKnob}
+              render={(c) => (
+                <>
+                  <Toggle aria-label="Bold">
+                    <Bold />
+                  </Toggle>
+                  {c.type === "multiple" ? (
+                    <ToggleGroup type="multiple" defaultValue={["left"]}>
+                      <ToggleGroupItem value="left" aria-label="Left">
+                        <AlignLeft />
+                      </ToggleGroupItem>
+                      <ToggleGroupItem value="center" aria-label="Center">
+                        <AlignCenter />
+                      </ToggleGroupItem>
+                      <ToggleGroupItem value="right" aria-label="Right">
+                        <AlignRight />
+                      </ToggleGroupItem>
+                    </ToggleGroup>
+                  ) : (
+                    <ToggleGroup type="single" defaultValue="left">
+                      <ToggleGroupItem value="left" aria-label="Left">
+                        <AlignLeft />
+                      </ToggleGroupItem>
+                      <ToggleGroupItem value="center" aria-label="Center">
+                        <AlignCenter />
+                      </ToggleGroupItem>
+                      <ToggleGroupItem value="right" aria-label="Right">
+                        <AlignRight />
+                      </ToggleGroupItem>
+                    </ToggleGroup>
+                  )}
+                </>
+              )}
+            />
+
+            <Demo name="Breadcrumb">
+              <Breadcrumb>
+                <BreadcrumbList>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink href="#">Home</BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbLink href="#">Components</BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>Choice</BreadcrumbPage>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
+            </Demo>
+
+            <Demo name="Pagination">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious href="#" />
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationLink href="#">1</PaginationLink>
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationLink href="#" isActive>
+                      2
+                    </PaginationLink>
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationNext href="#" />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </Demo>
+
+            <Demo name="Command (⌘K)">
+              <Command className="border">
+                <CommandInput placeholder="Type a command…" />
+                <CommandList>
+                  <CommandEmpty>No results found.</CommandEmpty>
+                  <CommandGroup heading="Suggestions">
+                    <CommandItem>
+                      <User /> Profile <CommandShortcut>⌘P</CommandShortcut>
+                    </CommandItem>
+                    <CommandItem>
+                      <Settings /> Settings{" "}
+                      <CommandShortcut>⌘S</CommandShortcut>
+                    </CommandItem>
+                  </CommandGroup>
+                  <CommandSeparator />
+                  <CommandGroup heading="Account">
+                    <CommandItem>
                       <CreditCard /> Billing
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Settings /> Settings
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <LogOut /> Log out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </Demo>
+                    </CommandItem>
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </Demo>
+          </Section>
 
-              <Demo name="Popover">
+          {/* ============================== OVERLAYS =========================== */}
+          <Section
+            title="Overlays"
+            hint="Float above the page. The ⚙ edits their trigger, title, and body text."
+          >
+            <VariantGroup
+              items={[{ id: "ov-dialog", name: "Dialog" }]}
+              configs={knobs}
+              onChange={putKnob}
+              render={(c) => (
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">{String(c.trigger)}</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>{String(c.title)}</DialogTitle>
+                      <DialogDescription>
+                        {String(c.description)}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                      <DialogClose asChild>
+                        <Button>Save</Button>
+                      </DialogClose>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              )}
+            />
+
+            <Demo name="Dropdown Menu">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline">Open menu</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-52">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <User /> Profile{" "}
+                    <DropdownMenuShortcut>⇧P</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <CreditCard /> Billing
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Settings /> Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <LogOut /> Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </Demo>
+
+            <VariantGroup
+              items={[{ id: "ov-popover", name: "Popover" }]}
+              configs={knobs}
+              onChange={putKnob}
+              render={(c) => (
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline">Open popover</Button>
+                    <Button variant="outline">{String(c.trigger)}</Button>
                   </PopoverTrigger>
                   <PopoverContent>
                     <div className="flex flex-col gap-2">
-                      <p className="text-sm font-medium">Dimensions</p>
-                      <Label htmlFor="w">Width</Label>
-                      <Input id="w" defaultValue="100%" />
+                      <p className="text-sm font-medium">{String(c.title)}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {String(c.description)}
+                      </p>
                     </div>
                   </PopoverContent>
                 </Popover>
-              </Demo>
+              )}
+            />
 
-              <Demo name="Hover Card">
+            <VariantGroup
+              items={[{ id: "ov-hover", name: "Hover Card" }]}
+              configs={knobs}
+              onChange={putKnob}
+              render={(c) => (
                 <HoverCard>
                   <HoverCardTrigger asChild>
-                    <Button variant="link">@brimba</Button>
+                    <Button variant="link">{String(c.trigger)}</Button>
                   </HoverCardTrigger>
                   <HoverCardContent>
                     <div className="flex gap-3">
@@ -1229,32 +2104,33 @@ export default function ComponentsGallery() {
                         <AvatarFallback>BR</AvatarFallback>
                       </Avatar>
                       <div className="text-sm">
-                        <p className="font-medium">brimba</p>
+                        <p className="font-medium">{String(c.title)}</p>
                         <p className="text-muted-foreground">
-                          The component library.
+                          {String(c.description)}
                         </p>
                       </div>
                     </div>
                   </HoverCardContent>
                 </HoverCard>
-              </Demo>
+              )}
+            />
 
-              <Demo name="Sheet">
+            <VariantGroup
+              items={[{ id: "ov-sheet", name: "Sheet" }]}
+              configs={knobs}
+              onChange={putKnob}
+              render={(c) => (
                 <Sheet>
                   <SheetTrigger asChild>
-                    <Button variant="outline">Open sheet</Button>
+                    <Button variant="outline">{String(c.trigger)}</Button>
                   </SheetTrigger>
                   <SheetContent>
                     <SheetHeader>
-                      <SheetTitle>Edit profile</SheetTitle>
+                      <SheetTitle>{String(c.title)}</SheetTitle>
                       <SheetDescription>
-                        Make changes and save when done.
+                        {String(c.description)}
                       </SheetDescription>
                     </SheetHeader>
-                    <div className="flex flex-col gap-2">
-                      <Label htmlFor="name">Name</Label>
-                      <Input id="name" defaultValue="Ada Lovelace" />
-                    </div>
                     <SheetFooter>
                       <SheetClose asChild>
                         <Button>Save changes</Button>
@@ -1262,18 +2138,23 @@ export default function ComponentsGallery() {
                     </SheetFooter>
                   </SheetContent>
                 </Sheet>
-              </Demo>
+              )}
+            />
 
-              <Demo name="Alert Dialog">
+            <VariantGroup
+              items={[{ id: "ov-alert", name: "Alert Dialog" }]}
+              configs={knobs}
+              onChange={putKnob}
+              render={(c) => (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="destructive">Delete</Button>
+                    <Button variant="destructive">{String(c.trigger)}</Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                      <AlertDialogTitle>{String(c.title)}</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This action cannot be undone.
+                        {String(c.description)}
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -1282,247 +2163,22 @@ export default function ComponentsGallery() {
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
-              </Demo>
+              )}
+            />
 
-              <Demo name="Command">
-                <Command className="border">
-                  <CommandInput placeholder="Type a command…" />
-                  <CommandList>
-                    <CommandEmpty>No results found.</CommandEmpty>
-                    <CommandGroup heading="Suggestions">
-                      <CommandItem>
-                        <User /> Profile <CommandShortcut>⌘P</CommandShortcut>
-                      </CommandItem>
-                      <CommandItem>
-                        <Settings /> Settings{" "}
-                        <CommandShortcut>⌘S</CommandShortcut>
-                      </CommandItem>
-                    </CommandGroup>
-                    <CommandSeparator />
-                    <CommandGroup heading="Account">
-                      <CommandItem>
-                        <CreditCard /> Billing
-                      </CommandItem>
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </Demo>
-            </div>
-          </section>
-
-          {/* ------------------- NAVIGATION & STRUCTURE — Batch 3 ------------------ */}
-          <section className="animate-rise flex flex-col gap-5">
-            <h2 className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
-              Navigation &amp; structure — Batch 3
-            </h2>
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              <Demo name="Toggle & Toggle Group">
-                <Toggle aria-label="Bold">
-                  <Bold />
-                </Toggle>
-                <ToggleGroup type="single" defaultValue="left">
-                  <ToggleGroupItem value="left" aria-label="Left">
-                    <AlignLeft />
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="center" aria-label="Center">
-                    <AlignCenter />
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="right" aria-label="Right">
-                    <AlignRight />
-                  </ToggleGroupItem>
-                </ToggleGroup>
-              </Demo>
-
-              <Demo name="Breadcrumb">
-                <Breadcrumb>
-                  <BreadcrumbList>
-                    <BreadcrumbItem>
-                      <BreadcrumbLink href="#">Home</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                      <BreadcrumbLink href="#">Components</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                      <BreadcrumbPage>Choice</BreadcrumbPage>
-                    </BreadcrumbItem>
-                  </BreadcrumbList>
-                </Breadcrumb>
-              </Demo>
-
-              <Demo name="Toast">
-                <Button
-                  variant="outline"
-                  onClick={() =>
-                    toast("Changes saved", {
-                      description: "Your settings have been updated.",
-                    })
-                  }
-                >
-                  Show toast
-                </Button>
-              </Demo>
-
-              <Demo name="Pagination">
-                <Pagination>
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious href="#" />
-                    </PaginationItem>
-                    <PaginationItem>
-                      <PaginationLink href="#">1</PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem>
-                      <PaginationLink href="#" isActive>
-                        2
-                      </PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem>
-                      <PaginationEllipsis />
-                    </PaginationItem>
-                    <PaginationItem>
-                      <PaginationNext href="#" />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              </Demo>
-
-              <Demo name="Collapsible">
-                <Collapsible className="w-full">
-                  <CollapsibleTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-between"
-                    >
-                      Toggle details
-                      <ChevronsUpDown className="size-4" />
-                    </Button>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="mt-2 rounded-lg border p-3 text-sm text-muted-foreground">
-                    Hidden content revealed on demand.
-                  </CollapsibleContent>
-                </Collapsible>
-              </Demo>
-
-              <Demo name="Aspect Ratio (16:9)">
-                <div className="w-full">
-                  <AspectRatio
-                    ratio={16 / 9}
-                    className="overflow-hidden rounded-lg border bg-gradient-to-br from-primary/20 to-chart-3/20"
-                  />
-                </div>
-              </Demo>
-
-              <Demo name="Scroll Area">
-                <ScrollArea className="h-28 w-full rounded-lg border p-3">
-                  <div className="flex flex-col gap-2 text-sm">
-                    {Array.from({ length: 12 }).map((_, i) => (
-                      <div key={i}>Item {i + 1}</div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </Demo>
-            </div>
-          </section>
-          {/* ------------------------------- MEDIA -------------------------------- */}
-          <section className="animate-rise flex flex-col gap-5">
-            <h2 className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
-              Media &amp; titles
-            </h2>
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              <Demo name="Title (profile / cover)">
-                <Title
-                  variant="profile"
-                  title="Ada Lovelace"
-                  subtitle="Staff Engineer · London"
-                  image="https://github.com/shadcn.png"
-                  className="w-full"
-                />
-              </Demo>
-
-              <Demo name="Image">
-                <Image
-                  src="https://github.com/shadcn.png"
-                  alt="Sample"
-                  ratio={16 / 9}
-                  className="w-full"
-                />
-              </Demo>
-
-              <Demo name="Map">
-                <Map lat={51.505} lng={-0.09} zoom={12} className="w-full" />
-              </Demo>
-
-              <Demo name="Video">
-                <Video
-                  src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
-                  poster="https://github.com/shadcn.png"
-                  className="w-full"
-                />
-              </Demo>
-            </div>
-          </section>
-
-          {/* -------------------------- INPUTS & ADVANCED ------------------------- */}
-          <section className="animate-rise flex flex-col gap-5">
-            <h2 className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
-              Inputs &amp; advanced
-            </h2>
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              <Demo name="Date Picker">
-                <DatePicker value={date} onChange={setDate} />
-              </Demo>
-
-              <Demo name="Stopwatch">
-                <Stopwatch />
-              </Demo>
-
-              <Demo name="Notes">
-                <Notes
-                  defaultValue="<p>Edit <b>me</b> — try <i>bold</i>, lists, and a separator.</p>"
-                  className="w-full"
-                />
-              </Demo>
-
-              <Demo name="Field · required + validation">
-                <Field
-                  config={usernameCfg}
-                  htmlFor="username"
-                  error={
-                    usernameTouched
-                      ? (validateField(username, usernameCfg) ?? undefined)
-                      : undefined
-                  }
-                >
-                  <Input
-                    id="username"
-                    value={username}
-                    placeholder="ada_lovelace"
-                    onChange={(e) => setUsername(e.target.value)}
-                    onBlur={() => setUsernameTouched(true)}
-                    {...fieldProps(usernameCfg)}
-                  />
-                </Field>
-              </Demo>
-
-              <Demo name="File Upload">
-                <FileUpload accept="image/*" multiple className="w-full" />
-              </Demo>
-
-              <Demo name="Signature · required">
-                <Field
-                  config={{
-                    ...defaultFieldConfig,
-                    label: "Signature",
-                    required: true,
-                  }}
-                >
-                  <Signature className="w-full" />
-                </Field>
-              </Demo>
-            </div>
-          </section>
+            <Demo name="Toast">
+              <Button
+                variant="outline"
+                onClick={() =>
+                  toast("Changes saved", {
+                    description: "Your settings have been updated.",
+                  })
+                }
+              >
+                Show toast
+              </Button>
+            </Demo>
+          </Section>
         </main>
       </SearchCtx.Provider>
     </TooltipProvider>

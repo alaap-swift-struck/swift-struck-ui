@@ -175,22 +175,32 @@ export const defaultActionConfig: ActionConfig = {
  * just receives the resulting rows. */
 export interface CollectionConfig extends BaseConfig {
   dataSource: string
+  /** Header shown above the collection (empty = no header). */
+  title: string
   filter: Rule[]
   sortBy: string
   sortDir: "asc" | "desc"
+  /** Cap the TOTAL rows shown (null = no cap). Separate from itemsPerPage. */
   limit: number | null
+  /** Rows per page (null = no pagination, show everything). */
+  itemsPerPage: number | null
   searchable: boolean
+  /** Show a live "Showing X of Y" count in the header. */
+  showCount: boolean
   emptyText: string
 }
 
 export const defaultCollectionConfig: CollectionConfig = {
   ...defaultBaseConfig,
   dataSource: "",
+  title: "",
   filter: [],
   sortBy: "",
   sortDir: "asc",
   limit: null,
+  itemsPerPage: null,
   searchable: true,
+  showCount: true,
   emptyText: "Nothing here yet.",
 }
 
