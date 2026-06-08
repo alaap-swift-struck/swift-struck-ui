@@ -70,20 +70,27 @@ function StatGrid({
       {items.map((s) => {
         const { Icon, className: trendClass } = trendUI[s.trend]
         return (
-          <Card key={s.id} className="p-5">
-            <div className="flex flex-col gap-1.5">
-              <span className="text-xs tracking-wide text-muted-foreground uppercase">
+          <Card key={s.id} className="min-w-0 p-5">
+            <div className="flex min-w-0 flex-col gap-1.5">
+              <span className="truncate text-xs tracking-wide text-muted-foreground uppercase">
                 {s.label}
               </span>
-              <span className="text-2xl font-semibold tabular-nums">
+              {/* never overflow: shrink + ellipsis if the value is too wide */}
+              <span
+                className="truncate text-2xl font-semibold tabular-nums"
+                title={s.value}
+              >
                 {s.value}
               </span>
               {config.showDelta && (
                 <span
-                  className={cn("flex items-center gap-1 text-xs", trendClass)}
+                  className={cn(
+                    "flex min-w-0 items-center gap-1 text-xs",
+                    trendClass
+                  )}
                 >
-                  <Icon className="size-3.5" />
-                  {s.delta}
+                  <Icon className="size-3.5 shrink-0" />
+                  <span className="truncate">{s.delta}</span>
                 </span>
               )}
             </div>

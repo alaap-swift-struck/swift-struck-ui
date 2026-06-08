@@ -312,8 +312,8 @@ function Demo({
                 <Settings2 />
               </Button>
             </PopoverTrigger>
-            <PopoverContent align="end" className="w-80">
-              <ScrollArea className="max-h-[60vh] pr-3">
+            <PopoverContent align="end" className="w-80 p-0">
+              <div className="max-h-[55vh] overflow-y-auto p-3">
                 <div className="flex flex-col gap-4">
                   {hasConfig && (
                     <div className="flex flex-col gap-3">
@@ -336,7 +336,7 @@ function Demo({
                     </div>
                   )}
                 </div>
-              </ScrollArea>
+              </div>
             </PopoverContent>
           </Popover>
         )}
@@ -1241,6 +1241,7 @@ export default function ComponentsGallery() {
 
             <Demo
               name="Big Numbers · stat grid"
+              span={2}
               config={statCfg}
               setConfig={setStatCfg}
               data={statData}
