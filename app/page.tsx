@@ -4,34 +4,37 @@ import * as React from "react"
 import Link from "next/link"
 import { Car, Coffee, CreditCard, ShoppingCart, TrendingUp } from "lucide-react"
 
-import { Badge } from "@/registry/primitives/badge/badge"
-import { Button } from "@/registry/primitives/button/button"
+import { Badge } from "@swift-struck/ui/registry/primitives/badge/badge"
+import { Button } from "@swift-struck/ui/registry/primitives/button/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/registry/primitives/card/card"
-import { Label } from "@/registry/primitives/label/label"
-import { ModeToggle } from "@/registry/primitives/mode-toggle/mode-toggle"
-import { Progress } from "@/registry/primitives/progress/progress"
+} from "@swift-struck/ui/registry/primitives/card/card"
+import { Label } from "@swift-struck/ui/registry/primitives/label/label"
+import { ModeToggle } from "@swift-struck/ui/registry/primitives/mode-toggle/mode-toggle"
+import { Progress } from "@swift-struck/ui/registry/primitives/progress/progress"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/registry/primitives/select/select"
-import { Separator } from "@/registry/primitives/separator/separator"
-import { Slider } from "@/registry/primitives/slider/slider"
-import { Textarea } from "@/registry/primitives/textarea/textarea"
-import { List, type ListItem } from "@/registry/collections/list/list"
+} from "@swift-struck/ui/registry/primitives/select/select"
+import { Separator } from "@swift-struck/ui/registry/primitives/separator/separator"
+import { Slider } from "@swift-struck/ui/registry/primitives/slider/slider"
+import { Textarea } from "@swift-struck/ui/registry/primitives/textarea/textarea"
+import {
+  List,
+  type ListItem,
+} from "@swift-struck/ui/registry/collections/list/list"
 import {
   Chart,
   defaultChartConfig,
   type ChartConfig,
-} from "@/registry/collections/chart/chart"
+} from "@swift-struck/ui/registry/collections/chart/chart"
 
 const contributions = [
   { month: "Dec", amount: 3200 },

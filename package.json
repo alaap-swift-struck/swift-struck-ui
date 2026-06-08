@@ -1,19 +1,23 @@
 {
-  "name": "brimba",
+  "name": "swift-struck-www",
   "version": "0.0.0",
   "private": true,
-  "description": "A web-first, cross-platform component & collection library you build apps on top of.",
+  "description": "Swift Struck UI — the docs & showcase site (and workspace root) for @swift-struck/ui.",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "guardrails": "depcruise registry lib --config .dependency-cruiser.cjs",
+    "guardrails": "depcruise packages/ui/registry packages/ui/lib --config .dependency-cruiser.cjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "check": "npm run guardrails && npm run format:check"
   },
   "dependencies": {
+    "@swift-struck/ui": "*",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-aspect-ratio": "^1.1.8",

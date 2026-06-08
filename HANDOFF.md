@@ -112,7 +112,7 @@ PROGRESS.md               running built/to-build tally
   driven by a keyed knob store + `VariantGroup` helper (no per-card state hooks).
 - **`collection-frame`** = one shared chrome for every collection: title + live
   "Showing X of Y" count (reacts to search) + search + pagination (`itemsPerPage`)
-  + total `limit`. Powers List & Card (seeded with 36 rows). Card collection added.
+  - total `limit`. Powers List & Card (seeded with 36 rows). Card collection added.
 - **`GLIDE-CONFIG-RESEARCH.md`** = per-component Glide config reference (the
   source of truth for ongoing field-by-field parity).
 - **Reviewed & hardened:** responsive verified at 390/768/1440 (no overflow on

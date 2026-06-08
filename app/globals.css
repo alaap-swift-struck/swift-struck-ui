@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* The component library now lives in a workspace package — tell Tailwind to
+ * scan it for class names so its styles are generated. */
+@source "../packages/ui/registry";
+
 /* ---------------------------------------------------------------------------
  * LAYER 0 — DESIGN TOKENS (the single source of truth)
  *

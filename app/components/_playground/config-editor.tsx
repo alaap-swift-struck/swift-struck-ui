@@ -17,15 +17,15 @@
 
 import * as React from "react"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@swift-struck/ui/lib/utils"
 import {
   Choice,
   defaultChoiceConfig,
-} from "@/registry/primitives/choice/choice"
-import { Input } from "@/registry/primitives/input/input"
-import { Label } from "@/registry/primitives/label/label"
-import { Switch } from "@/registry/primitives/switch/switch"
-import { Textarea } from "@/registry/primitives/textarea/textarea"
+} from "@swift-struck/ui/registry/primitives/choice/choice"
+import { Input } from "@swift-struck/ui/registry/primitives/input/input"
+import { Label } from "@swift-struck/ui/registry/primitives/label/label"
+import { Switch } from "@swift-struck/ui/registry/primitives/switch/switch"
+import { Textarea } from "@swift-struck/ui/registry/primitives/textarea/textarea"
 
 export interface ConfigEditorProps {
   config: Record<string, unknown>

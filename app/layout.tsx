@@ -1,9 +1,9 @@
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 
-import { AmbientBackground } from "@/registry/primitives/ambient-background/ambient-background"
-import { Toaster } from "@/registry/primitives/sonner/sonner"
-import { ThemeProvider } from "@/registry/tokens/theme-provider"
+import { AmbientBackground } from "@swift-struck/ui/registry/primitives/ambient-background/ambient-background"
+import { Toaster } from "@swift-struck/ui/registry/primitives/sonner/sonner"
+import { ThemeProvider } from "@swift-struck/ui/registry/tokens/theme-provider"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })

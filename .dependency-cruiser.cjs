@@ -25,16 +25,16 @@ module.exports = {
         "A primitive (layer 1) must never import a collection (layer 2). " +
         "If a primitive needs collection behavior, the abstraction is wrong.",
       severity: "error",
-      from: { path: "^registry/primitives" },
-      to: { path: "^registry/collections" },
+      from: { path: "^packages/ui/registry/primitives" },
+      to: { path: "^packages/ui/registry/collections" },
     },
     {
       name: "tokens-import-nothing",
       comment:
         "Tokens (layer 0) are the root of the graph and import no components.",
       severity: "error",
-      from: { path: "^registry/tokens" },
-      to: { path: "^registry/(primitives|collections)" },
+      from: { path: "^packages/ui/registry/tokens" },
+      to: { path: "^packages/ui/registry/(primitives|collections)" },
     },
     {
       name: "library-never-imports-harness",
@@ -42,7 +42,7 @@ module.exports = {
         "registry/ and lib/ are the shippable library. They must never depend " +
         "on app/ (the docs + showcase harness), or copy-in distribution breaks.",
       severity: "error",
-      from: { path: "^(registry|lib)/" },
+      from: { path: "^packages/ui/(registry|lib)/" },
       to: { path: "^app/" },
     },
   ],

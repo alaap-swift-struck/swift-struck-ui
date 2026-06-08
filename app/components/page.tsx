@@ -24,12 +24,12 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/registry/primitives/accordion/accordion"
+} from "@swift-struck/ui/registry/primitives/accordion/accordion"
 import {
   Alert,
   AlertDescription,
   AlertTitle,
-} from "@/registry/primitives/alert/alert"
+} from "@swift-struck/ui/registry/primitives/alert/alert"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,22 +40,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/registry/primitives/alert-dialog/alert-dialog"
+} from "@swift-struck/ui/registry/primitives/alert-dialog/alert-dialog"
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "@/registry/primitives/avatar/avatar"
-import { Badge } from "@/registry/primitives/badge/badge"
-import { Button } from "@/registry/primitives/button/button"
+} from "@swift-struck/ui/registry/primitives/avatar/avatar"
+import { Badge } from "@swift-struck/ui/registry/primitives/badge/badge"
+import { Button } from "@swift-struck/ui/registry/primitives/button/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/registry/primitives/card/card"
-import { Checkbox } from "@/registry/primitives/checkbox/checkbox"
+} from "@swift-struck/ui/registry/primitives/card/card"
+import { Checkbox } from "@swift-struck/ui/registry/primitives/checkbox/checkbox"
 import {
   Command,
   CommandEmpty,
@@ -65,90 +65,96 @@ import {
   CommandList,
   CommandSeparator,
   CommandShortcut,
-} from "@/registry/primitives/command/command"
+} from "@swift-struck/ui/registry/primitives/command/command"
 import {
   Choice,
   type ChoiceConfig,
   defaultChoiceConfig,
-} from "@/registry/primitives/choice/choice"
+} from "@swift-struck/ui/registry/primitives/choice/choice"
 import {
   DataTable,
   defaultDataTableConfig,
   type DataTableConfig,
-} from "@/registry/collections/data-table/data-table"
+} from "@swift-struck/ui/registry/collections/data-table/data-table"
 import {
   Kanban,
   defaultKanbanConfig,
   type KanbanConfig,
-} from "@/registry/collections/kanban/kanban"
+} from "@swift-struck/ui/registry/collections/kanban/kanban"
 import {
   CalendarView,
   defaultCalendarViewConfig,
   type CalendarViewConfig,
-} from "@/registry/collections/calendar-view/calendar-view"
+} from "@swift-struck/ui/registry/collections/calendar-view/calendar-view"
 import {
   DetailView,
   defaultDetailViewConfig,
   type DetailViewConfig,
-} from "@/registry/collections/detail-view/detail-view"
+} from "@swift-struck/ui/registry/collections/detail-view/detail-view"
 import {
   StatGrid,
   defaultStatGridConfig,
   type StatGridConfig,
   type StatItem,
-} from "@/registry/collections/stat-grid/stat-grid"
+} from "@swift-struck/ui/registry/collections/stat-grid/stat-grid"
 import {
   Checklist,
   defaultChecklistConfig,
   type ChecklistConfig,
   type ChecklistItem,
-} from "@/registry/collections/checklist/checklist"
+} from "@swift-struck/ui/registry/collections/checklist/checklist"
 import {
   Chart,
   defaultChartConfig,
   type ChartConfig,
-} from "@/registry/collections/chart/chart"
-import { List } from "@/registry/collections/list/list"
-import { CardGrid } from "@/registry/collections/card-grid/card-grid"
-import { CollectionFrame } from "@/registry/collections/collection-frame/collection-frame"
-import { ActionRow } from "@/registry/primitives/action-row/action-row"
-import { Rating } from "@/registry/primitives/rating/rating"
-import { Spacer } from "@/registry/primitives/spacer/spacer"
-import { Spinner } from "@/registry/primitives/spinner/spinner"
+} from "@swift-struck/ui/registry/collections/chart/chart"
+import { List } from "@swift-struck/ui/registry/collections/list/list"
+import { CardGrid } from "@swift-struck/ui/registry/collections/card-grid/card-grid"
+import { CollectionFrame } from "@swift-struck/ui/registry/collections/collection-frame/collection-frame"
+import { ActionRow } from "@swift-struck/ui/registry/primitives/action-row/action-row"
+import { Rating } from "@swift-struck/ui/registry/primitives/rating/rating"
+import { Spacer } from "@swift-struck/ui/registry/primitives/spacer/spacer"
+import { Spinner } from "@swift-struck/ui/registry/primitives/spinner/spinner"
 import {
   Headline,
   Hint,
   Text as Body,
-} from "@/registry/primitives/typography/typography"
-import { WebEmbed } from "@/registry/primitives/web-embed/web-embed"
-import { Image } from "@/registry/primitives/image/image"
-import { Video } from "@/registry/primitives/video/video"
-import { Map } from "@/registry/primitives/map/map"
-import { Stopwatch } from "@/registry/primitives/stopwatch/stopwatch"
-import { Signature } from "@/registry/primitives/signature/signature"
-import { FileUpload } from "@/registry/primitives/file-upload/file-upload"
-import { DatePicker } from "@/registry/primitives/date-picker/date-picker"
-import { Notes } from "@/registry/primitives/notes/notes"
-import { Field, fieldProps } from "@/registry/primitives/field/field"
+} from "@swift-struck/ui/registry/primitives/typography/typography"
+import { WebEmbed } from "@swift-struck/ui/registry/primitives/web-embed/web-embed"
+import { Image } from "@swift-struck/ui/registry/primitives/image/image"
+import { Video } from "@swift-struck/ui/registry/primitives/video/video"
+import { Map } from "@swift-struck/ui/registry/primitives/map/map"
+import { Stopwatch } from "@swift-struck/ui/registry/primitives/stopwatch/stopwatch"
+import { Signature } from "@swift-struck/ui/registry/primitives/signature/signature"
+import { FileUpload } from "@swift-struck/ui/registry/primitives/file-upload/file-upload"
+import { DatePicker } from "@swift-struck/ui/registry/primitives/date-picker/date-picker"
+import { Notes } from "@swift-struck/ui/registry/primitives/notes/notes"
+import {
+  Field,
+  fieldProps,
+} from "@swift-struck/ui/registry/primitives/field/field"
 import {
   defaultCollectionConfig,
   defaultFieldConfig,
   validateField,
   type CollectionConfig,
   type FieldConfig,
-} from "@/lib/config"
-import { Title } from "@/registry/primitives/title/title"
+} from "@swift-struck/ui/lib/config"
+import { Title } from "@swift-struck/ui/registry/primitives/title/title"
 import {
   Form,
   defaultFormConfig,
   type FormConfig,
-} from "@/registry/collections/form/form"
+} from "@swift-struck/ui/registry/collections/form/form"
 import {
   Comments,
   type CommentItem,
-} from "@/registry/collections/comments/comments"
-import { Chat, type ChatMessage } from "@/registry/collections/chat/chat"
-import { AspectRatio } from "@/registry/primitives/aspect-ratio/aspect-ratio"
+} from "@swift-struck/ui/registry/collections/comments/comments"
+import {
+  Chat,
+  type ChatMessage,
+} from "@swift-struck/ui/registry/collections/chat/chat"
+import { AspectRatio } from "@swift-struck/ui/registry/primitives/aspect-ratio/aspect-ratio"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -156,12 +162,12 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/registry/primitives/breadcrumb/breadcrumb"
+} from "@swift-struck/ui/registry/primitives/breadcrumb/breadcrumb"
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/registry/primitives/collapsible/collapsible"
+} from "@swift-struck/ui/registry/primitives/collapsible/collapsible"
 import {
   Dialog,
   DialogClose,
@@ -171,7 +177,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/registry/primitives/dialog/dialog"
+} from "@swift-struck/ui/registry/primitives/dialog/dialog"
 import {
   Pagination,
   PaginationContent,
@@ -180,14 +186,14 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/registry/primitives/pagination/pagination"
-import { ScrollArea } from "@/registry/primitives/scroll-area/scroll-area"
-import { toast } from "@/registry/primitives/sonner/sonner"
-import { Toggle } from "@/registry/primitives/toggle/toggle"
+} from "@swift-struck/ui/registry/primitives/pagination/pagination"
+import { ScrollArea } from "@swift-struck/ui/registry/primitives/scroll-area/scroll-area"
+import { toast } from "@swift-struck/ui/registry/primitives/sonner/sonner"
+import { Toggle } from "@swift-struck/ui/registry/primitives/toggle/toggle"
 import {
   ToggleGroup,
   ToggleGroupItem,
-} from "@/registry/primitives/toggle-group/toggle-group"
+} from "@swift-struck/ui/registry/primitives/toggle-group/toggle-group"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -196,33 +202,33 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "@/registry/primitives/dropdown-menu/dropdown-menu"
+} from "@swift-struck/ui/registry/primitives/dropdown-menu/dropdown-menu"
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
-} from "@/registry/primitives/hover-card/hover-card"
-import { Input } from "@/registry/primitives/input/input"
-import { Label } from "@/registry/primitives/label/label"
-import { ModeToggle } from "@/registry/primitives/mode-toggle/mode-toggle"
+} from "@swift-struck/ui/registry/primitives/hover-card/hover-card"
+import { Input } from "@swift-struck/ui/registry/primitives/input/input"
+import { Label } from "@swift-struck/ui/registry/primitives/label/label"
+import { ModeToggle } from "@swift-struck/ui/registry/primitives/mode-toggle/mode-toggle"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/registry/primitives/popover/popover"
-import { Progress } from "@/registry/primitives/progress/progress"
+} from "@swift-struck/ui/registry/primitives/popover/popover"
+import { Progress } from "@swift-struck/ui/registry/primitives/progress/progress"
 import {
   RadioGroup,
   RadioGroupItem,
-} from "@/registry/primitives/radio-group/radio-group"
+} from "@swift-struck/ui/registry/primitives/radio-group/radio-group"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/registry/primitives/select/select"
-import { Separator } from "@/registry/primitives/separator/separator"
+} from "@swift-struck/ui/registry/primitives/select/select"
+import { Separator } from "@swift-struck/ui/registry/primitives/separator/separator"
 import {
   Sheet,
   SheetClose,
@@ -232,9 +238,9 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/registry/primitives/sheet/sheet"
-import { Skeleton } from "@/registry/primitives/skeleton/skeleton"
-import { Slider } from "@/registry/primitives/slider/slider"
+} from "@swift-struck/ui/registry/primitives/sheet/sheet"
+import { Skeleton } from "@swift-struck/ui/registry/primitives/skeleton/skeleton"
+import { Slider } from "@swift-struck/ui/registry/primitives/slider/slider"
 import {
   Table,
   TableBody,
@@ -242,21 +248,21 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/registry/primitives/table/table"
+} from "@swift-struck/ui/registry/primitives/table/table"
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@/registry/primitives/tabs/tabs"
-import { Textarea } from "@/registry/primitives/textarea/textarea"
-import { Switch } from "@/registry/primitives/switch/switch"
+} from "@swift-struck/ui/registry/primitives/tabs/tabs"
+import { Textarea } from "@swift-struck/ui/registry/primitives/textarea/textarea"
+import { Switch } from "@swift-struck/ui/registry/primitives/switch/switch"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/registry/primitives/tooltip/tooltip"
+} from "@swift-struck/ui/registry/primitives/tooltip/tooltip"
 
 // The current search text, shared so each Demo can hide itself when filtered.
 const SearchCtx = React.createContext("")
