@@ -38,35 +38,48 @@ sonner (toasts) · dependency-cruiser (layering). No CSS-in-JS.
 
 ## Repo map
 
+> **Naming:** the public package is **`@swift-struck/ui`**; "brimba" is the old
+> internal codename still used across these docs (mass-rename is optional).
+>
+> The repo is now an **npm workspace**: the showcase site at the root, the
+> library in `packages/ui`.
+
 ```
-app/                      Next.js DOCS/SHOWCASE harness (not shipped)
-  globals.css             Layer-0 tokens + motion/glass/required-ring utilities
-  page.tsx                Dashboard demo (the "/" face — chart, stats, list…)
-  components/page.tsx     The component GALLERY (searchable, ⚙ live-config gears)
-  components/_playground/ config-editor.tsx (harness-only live config+data editor)
-  preview/                TEMPORARY design mockups — deletable
-lib/
-  utils.ts                cn()
-  config.ts               CONFIG SYSTEM: Rule engine + BaseConfig + category configs
-registry/                 THE LIBRARY (the shippable source)
-  tokens/                 theme-provider
-  primitives/<name>/<name>.tsx     layer-1 atoms (~45)
-  collections/<name>/<name>.tsx    layer-2 data views (~15)
-registry.json             manifest of every component
-ARCHITECTURE.md           the contract (layers, taxonomy, config model, rules)
-CONTRIBUTING.md           how to add a component
-GLIDE-PARITY.md           every Glide palette item → brimba status
-PROGRESS.md               running built/to-build tally
-.dependency-cruiser.cjs   enforced layering rules
+(workspace root = the showcase site, package name "swift-struck-www", private)
+app/                      Next.js DOCS/SHOWCASE site (the gallery; NOT published)
+  globals.css             Layer-0 tokens + @source that scans the package
+  page.tsx                Dashboard demo (the "/" face)
+  components/page.tsx     The GALLERY — 7 Glide-style sections, a ⚙ per card
+  components/_playground/ config-editor.tsx (harness-only live editor)
+packages/ui/              THE LIBRARY — published to npm as @swift-struck/ui
+  package.json            subpath exports: ./registry/* and ./lib/*
+  lib/utils.ts            cn()
+  lib/config.ts           CONFIG SYSTEM: rule engine + BaseConfig + mixins + validateField
+  registry/tokens/        theme-provider
+  registry/primitives/<name>/<name>.tsx    layer-1 atoms
+  registry/collections/<name>/<name>.tsx   layer-2 data views (incl. collection-frame)
+  registry.json           manifest of every component
+  README.md               package front-door (npm / open source)
+DEPLOY.md                 staging/live plan + YOUR account checklist
+LICENSE                   MIT
+.changeset/ · .github/    release pipeline (Changesets + CI/Release workflows)
+ARCHITECTURE · CONTRIBUTING · GLIDE-PARITY · GLIDE-CONFIG-RESEARCH · PROGRESS  (.md)
+.dependency-cruiser.cjs   enforced layering (now on packages/ui paths)
 ```
+
+Apps consume the library via `@swift-struck/ui/registry/*` + `@swift-struck/ui/lib/*`
+(the showcase app does exactly this). Library-internal imports are relative.
 
 ## Key decisions made (don't relitigate without the user)
 
 - **Cross-platform = web-first, wrapped natively** (Tauri desktop, Capacitor
   mobile).
-- **Distribution = workspace package** (apps import brimba; a central fix
-  propagates everywhere; per-app config stays). **Restructure is PENDING** —
-  components are isolated in `registry/`, so it's plumbing-only.
+- **Distribution = npm package `@swift-struck/ui`** (open source) — DONE. The
+  repo is an npm workspace (library in `packages/ui`, showcase at root). Staging
+  channel = `@next`, live = `@latest`; release pipeline via Changesets + GitHub
+  Actions (see DEPLOY.md). Chosen **npm-only** over a monorepo-of-all-apps: your
+  own projects get fixes via `npm update` (fast, controlled), and version pins
+  are the safety hatch. Hosting = Cloudflare Pages (live + staging URLs).
 - **Config model (shipped):** `BaseConfig` (visible + visibilityRules) on every
   component, then category mixins (`FieldConfig`, `ActionConfig`,
   `CollectionConfig`, `ContentConfig`), then per-component knobs. All in
