@@ -98,31 +98,44 @@ PROGRESS.md               running built/to-build tally
 
 ## Current status
 
-- ~**66 components**, Glide-palette parity **essentially complete** (only
-  `Contact` — a trivial action-row+avatar composition — and intentionally
-  skipped niche items remain; see GLIDE-PARITY.md).
-- The **config foundation** (BaseConfig + visibility rule engine) is rolled into
-  all 9 configurable components; the playground gear shows `visible` +
-  `visibilityRules` on each (toggle to live-hide).
-- The **playground**: every configurable demo has a ⚙ gear that live-edits its
-  **config AND its data** (JSON); the gallery has search.
+- ~**68 components**, Glide-palette parity **complete** (only `Contact` and
+  intentionally-skipped niche items remain; see GLIDE-PARITY.md).
+- **Inputs pass DONE:** `Field` wrapper (label + animated required-ring +
+  helpText + `validateField`); Signature fixed (dot-on-tap, pointer capture,
+  ring hugs just the canvas); `rich-text` renamed → `notes` (highlight / ordered
+  list / separator); Skeleton variants (text/card/media/list).
+- **Glide-parity gallery revamp DONE** (the big one): the gallery (`/components`)
+  is regrouped to mirror Glide — **Collections · Display · Inputs & Pickers ·
+  Actions · Layout · Navigation · Overlays**. Fields (detail-view) & Big Numbers
+  (stat-grid) live under Display (single-record Components, not Collections).
+- **Every demo card is one configuration with its own ⚙** (53 live editors),
+  driven by a keyed knob store + `VariantGroup` helper (no per-card state hooks).
+- **`collection-frame`** = one shared chrome for every collection: title + live
+  "Showing X of Y" count (reacts to search) + search + pagination (`itemsPerPage`)
+  + total `limit`. Powers List & Card (seeded with 36 rows). Card collection added.
+- **`GLIDE-CONFIG-RESEARCH.md`** = per-component Glide config reference (the
+  source of truth for ongoing field-by-field parity).
+- **Reviewed & hardened:** responsive verified at 390/768/1440 (no overflow on
+  gallery or dashboard); no-overflow rule (`min-w-0` + truncate) enforced;
+  validateField guards numeric coercion; dead code removed; tsc + guardrails green.
 
 ## Outstanding / recommended next (user's priority order-ish)
 
-1. **Inputs pass** (recommended next): adopt `FieldConfig` on input components —
-   number `min/max`, text `min/max length`, `required` ring everywhere; **fix
-   the Signature component** (drawing/tap is currently buggy); ship a real
-   **Notes** editor (rename `rich-text` → notes; add highlight, ordered list,
-   separator; support required); add **Skeleton variants** (text/card/media/list).
-2. **Visual rule-builder** in the playground (rules are editable as JSON today;
-   build a source→field→op→value UI).
-3. **Adopt category mixins** on the remaining components (ActionConfig triggers
-   on actions; CollectionConfig filter wired to data).
-4. **DataTable**: column filters + pagination (base table done).
-5. **Workspace-package restructure** (locks in propagation; lets the user run
-   `npm run dev` themselves independently).
-6. **Per-component `.mdx` docs** (deferred until the look was locked — it is now).
-7. Later: **native shells** (Tauri + Capacitor).
+1. **Deeper per-component config parity** — wire the real Glide knobs field-by-
+   field from `GLIDE-CONFIG-RESEARCH.md` (e.g. Entry `size`/multiline as a typed
+   config, Title style enum, Choice `radio` style, Container backgrounds). Today
+   many primitives have a ⚙ over their visual props; not every Glide field yet.
+2. **A few demos are still showcase-only** (no ⚙): Breadcrumb, the Pagination
+   sample, Command palette — add configs if desired.
+3. **Cloudflare staging deploy** (needs build config + Wrangler/Pages setup).
+4. **Visual rule-builder** in the playground (rules editable as JSON today).
+5. **Adopt remaining category mixins** (ActionConfig triggers; CollectionConfig
+   filter executed by a data layer). `ActionConfig`/`ContentConfig` exist in
+   `lib/config.ts` but are not consumed yet (kept as documented foundation).
+6. **DataTable**: column filters + its own pagination (base table done; the
+   gallery table scrolls horizontally on mobile).
+7. **Workspace-package restructure**; then **per-component `.mdx` docs**; later
+   **native shells** (Tauri + Capacitor).
 
 ## Working style the user likes
 
