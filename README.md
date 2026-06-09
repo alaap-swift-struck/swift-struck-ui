@@ -38,9 +38,11 @@ npx tsc --noEmit   # type-check
 
 - **[HANDOFF.md](HANDOFF.md)** — start here: full state + how to run/verify.
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** — the layering & config contract.
+- **[CONFIG-REFERENCE.md](CONFIG-REFERENCE.md)** — **every component, every config
+  field, every option, and what each value does.**
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** — how to add a component.
 - **[DEPLOY.md](DEPLOY.md)** — staging/live publishing (npm + Cloudflare).
-- **[GLIDE-CONFIG-RESEARCH.md](GLIDE-CONFIG-RESEARCH.md)** — per-component config reference.
+- **[GLIDE-CONFIG-RESEARCH.md](GLIDE-CONFIG-RESEARCH.md)** — how each maps to Glide.
 
 > Stack: Next.js 15 · React 19 · Tailwind CSS v4 · Radix UI · CVA · recharts ·
 > dependency-cruiser (layering) · vitest (tests).
