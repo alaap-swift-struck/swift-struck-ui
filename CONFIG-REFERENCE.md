@@ -2,7 +2,7 @@
 
 This is the organized, field-by-field reference for **how each component is
 configured and what each setting does**. It's the human + AI map of the library:
-read this (plus the typed configs in `packages/ui/lib/config.ts`, which carry the
+read this (plus the typed configs in `lib/config.ts`, which carry the
 same explanations as comments) and you know the whole surface.
 
 ## How config works (the model)
@@ -269,6 +269,6 @@ file and are demonstrated live in the gallery (`/components`). For example:
 `<Button variant="outline" size="lg">` · `<Badge variant="success">` ·
 `<Spinner size="sm">`.
 
-> Source of truth: the typed configs in `packages/ui/lib/config.ts` and each
+> Source of truth: the typed configs in `lib/config.ts` and each
 > component's own file. This document mirrors them in one place; if they ever
 > disagree, the code wins.

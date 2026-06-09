@@ -23,7 +23,7 @@ device," kept **lean, clean, and exhaustively documented**.
    `npm run guardrails` — it fails the build on illegal cross-layer or
    harness imports.
 3. **Tokens are the only source of truth** — no hardcoded colors/sizes; use
-   Tailwind utilities that resolve to `app/globals.css` `@theme`.
+   Tailwind utilities that resolve to `www/app/globals.css` `@theme`.
 4. **Config: every field required, no optionals.** Each configurable component
    exports `XConfig` (all required) + `defaultXConfig` template. The user
    explicitly never wants a hidden/forgettable knob.
@@ -32,7 +32,7 @@ device," kept **lean, clean, and exhaustively documented**.
 ## Tech stack
 
 Next.js 15 (App Router) · React 19 · TypeScript · **Tailwind v4** (CSS-first
-`@theme` tokens in `app/globals.css`) · Radix UI · CVA · cmdk ·
+`@theme` tokens in `www/app/globals.css`) · Radix UI · CVA · cmdk ·
 **tw-animate-css** · **recharts** (charts) · next-themes · lucide-react (v1) ·
 sonner (toasts) · dependency-cruiser (layering). No CSS-in-JS.
 
@@ -41,30 +41,31 @@ sonner (toasts) · dependency-cruiser (layering). No CSS-in-JS.
 > **Naming:** the public package is **`@swift-struck/ui`**; "Swift Struck UI" is the old
 > internal codename still used across these docs (mass-rename is optional).
 >
-> The repo is now an **npm workspace**: the showcase site at the root, the
-> library in `packages/ui`.
+> The repo **is** the library: the package `@swift-struck/ui` lives at the root, so
+> apps install it straight from GitHub. The showcase site lives in `www/`.
 
 ```
-(workspace root = the showcase site, package name "swift-struck-www", private)
-app/                      Next.js DOCS/SHOWCASE site (the gallery; NOT published)
-  globals.css             Layer-0 tokens + @source that scans the package
-  page.tsx                Dashboard demo (the "/" face)
-  components/page.tsx     The GALLERY — 7 Glide-style sections, a ⚙ per card
-  components/_playground/ config-editor.tsx (harness-only live editor)
-packages/ui/              THE LIBRARY — published to npm as @swift-struck/ui
-  package.json            subpath exports: ./registry/* and ./lib/*
-  lib/utils.ts            cn()
-  lib/config.ts           CONFIG SYSTEM: rule engine + BaseConfig + mixins + validateField
-  registry/tokens/        theme-provider
-  registry/primitives/<name>/<name>.tsx    layer-1 atoms
-  registry/collections/<name>/<name>.tsx   layer-2 data views (incl. collection-frame)
-  registry.json           manifest of every component
-  README.md               package front-door (npm / open source)
+(repo root = THE LIBRARY, package name "@swift-struck/ui" — what GitHub-install gives)
+package.json              the library: deps, exports (./registry/*, ./lib/*), files
+lib/utils.ts              cn()
+lib/config.ts             CONFIG SYSTEM: rule engine + BaseConfig + mixins + validateField
+registry/tokens/          theme-provider
+registry/primitives/<name>/<name>.tsx    layer-1 atoms
+registry/collections/<name>/<name>.tsx   layer-2 data views (incl. collection-frame)
+registry.json             manifest of every component
+README.md                 package + repo front-door (install from GitHub)
+www/                      Next.js DOCS/SHOWCASE site (the gallery; NOT shipped)
+  package.json            the app; pulls the library via @swift-struck/ui/* tsconfig paths
+  next.config.ts          externalDir:true (compiles the root library as source)
+  app/globals.css         Layer-0 tokens + @source ../../registry (scans the library)
+  app/page.tsx            Dashboard demo (the "/" face)
+  app/components/page.tsx The GALLERY — 7 Glide-style sections, a ⚙ per card
+  app/components/_playground/ config-editor.tsx (harness-only live editor)
 DEPLOY.md                 staging/live plan + YOUR account checklist
 LICENSE                   MIT
-.changeset/ · .github/    release pipeline (Changesets + CI/Release workflows)
+.github/workflows/ci.yml  CI: tsc + tests + guardrails + format on every push
 ARCHITECTURE · CONTRIBUTING · GLIDE-PARITY · GLIDE-CONFIG-RESEARCH · PROGRESS  (.md)
-.dependency-cruiser.cjs   enforced layering (now on packages/ui paths)
+.dependency-cruiser.cjs   enforced layering (on root registry/ + lib/ paths)
 ```
 
 Apps consume the library via `@swift-struck/ui/registry/*` + `@swift-struck/ui/lib/*`
@@ -74,12 +75,12 @@ Apps consume the library via `@swift-struck/ui/registry/*` + `@swift-struck/ui/l
 
 - **Cross-platform = web-first, wrapped natively** (Tauri desktop, Capacitor
   mobile).
-- **Distribution = npm package `@swift-struck/ui`** (open source) — DONE. The
-  repo is an npm workspace (library in `packages/ui`, showcase at root). Staging
-  channel = `@next`, live = `@latest`; release pipeline via Changesets + GitHub
-  Actions (see DEPLOY.md). Chosen **npm-only** over a monorepo-of-all-apps: your
-  own projects get fixes via `npm update` (fast, controlled), and version pins
-  are the safety hatch. Hosting = Cloudflare Pages (live + staging URLs).
+- **Distribution = install straight from GitHub** (one place, no npm account) — DONE.
+  The library IS the repo root, so `npm install github:alaap-swift-struck/swift-struck-ui`
+  delivers it; apps re-run install to pull updates. GitHub = read + install; the
+  live docs site = understand. Chosen GitHub-only over npm publish per the user's
+  "one organized place" preference. Hosting = Cloudflare Pages (live + staging URLs;
+  same build, only the URL differs — I deploy via wrangler, no GitHub needed for it).
 - **Config model (shipped):** `BaseConfig` (visible + visibilityRules) on every
   component, then category mixins (`FieldConfig`, `ActionConfig`,
   `CollectionConfig`, `ContentConfig`), then per-component knobs. All in
