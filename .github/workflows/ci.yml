@@ -1,10 +1,11 @@
-# CI — runs on every push & PR. No secrets needed; gives you green checks that
-# the types, the layering guardrails, and the formatting are all healthy.
+# CI — runs on GitHub's servers on every push & PR (the "Actions" tab). No
+# secrets needed; gives you green checks that the types, tests, layering
+# guardrails, and formatting are all healthy.
 name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, staging]
   pull_request:
 
 jobs:
@@ -18,5 +19,6 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx tsc --noEmit
+      - run: npm test
       - run: npm run guardrails
       - run: npm run format:check
