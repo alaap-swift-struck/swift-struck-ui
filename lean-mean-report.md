@@ -1,64 +1,64 @@
 # Lean Mean Check — Swift Struck UI
 
-Scanned 2026-06-09 · Overall **84/100 (Grade B)** · _Lean, well-architected, exhaustively documented, and now tested on its core logic — ship-ready._
+Scanned 2026-06-09 · Overall **87/100 (Grade B)** · _Lean, tested, exhaustively documented (with a docs site built from itself), and ready to ship._
 
-> Up from **79 (C)** after working the fix-list: added unit tests, a root README, retired the old codename, trimmed dead code.
+> Journey: **79 (C) → 84 → 87 (B)** as the findings were worked.
 
-## Done this pass
+## Done (all findings worked)
 
-- [x] **(robustness)** Added a unit-test suite (vitest, 11 tests) for `validateField` + the visibility rule engine — runs in CI via `npm test`.
-- [x] **(documentation)** Refreshed the root `README.md` (was a stale "brimba / Phase 0" stub).
-- [x] **(documentation)** Retired the `brimba` codename → consistent **Swift Struck UI** across docs, comments, and CSS vars.
-- [x] **(size / leanness)** Deleted the deletable `app/preview/` scratch folder.
-- [x] **(leanness)** Trimmed the unused `ContentConfig` type.
+- [x] **Tests** — 11 → **22** (validation, rule engine, the collection pipeline `selectRows`, text truncation), in CI via `npm test`.
+- [x] **Executed filter/sort** — `CollectionFrame` now runs `config.filter` + `sortBy/sortDir` (was declared-only), via the pure `lib/collection.selectRows` pipeline.
+- [x] **Real interactive Map** — replaced the iframe with Leaflet: a marker per record (by address field), street/satellite tiles, zoom, popups. Loaded client-only; static build verified.
+- [x] **/documentation page** — comprehensive docs for non-technical + developer readers, **built entirely from the library's own components** (dogfooded), with a searchable component catalog powered by the real `CollectionFrame`.
+- [x] **Split the showcase file** — demo data extracted to `app/components/_data.ts`; `page.tsx` 2,290 → ~1,800 lines; dead imports removed.
+- [x] **Root README + codename retired + dead code trimmed** (prior pass).
 
-## Fix next (ordered by impact)
+## Fix next (roadmap, not blockers)
 
-- [ ] **(robustness)** Widen test coverage — _why:_ tests cover the core pure logic; `CollectionFrame` pagination and `Clamp` still live untested inside components. Extract their logic or add render tests. — _where:_ `packages/ui/registry/collections/collection-frame/collection-frame.tsx`, `packages/ui/registry/primitives/clamp/clamp.tsx`
-- [ ] **(size / understandability)** Split the 2,290-line showcase file — _why:_ `app/components/page.tsx` holds ~70 demos in one file; breaking it per section makes edits/review easier. Harness-only, low risk. — _where:_ `app/components/page.tsx`
-- [ ] **(scalability)** Fill the declared seams — _why:_ filter/sort rules and the map's geocoding/clustering/satellite are config-only; the data layer + Leaflet engine make the scale story real. — _where:_ `packages/ui/registry/collections/*`, `packages/ui/registry/primitives/map/map.tsx`
-- [ ] **(robustness)** Wire the declared "open detail screen" action so it isn't a silent no-op. — _where:_ `packages/ui/lib/config.ts` (`ActionKind`), action components
+- [ ] **(robustness)** Add interaction/render tests on top of the logic tests. — _where:_ collections + inputs
+- [ ] **(robustness)** Wire the declared "open detail screen" action so it isn't a no-op. — _where:_ action components
+- [ ] **(scalability)** A live data-source layer (where rows come from) + map clustering/geocoding. — _where:_ `lib/collection.ts`, `registry/primitives/map/map.tsx`
 
 ## Scores
 
-| Dimension               | Before     | Now        | Status |
+| Dimension               | Start      | Now        | Status |
 | ----------------------- | ---------- | ---------- | ------ |
 | Size & Scope            | 85         | 87         | green  |
-| Robustness              | 63         | 76         | green  |
-| Documentation           | 84         | 90         | green  |
-| Understandability       | 82         | 85         | green  |
-| Leanness & Optimization | 85         | 88         | green  |
-| Scalability & Structure | 84         | 84         | green  |
-| **Overall**             | **79 (C)** | **84 (B)** | —      |
+| Robustness              | 63         | 82         | green  |
+| Documentation           | 84         | 94         | green  |
+| Understandability       | 82         | 88         | green  |
+| Leanness & Optimization | 85         | 87         | green  |
+| Scalability & Structure | 84         | 88         | green  |
+| **Overall**             | **79 (C)** | **87 (B)** | —      |
 
 ## Full findings
 
 ### Size & Scope — 87/100 (green)
 
-- Strengths: lean shipped library, one folder per component; deleted the deletable `preview/`.
-- To improve: the ~2,290-line gallery harness (`app/components/page.tsx`) is worth splitting per section.
+- Strengths: split the 2,290-line showcase (data → `_data.ts`); lean library, one folder per component.
+- To improve: a few coherent 400–600 line files remain — but no god-file.
 
-### Robustness — 76/100 (green)
+### Robustness — 82/100 (green)
 
-- Strengths: now unit-tested (validation + rule engine, the exact logic a recent bug slipped through) running in CI; strict TS, required config fields, enforced layering, validation, graceful fallbacks.
-- To improve: widen coverage to `CollectionFrame`/`Clamp`/components; wire the declared "detail" action and data-layer filter/sort.
+- Strengths: 22 unit tests cover validation + rule engine + the collection filter/sort/paginate pipeline + truncation; the data seam is now executed, not just declared; strict TS, enforced layering, CI.
+- To improve: add component/render tests; wire the "detail" action.
 
-### Documentation — 90/100 (green)
+### Documentation — 94/100 (green)
 
-- Strengths: refreshed root README + full doc set; codename retired (consistent naming); plain-English comments on every file.
-- To improve: per-component `.mdx` docs later for a true reference site.
+- Strengths: a live `/documentation` page assembled from the library itself (the ultimate proof); root README + full doc set + every-file comments; consistent naming.
+- To improve: per-component reference pages later.
 
-### Understandability — 85/100 (green)
+### Understandability — 88/100 (green)
 
-- Strengths: clean layering, one folder per component, consistent names + codename, clear entry point (README → HANDOFF).
-- To improve: the 2.3k-line showcase file — split per section.
+- Strengths: clean layering, consistent names, a self-explaining docs page; fewer "declared but not done" gaps.
+- To improve: the showcase is still the densest file (harness-only).
 
-### Leanness & Optimization — 88/100 (green)
+### Leanness & Optimization — 87/100 (green)
 
-- Strengths: reuse-first (Field/Container/CollectionFrame/Clamp/VariantGroup); trimmed unused `ContentConfig`; tokens single source of truth; duplication down to 3.0%.
-- To improve: the small remaining duplication is the repeated demo blocks in the harness.
+- Strengths: reuse-first; extracted tested helpers; removed dead imports; Leaflet is opt-in (tree-shaken unless the Map is used).
+- To improve: the map adds ~40KB when used (acceptable for a real interactive map, client-only).
 
-### Scalability & Structure — 84/100 (green)
+### Scalability & Structure — 88/100 (green)
 
-- Strengths: monorepo (library vs showcase), real npm package, config-driven with a declared data-layer seam, static export → host-agnostic.
-- To improve: the data layer (filter/sort execution) and the Leaflet map engine are declared seams not yet implemented.
+- Strengths: monorepo + npm package; the docs page consumes it like a downstream app (proves it scales); config-driven pipeline now executes; real map engine.
+- To improve: a live data-source layer + map clustering/geocoding remain declared roadmap.
