@@ -220,6 +220,32 @@ export const defaultCollectionConfig: CollectionConfig = {
   emptyText: "Nothing here yet.",
 }
 
+/* ----------------------------- text overflow ----------------------------- */
+
+/** How any mapped/displayed text handles being too long. Attach this wherever a
+ * component shows text (titles, subtitles, body, fields…) via the <Clamp>
+ * primitive. We deliberately do NOT grow width left-to-right (it breaks layouts);
+ * instead: truncate or expand. */
+export interface TextDisplayConfig {
+  /** truncate = clip it; expand = show the whole thing (wraps, grows downward). */
+  overflow: "truncate" | "expand"
+  /** When truncating: "lines" clamps to N lines — RESPONSIVE, the right default,
+   * since a line holds a different number of characters at each screen size.
+   * "characters" cuts at a fixed count (not responsive). */
+  truncateBy: "lines" | "characters"
+  /** lines kept when truncateBy === "lines" (1–6). */
+  lines: number
+  /** characters kept when truncateBy === "characters". */
+  maxChars: number
+}
+
+export const defaultTextDisplayConfig: TextDisplayConfig = {
+  overflow: "truncate",
+  truncateBy: "lines",
+  lines: 2,
+  maxChars: 80,
+}
+
 /** Content components — display data, read-only. */
 export interface ContentConfig extends BaseConfig {
   emptyText: string

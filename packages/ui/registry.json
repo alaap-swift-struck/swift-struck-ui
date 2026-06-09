@@ -63,6 +63,7 @@
     { "name": "notes", "type": "registry:ui", "layer": "primitives" },
     { "name": "field", "type": "registry:ui", "layer": "primitives" },
     { "name": "container", "type": "registry:ui", "layer": "primitives" },
+    { "name": "clamp", "type": "registry:ui", "layer": "primitives" },
     { "name": "title", "type": "registry:ui", "layer": "primitives" },
     { "name": "list", "type": "registry:ui", "layer": "collections" },
     { "name": "card-grid", "type": "registry:ui", "layer": "collections" },

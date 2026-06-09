@@ -140,6 +140,7 @@ import {
   defaultFieldConfig,
   defaultImageConfig,
   defaultMapConfig,
+  defaultTextDisplayConfig,
   defaultVideoConfig,
   validateField,
   type CollectionConfig,
@@ -147,9 +148,11 @@ import {
   type FieldConfig,
   type ImageConfig,
   type MapConfig,
+  type TextDisplayConfig,
   type VideoConfig,
 } from "@swift-struck/ui/lib/config"
 import { cn } from "@swift-struck/ui/lib/utils"
+import { Clamp } from "@swift-struck/ui/registry/primitives/clamp/clamp"
 import { Container } from "@swift-struck/ui/registry/primitives/container/container"
 import { Title } from "@swift-struck/ui/registry/primitives/title/title"
 import {
@@ -839,6 +842,10 @@ const mapEnums = {
 const actionEnums = {
   action: ["detail", "none", "navigate", "workflow", "api"],
 }
+const textOverflowEnums = {
+  overflow: ["truncate", "expand"],
+  truncateBy: ["lines", "characters"],
+}
 
 const SHADCN = "https://github.com/shadcn.png"
 
@@ -848,6 +855,9 @@ const mapData = [
   { id: "2", name: "Tower Bridge", location: "51.5055,-0.0754" },
   { id: "3", name: "British Museum", location: "51.5194,-0.1270" },
 ]
+
+const LONG_TEXT =
+  "Swift Struck UI is a web-first, cross-platform component & collection library you build entire apps on top of — primitives like shadcn/ui plus data-bound, configurable collections like Glide. This paragraph is intentionally long so you can watch it truncate by lines or characters, or expand to show the whole thing."
 
 // Every simple-primitive demo card's editable settings live here, keyed by id.
 const initialKnobs: Record<string, Record<string, unknown>> = {
@@ -924,6 +934,7 @@ const initialKnobs: Record<string, Record<string, unknown>> = {
     body: "Body copy for paragraphs and descriptions.",
     hint: "A small muted hint or caption.",
   },
+  "text-overflow": { ...defaultTextDisplayConfig },
   "image-one": { ...defaultImageConfig, altText: "Sample image" },
   "video-one": { ...defaultVideoConfig },
   "map-one": {
@@ -1438,6 +1449,22 @@ export default function ComponentsGallery() {
                     <Body>{String(c.body)}</Body>
                     <Hint>{String(c.hint)}</Hint>
                   </>
+                )}
+              />
+
+              <VariantGroup
+                items={[
+                  { id: "text-overflow", name: "Text · truncate / expand" },
+                ]}
+                configs={knobs}
+                onChange={putKnob}
+                enums={textOverflowEnums}
+                render={(c) => (
+                  <Body>
+                    <Clamp config={c as unknown as TextDisplayConfig}>
+                      {LONG_TEXT}
+                    </Clamp>
+                  </Body>
                 )}
               />
 
