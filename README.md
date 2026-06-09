@@ -4,6 +4,12 @@ A **web-first, cross-platform component & collection library** you build entire
 apps on top of — primitives inspired by [shadcn/ui](https://ui.shadcn.com) and
 data-bound, configurable collections inspired by [Glide](https://www.glideapps.com).
 
+**Live:** [swift-struck-ui.pages.dev](https://swift-struck-ui.pages.dev) ·
+**Docs:** [/documentation](https://swift-struck-ui.pages.dev/documentation) ·
+**Gallery:** [/components](https://swift-struck-ui.pages.dev/components) ·
+**Staging:** [staging.swift-struck-ui.pages.dev](https://staging.swift-struck-ui.pages.dev)
+(staging & live are the same build — only the URL differs).
+
 - **~70 components** — primitives (Button, Input, Dialog…) and collections
   (List, Card, Table, Kanban, Calendar, Chart…).
 - **Token-driven** — every color/size resolves to one theme; re-skin in one file.
