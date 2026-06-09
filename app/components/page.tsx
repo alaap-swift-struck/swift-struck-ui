@@ -134,12 +134,23 @@ import {
   fieldProps,
 } from "@swift-struck/ui/registry/primitives/field/field"
 import {
+  defaultActionConfig,
   defaultCollectionConfig,
+  defaultContainerConfig,
   defaultFieldConfig,
+  defaultImageConfig,
+  defaultMapConfig,
+  defaultVideoConfig,
   validateField,
   type CollectionConfig,
+  type ContainerConfig,
   type FieldConfig,
+  type ImageConfig,
+  type MapConfig,
+  type VideoConfig,
 } from "@swift-struck/ui/lib/config"
+import { cn } from "@swift-struck/ui/lib/utils"
+import { Container } from "@swift-struck/ui/registry/primitives/container/container"
 import { Title } from "@swift-struck/ui/registry/primitives/title/title"
 import {
   Form,
@@ -267,6 +278,25 @@ import {
 // The current search text, shared so each Demo can hide itself when filtered.
 const SearchCtx = React.createContext("")
 
+// Per-demo Container config (background + stacking), keyed by demo name. Every
+// demo wraps its children in a <Container>, so its ⚙ can switch the background
+// (none/card/dark/light/image) and lay components horizontally vs vertically.
+const ContainersCtx = React.createContext<{
+  get: (key: string) => Record<string, unknown>
+  set: (key: string, next: Record<string, unknown>) => void
+}>({
+  get: () =>
+    ({ ...defaultContainerConfig }) as unknown as Record<string, unknown>,
+  set: () => {},
+})
+
+const containerEnums = {
+  background: ["none", "card", "dark", "light", "image"],
+  direction: ["vertical", "horizontal"],
+  padding: ["none", "sm", "md", "lg"],
+  gap: ["none", "sm", "md", "lg"],
+}
+
 function Demo({
   name,
   children,
@@ -279,7 +309,7 @@ function Demo({
 }: {
   name: string
   children: React.ReactNode
-  // When provided, a Settings gear appears that live-edits this config.
+  // When provided, a "Config" section is added to the ⚙ to live-edit it.
   config?: Record<string, unknown>
   setConfig?: (next: Record<string, unknown>) => void
   enums?: Record<string, string[]>
@@ -290,8 +320,10 @@ function Demo({
   span?: 1 | 2 | 3
 }) {
   const query = React.useContext(SearchCtx)
+  const containers = React.useContext(ContainersCtx)
   if (query && !name.toLowerCase().includes(query.toLowerCase())) return null
 
+  const container = containers.get(name)
   const hasConfig = Boolean(config && setConfig)
   const hasData = Boolean(data !== undefined && setData)
   const spanClass =
@@ -302,54 +334,66 @@ function Demo({
         : ""
 
   return (
-    <Card className={`min-w-0 ${spanClass}`}>
-      <CardHeader className="flex-row items-center justify-between gap-2 pb-3">
-        <CardTitle className="text-sm font-medium">{name}</CardTitle>
-        {(hasConfig || hasData) && (
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-7"
-                aria-label={`Edit ${name}`}
-              >
-                <Settings2 />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent align="end" className="w-80 p-0">
-              <div className="max-h-[55vh] overflow-y-auto p-3">
-                <div className="flex flex-col gap-4">
-                  {hasConfig && (
-                    <div className="flex flex-col gap-3">
-                      <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                        Config · live
-                      </p>
-                      <ConfigEditor
-                        config={config!}
-                        onChange={setConfig!}
-                        enums={enums}
-                      />
-                    </div>
-                  )}
-                  {hasData && (
-                    <div className="flex flex-col gap-2 border-t pt-4">
-                      <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                        Data · live
-                      </p>
-                      <JsonField value={data} onCommit={(v) => setData!(v)} />
-                    </div>
-                  )}
+    <div className={cn("flex min-w-0 flex-col gap-2", spanClass)}>
+      {/* the component's name sits OUTSIDE/above its container */}
+      <div className="flex items-center justify-between gap-2 px-1">
+        <span className="text-sm font-medium">{name}</span>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7"
+              aria-label={`Edit ${name}`}
+            >
+              <Settings2 />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-80 p-0">
+            <div className="max-h-[55vh] overflow-y-auto p-3">
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-3">
+                  <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                    Container · background &amp; layout
+                  </p>
+                  <ConfigEditor
+                    config={container}
+                    onChange={(n) => containers.set(name, n)}
+                    enums={containerEnums}
+                  />
                 </div>
+                {hasConfig && (
+                  <div className="flex flex-col gap-3 border-t pt-4">
+                    <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                      Config · live
+                    </p>
+                    <ConfigEditor
+                      config={config!}
+                      onChange={setConfig!}
+                      enums={enums}
+                    />
+                  </div>
+                )}
+                {hasData && (
+                  <div className="flex flex-col gap-2 border-t pt-4">
+                    <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                      Data · live
+                    </p>
+                    <JsonField value={data} onCommit={(v) => setData!(v)} />
+                  </div>
+                )}
               </div>
-            </PopoverContent>
-          </Popover>
-        )}
-      </CardHeader>
-      <CardContent className="flex min-h-20 flex-col items-start justify-center gap-4">
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+      <Container
+        config={container as unknown as ContainerConfig}
+        className="min-h-20"
+      >
         {children}
-      </CardContent>
-    </Card>
+      </Container>
+    </div>
   )
 }
 
@@ -779,8 +823,31 @@ const titleEnums = { variant: ["simple", "image", "profile", "cover"] }
 const entryEnums = { type: ["text", "email", "number", "tel"] }
 const checkEnums = { style: ["checkbox", "switch"] }
 const accordionEnums = { type: ["single", "multiple"] }
+const imageEnums = {
+  shape: ["square", "rounded", "circle"],
+  fit: ["cover", "contain"],
+  aspect: ["auto", "16:9", "4:3", "1:1"],
+}
+const videoEnums = {
+  fit: ["cover", "contain"],
+  aspect: ["auto", "16:9", "4:3", "1:1"],
+}
+const mapEnums = {
+  visualType: ["street", "satellite"],
+  itemAction: ["detail", "none", "navigate", "workflow", "api"],
+}
+const actionEnums = {
+  action: ["detail", "none", "navigate", "workflow", "api"],
+}
 
 const SHADCN = "https://github.com/shadcn.png"
+
+// Map demo records — located by the "location" field ("lat,lng"), labeled by "name".
+const mapData = [
+  { id: "1", name: "Big Ben", location: "51.5007,-0.1246" },
+  { id: "2", name: "Tower Bridge", location: "51.5055,-0.0754" },
+  { id: "3", name: "British Museum", location: "51.5194,-0.1270" },
+]
 
 // Every simple-primitive demo card's editable settings live here, keyed by id.
 const initialKnobs: Record<string, Record<string, unknown>> = {
@@ -857,8 +924,13 @@ const initialKnobs: Record<string, Record<string, unknown>> = {
     body: "Body copy for paragraphs and descriptions.",
     hint: "A small muted hint or caption.",
   },
-  "image-one": { alt: "Sample image" },
-  "map-one": { zoom: 12 },
+  "image-one": { ...defaultImageConfig, altText: "Sample image" },
+  "video-one": { ...defaultVideoConfig },
+  "map-one": {
+    ...defaultMapConfig,
+    addressField: "location",
+    captionField: "name",
+  },
   // Inputs
   "entry-text": {
     label: "Full name",
@@ -900,6 +972,18 @@ const initialKnobs: Record<string, Record<string, unknown>> = {
     title: "Project Atlas",
     body: "A container surface built from tokens.",
   },
+  "container-demo": {
+    ...defaultContainerConfig,
+    background: "dark",
+    direction: "horizontal",
+    columns: 3,
+  },
+  "action-disabled": {
+    ...defaultActionConfig,
+    action: "workflow",
+    disabled: true,
+    showWhenDisabled: true,
+  },
   // Navigation
   "toggle-one": { type: "single" },
   "accordion-one": { type: "single" },
@@ -935,6 +1019,21 @@ const initialKnobs: Record<string, Record<string, unknown>> = {
 
 export default function ComponentsGallery() {
   const [query, setQuery] = React.useState("")
+
+  // Per-demo Container config (background + stacking), defaulted lazily to a card.
+  const [containers, setContainers] = React.useState<
+    Record<string, Record<string, unknown>>
+  >({})
+  const containersApi = React.useMemo(
+    () => ({
+      get: (k: string) =>
+        containers[k] ??
+        ({ ...defaultContainerConfig } as unknown as Record<string, unknown>),
+      set: (k: string, n: Record<string, unknown>) =>
+        setContainers((s) => ({ ...s, [k]: n })),
+    }),
+    [containers]
+  )
 
   // Keyed store for all the simple-primitive demo cards.
   const [knobs, setKnobs] = React.useState(initialKnobs)
@@ -1023,1171 +1122,1248 @@ export default function ComponentsGallery() {
   return (
     <TooltipProvider>
       <SearchCtx.Provider value={query}>
-        <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-10 px-6 py-10">
-          <header className="animate-rise flex flex-wrap items-end justify-between gap-4">
-            <div className="flex flex-col gap-1">
-              <Link
-                href="/"
-                className="text-xs text-muted-foreground transition-colors hover:text-foreground"
-              >
-                ← Dashboard
-              </Link>
-              <h1 className="text-2xl font-semibold tracking-tight">
-                Component Gallery
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Grouped like Glide. Each card is one configuration — click the ⚙
-                to tweak it live, or search to filter.
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="relative w-56">
-                <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search components…"
-                  className="pl-8"
-                />
+        <ContainersCtx.Provider value={containersApi}>
+          <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-10 px-6 py-10">
+            <header className="animate-rise flex flex-wrap items-end justify-between gap-4">
+              <div className="flex flex-col gap-1">
+                <Link
+                  href="/"
+                  className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  ← Dashboard
+                </Link>
+                <h1 className="text-2xl font-semibold tracking-tight">
+                  Component Gallery
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  Grouped like Glide. Each card is one configuration — click the
+                  ⚙ to tweak it live, or search to filter.
+                </p>
               </div>
-              <ModeToggle />
-            </div>
-          </header>
-
-          {/* ============================ COLLECTIONS ============================ */}
-          <Section
-            title="Collections — data views"
-            hint="Multi-row views. Every one wears the same chrome: a title, a live count, search, and pagination."
-          >
-            <Demo
-              name="List · paginated"
-              span={3}
-              config={listCfg}
-              setConfig={setListCfg}
-              enums={collectionEnums}
-              data={peopleData}
-              setData={(d) => setPeopleData(d as typeof peopleLarge)}
-            >
-              <CollectionFrame
-                config={listCfg as unknown as CollectionConfig}
-                data={peopleData}
-                searchKeys={["name", "role", "status"]}
-                renderItems={(rows) => (
-                  <List
-                    items={rows.map((p) => ({
-                      id: p.id,
-                      title: p.name,
-                      subtitle: p.role,
-                      leading: (
-                        <Avatar className="size-9">
-                          <AvatarFallback>{p.name.slice(0, 2)}</AvatarFallback>
-                        </Avatar>
-                      ),
-                      trailing: (
-                        <Badge variant={statusVariant(p.status)}>
-                          {p.status}
-                        </Badge>
-                      ),
-                    }))}
+              <div className="flex items-center gap-2">
+                <div className="relative w-56">
+                  <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Search components…"
+                    className="pl-8"
                   />
-                )}
-              />
-            </Demo>
+                </div>
+                <ModeToggle />
+              </div>
+            </header>
 
-            <Demo
-              name="Card · grid collection"
-              span={3}
-              config={cardCfg}
-              setConfig={setCardCfg}
-              enums={collectionEnums}
-              data={peopleData}
-              setData={(d) => setPeopleData(d as typeof peopleLarge)}
+            {/* ============================ COLLECTIONS ============================ */}
+            <Section
+              title="Collections — data views"
+              hint="Multi-row views. Every one wears the same chrome: a title, a live count, search, and pagination."
             >
-              <CollectionFrame
-                config={cardCfg as unknown as CollectionConfig}
+              <Demo
+                name="List · paginated"
+                span={3}
+                config={listCfg}
+                setConfig={setListCfg}
+                enums={collectionEnums}
                 data={peopleData}
-                searchKeys={["name", "role", "status"]}
-                renderItems={(rows) => (
-                  <CardGrid
-                    columns={3}
-                    items={rows.map((p) => ({
-                      id: p.id,
-                      title: p.name,
-                      description: p.role,
-                      footer: (
-                        <Badge variant={statusVariant(p.status)}>
-                          {p.status}
-                        </Badge>
-                      ),
-                    }))}
-                  />
-                )}
-              />
-            </Demo>
+                setData={(d) => setPeopleData(d as typeof peopleLarge)}
+              >
+                <CollectionFrame
+                  config={listCfg as unknown as CollectionConfig}
+                  data={peopleData}
+                  searchKeys={["name", "role", "status"]}
+                  renderItems={(rows) => (
+                    <List
+                      items={rows.map((p) => ({
+                        id: p.id,
+                        title: p.name,
+                        subtitle: p.role,
+                        leading: (
+                          <Avatar className="size-9">
+                            <AvatarFallback>
+                              {p.name.slice(0, 2)}
+                            </AvatarFallback>
+                          </Avatar>
+                        ),
+                        trailing: (
+                          <Badge variant={statusVariant(p.status)}>
+                            {p.status}
+                          </Badge>
+                        ),
+                      }))}
+                    />
+                  )}
+                />
+              </Demo>
 
-            <Demo
-              name="DataTable · sortable · searchable · row actions"
-              span={3}
-              config={tableCfg}
-              setConfig={setTableCfg}
-              enums={dataTableEnums}
-              data={peopleData}
-              setData={(d) => setPeopleData(d as typeof peopleLarge)}
-            >
-              <DataTable
+              <Demo
+                name="Card · grid collection"
+                span={3}
+                config={cardCfg}
+                setConfig={setCardCfg}
+                enums={collectionEnums}
                 data={peopleData}
-                config={tableCfg as unknown as DataTableConfig}
-                actions={[
-                  { label: "View", onSelect: () => {} },
-                  { label: "Edit", onSelect: () => {} },
-                ]}
-                className="w-full"
-              />
-            </Demo>
+                setData={(d) => setPeopleData(d as typeof peopleLarge)}
+              >
+                <CollectionFrame
+                  config={cardCfg as unknown as CollectionConfig}
+                  data={peopleData}
+                  searchKeys={["name", "role", "status"]}
+                  renderItems={(rows) => (
+                    <CardGrid
+                      columns={3}
+                      items={rows.map((p) => ({
+                        id: p.id,
+                        title: p.name,
+                        description: p.role,
+                        footer: (
+                          <Badge variant={statusVariant(p.status)}>
+                            {p.status}
+                          </Badge>
+                        ),
+                      }))}
+                    />
+                  )}
+                />
+              </Demo>
 
-            <Demo
-              name="Kanban · drag cards between columns"
-              span={3}
-              config={kanbanCfg}
-              setConfig={setKanbanCfg}
-              data={tasks}
-              setData={(d) => setTasks(d as typeof initialTasks)}
-            >
-              <Kanban
+              <Demo
+                name="DataTable · sortable · searchable · row actions"
+                span={3}
+                config={tableCfg}
+                setConfig={setTableCfg}
+                enums={dataTableEnums}
+                data={peopleData}
+                setData={(d) => setPeopleData(d as typeof peopleLarge)}
+              >
+                <DataTable
+                  data={peopleData}
+                  config={tableCfg as unknown as DataTableConfig}
+                  actions={[
+                    { label: "View", onSelect: () => {} },
+                    { label: "Edit", onSelect: () => {} },
+                  ]}
+                  className="w-full"
+                />
+              </Demo>
+
+              <Demo
+                name="Kanban · drag cards between columns"
+                span={3}
+                config={kanbanCfg}
+                setConfig={setKanbanCfg}
                 data={tasks}
-                onDataChange={setTasks}
-                config={kanbanCfg as unknown as KanbanConfig}
-                className="w-full"
-              />
-            </Demo>
+                setData={(d) => setTasks(d as typeof initialTasks)}
+              >
+                <Kanban
+                  data={tasks}
+                  onDataChange={setTasks}
+                  config={kanbanCfg as unknown as KanbanConfig}
+                  className="w-full"
+                />
+              </Demo>
 
-            <Demo
-              name="Calendar · month grid"
-              span={3}
-              config={calCfg}
-              setConfig={setCalCfg}
-              enums={calendarEnums}
-              data={eventData}
-              setData={(d) => setEventData(d as typeof events)}
-            >
-              <CalendarView
+              <Demo
+                name="Calendar · month grid"
+                span={3}
+                config={calCfg}
+                setConfig={setCalCfg}
+                enums={calendarEnums}
                 data={eventData}
-                config={calCfg as unknown as CalendarViewConfig}
-                initialMonth={calInitialMonth}
-                className="w-full"
-              />
-            </Demo>
+                setData={(d) => setEventData(d as typeof events)}
+              >
+                <CalendarView
+                  data={eventData}
+                  config={calCfg as unknown as CalendarViewConfig}
+                  initialMonth={calInitialMonth}
+                  className="w-full"
+                />
+              </Demo>
 
-            <Demo
-              name="Checklist · tick items off"
-              span={1}
-              config={checkCfg}
-              setConfig={setCheckCfg}
-              data={checkItems}
-              setData={(d) => setCheckItems(d as ChecklistItem[])}
+              <Demo
+                name="Checklist · tick items off"
+                span={1}
+                config={checkCfg}
+                setConfig={setCheckCfg}
+                data={checkItems}
+                setData={(d) => setCheckItems(d as ChecklistItem[])}
+              >
+                <Checklist
+                  items={checkItems}
+                  onChange={setCheckItems}
+                  config={checkCfg as unknown as ChecklistConfig}
+                  className="w-full"
+                />
+              </Demo>
+
+              <Demo name="Comments · thread">
+                <Comments
+                  items={comments}
+                  onAdd={(body) =>
+                    setComments((c) => [
+                      ...c,
+                      {
+                        id: String(c.length + 1),
+                        author: "You",
+                        body,
+                        time: "now",
+                      },
+                    ])
+                  }
+                  className="w-full"
+                />
+              </Demo>
+
+              <Demo name="Chat · message thread">
+                <Chat
+                  messages={messages}
+                  onSend={(text) =>
+                    setMessages((m) => [
+                      ...m,
+                      {
+                        id: String(m.length + 1),
+                        from: "me",
+                        text,
+                        time: "now",
+                      },
+                    ])
+                  }
+                  className="w-full"
+                />
+              </Demo>
+            </Section>
+
+            {/* ============================== DISPLAY ============================= */}
+            <Section
+              title="Display — single-record content"
+              hint="Read-mostly blocks that show one record or value (Glide's Fields, Big Numbers, Charts, media…)."
             >
-              <Checklist
-                items={checkItems}
-                onChange={setCheckItems}
-                config={checkCfg as unknown as ChecklistConfig}
-                className="w-full"
-              />
-            </Demo>
+              <Demo
+                name="Fields · record detail"
+                span={2}
+                config={detailCfg}
+                setConfig={setDetailCfg}
+                data={profileData}
+                setData={(d) => setProfileData(d as typeof profile)}
+              >
+                <DetailView
+                  record={profileData}
+                  config={detailCfg as unknown as DetailViewConfig}
+                  className="w-full"
+                />
+              </Demo>
 
-            <Demo name="Comments · thread">
-              <Comments
-                items={comments}
-                onAdd={(body) =>
-                  setComments((c) => [
-                    ...c,
-                    {
-                      id: String(c.length + 1),
-                      author: "You",
-                      body,
-                      time: "now",
-                    },
-                  ])
-                }
-                className="w-full"
-              />
-            </Demo>
+              <Demo
+                name="Big Numbers · stat grid"
+                span={2}
+                config={statCfg}
+                setConfig={setStatCfg}
+                data={statData}
+                setData={(d) => setStatData(d as typeof stats)}
+              >
+                <StatGrid
+                  items={statData}
+                  config={statCfg as unknown as StatGridConfig}
+                  className="w-full"
+                />
+              </Demo>
 
-            <Demo name="Chat · message thread">
-              <Chat
-                messages={messages}
-                onSend={(text) =>
-                  setMessages((m) => [
-                    ...m,
-                    { id: String(m.length + 1), from: "me", text, time: "now" },
-                  ])
-                }
-                className="w-full"
-              />
-            </Demo>
-          </Section>
-
-          {/* ============================== DISPLAY ============================= */}
-          <Section
-            title="Display — single-record content"
-            hint="Read-mostly blocks that show one record or value (Glide's Fields, Big Numbers, Charts, media…)."
-          >
-            <Demo
-              name="Fields · record detail"
-              span={2}
-              config={detailCfg}
-              setConfig={setDetailCfg}
-              data={profileData}
-              setData={(d) => setProfileData(d as typeof profile)}
-            >
-              <DetailView
-                record={profileData}
-                config={detailCfg as unknown as DetailViewConfig}
-                className="w-full"
-              />
-            </Demo>
-
-            <Demo
-              name="Big Numbers · stat grid"
-              span={2}
-              config={statCfg}
-              setConfig={setStatCfg}
-              data={statData}
-              setData={(d) => setStatData(d as typeof stats)}
-            >
-              <StatGrid
-                items={statData}
-                config={statCfg as unknown as StatGridConfig}
-                className="w-full"
-              />
-            </Demo>
-
-            <Demo
-              name="Chart · bar / line / area / pie / radar"
-              span={3}
-              config={chartCfg}
-              setConfig={setChartCfg}
-              enums={chartEnums}
-              data={chartRows}
-              setData={(d) => setChartRows(d as typeof chartData)}
-            >
-              <Chart
+              <Demo
+                name="Chart · bar / line / area / pie / radar"
+                span={3}
+                config={chartCfg}
+                setConfig={setChartCfg}
+                enums={chartEnums}
                 data={chartRows}
-                config={chartCfg as unknown as ChartConfig}
-                className="w-full"
-              />
-            </Demo>
+                setData={(d) => setChartRows(d as typeof chartData)}
+              >
+                <Chart
+                  data={chartRows}
+                  config={chartCfg as unknown as ChartConfig}
+                  className="w-full"
+                />
+              </Demo>
 
-            <VariantGroup
-              items={[
-                { id: "progress-a", name: "Progress · bar" },
-                { id: "progress-b", name: "Progress · low" },
-              ]}
-              configs={knobs}
-              onChange={putKnob}
-              render={(c) => (
-                <div className="flex w-full flex-col gap-2">
-                  <div className="flex justify-between text-sm">
-                    <span>{String(c.label)}</span>
-                    <span className="text-muted-foreground tabular-nums">
-                      {Number(c.value)}%
-                    </span>
+              <VariantGroup
+                items={[
+                  { id: "progress-a", name: "Progress · bar" },
+                  { id: "progress-b", name: "Progress · low" },
+                ]}
+                configs={knobs}
+                onChange={putKnob}
+                render={(c) => (
+                  <div className="flex w-full flex-col gap-2">
+                    <div className="flex justify-between text-sm">
+                      <span>{String(c.label)}</span>
+                      <span className="text-muted-foreground tabular-nums">
+                        {Number(c.value)}%
+                      </span>
+                    </div>
+                    <Progress value={Number(c.value)} />
                   </div>
-                  <Progress value={Number(c.value)} />
-                </div>
-              )}
-            />
-
-            <VariantGroup
-              items={[
-                { id: "title-profile", name: "Title · profile" },
-                { id: "title-cover", name: "Title · cover" },
-                { id: "title-image", name: "Title · image" },
-              ]}
-              configs={knobs}
-              onChange={putKnob}
-              enums={titleEnums}
-              render={(c) => (
-                <Title
-                  variant={
-                    c.variant as React.ComponentProps<typeof Title>["variant"]
-                  }
-                  title={String(c.title)}
-                  subtitle={String(c.subtitle)}
-                  image={String(c.image)}
-                  className="w-full"
-                />
-              )}
-            />
-
-            <VariantGroup
-              items={[{ id: "typography-one", name: "Typography" }]}
-              configs={knobs}
-              onChange={putKnob}
-              render={(c) => (
-                <>
-                  <Headline className="text-lg">{String(c.headline)}</Headline>
-                  <Body>{String(c.body)}</Body>
-                  <Hint>{String(c.hint)}</Hint>
-                </>
-              )}
-            />
-
-            <VariantGroup
-              items={[
-                { id: "badge-default", name: "Badge · default" },
-                { id: "badge-success", name: "Badge · success" },
-                { id: "badge-warning", name: "Badge · warning" },
-                { id: "badge-outline", name: "Badge · outline" },
-              ]}
-              configs={knobs}
-              onChange={putKnob}
-              enums={badgeEnums}
-              render={(c) => (
-                <Badge
-                  variant={
-                    c.variant as React.ComponentProps<typeof Badge>["variant"]
-                  }
-                >
-                  {String(c.label)}
-                </Badge>
-              )}
-            />
-
-            <VariantGroup
-              items={[
-                { id: "rating-edit", name: "Rating · interactive" },
-                { id: "rating-readonly", name: "Rating · read-only" },
-              ]}
-              configs={knobs}
-              onChange={putKnob}
-              render={(c, id) => (
-                <Rating
-                  value={Number(c.value)}
-                  max={Number(c.max)}
-                  readOnly={Boolean(c.readOnly)}
-                  onChange={(v) => putKnob(id, { ...c, value: v })}
-                />
-              )}
-            />
-
-            <VariantGroup
-              items={[{ id: "image-one", name: "Image" }]}
-              configs={knobs}
-              onChange={putKnob}
-              render={(c) => (
-                <Image
-                  src={SHADCN}
-                  alt={String(c.alt)}
-                  ratio={16 / 9}
-                  className="w-full"
-                />
-              )}
-            />
-
-            <Demo name="Video">
-              <Video
-                src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
-                poster={SHADCN}
-                className="w-full"
+                )}
               />
-            </Demo>
 
-            <VariantGroup
-              items={[{ id: "map-one", name: "Map" }]}
-              configs={knobs}
-              onChange={putKnob}
-              render={(c) => (
-                <Map
-                  lat={51.505}
-                  lng={-0.09}
-                  zoom={Number(c.zoom)}
-                  className="w-full"
-                />
-              )}
-            />
-
-            <Demo name="Web Embed">
-              <WebEmbed
-                src="https://www.openstreetmap.org/export/embed.html?bbox=-0.135%2C51.503%2C-0.10%2C51.520&layer=mapnik"
-                title="Map"
-                className="w-full"
-              />
-            </Demo>
-
-            <Demo name="Avatar & Tooltip">
-              <div className="flex items-center gap-3">
-                <Avatar>
-                  <AvatarImage src={SHADCN} alt="@cn" />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-                <Avatar>
-                  <AvatarFallback>AL</AvatarFallback>
-                </Avatar>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      Hover
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>A token-styled tooltip</TooltipContent>
-                </Tooltip>
-              </div>
-            </Demo>
-
-            <Demo name="Skeleton · variants">
-              <div className="flex w-full flex-col gap-4">
-                <Skeleton variant="media" />
-                <Skeleton variant="text" lines={3} />
-                <Skeleton variant="list" lines={2} />
-              </div>
-            </Demo>
-
-            <Demo name="Alert">
-              <Alert>
-                <Info />
-                <AlertTitle>Heads up</AlertTitle>
-                <AlertDescription>The default variant.</AlertDescription>
-              </Alert>
-            </Demo>
-          </Section>
-
-          {/* ========================= INPUTS & PICKERS ======================== */}
-          <Section
-            title="Inputs & pickers"
-            hint="Everything that collects input. Required fields get the animated teal ring; validation messages come from the config."
-          >
-            <Demo
-              name="Choice · dropdown + search (multi)"
-              config={pickedCfg}
-              setConfig={setPickedCfg}
-              enums={choiceEnums}
-            >
-              <div className="w-full">
-                <Choice
-                  options={tagOptions}
-                  value={picked}
-                  onChange={setPicked}
-                  config={pickedCfg as unknown as ChoiceConfig}
-                />
-              </div>
-            </Demo>
-            <Demo
-              name="Choice · pills (single)"
-              config={planCfg}
-              setConfig={setPlanCfg}
-              enums={choiceEnums}
-            >
-              <Choice
-                options={tagOptions}
-                value={plan}
-                onChange={setPlan}
-                config={planCfg as unknown as ChoiceConfig}
-              />
-            </Demo>
-            <Demo
-              name="Choice · chips (multi, max 3)"
-              config={chipsCfg}
-              setConfig={setChipsCfg}
-              enums={choiceEnums}
-            >
-              <Choice
-                options={tagOptions}
-                value={chips}
-                onChange={setChips}
-                config={chipsCfg as unknown as ChoiceConfig}
-              />
-            </Demo>
-
-            <VariantGroup
-              items={[
-                { id: "entry-text", name: "Entry · text" },
-                { id: "entry-email", name: "Entry · email" },
-                { id: "entry-number", name: "Entry · number" },
-                { id: "entry-multiline", name: "Entry · multi-line (size)" },
-              ]}
-              configs={knobs}
-              onChange={putKnob}
-              enums={entryEnums}
-              render={(c, id) => (
-                <div className="flex w-full flex-col gap-1.5">
-                  <Label htmlFor={id}>{String(c.label)}</Label>
-                  {c.multiline ? (
-                    <Textarea
-                      id={id}
-                      rows={3}
-                      placeholder={String(c.placeholder)}
-                    />
-                  ) : (
-                    <Input
-                      id={id}
-                      type={String(c.type)}
-                      placeholder={String(c.placeholder)}
-                    />
-                  )}
-                </div>
-              )}
-            />
-
-            <Demo name="Field · required + live validation">
-              <Field
-                config={usernameCfg}
-                htmlFor="username"
-                error={
-                  usernameTouched
-                    ? (validateField(username, usernameCfg) ?? undefined)
-                    : undefined
-                }
-              >
-                <Input
-                  id="username"
-                  value={username}
-                  placeholder="ada_lovelace"
-                  onChange={(e) => setUsername(e.target.value)}
-                  onBlur={() => setUsernameTouched(true)}
-                  {...fieldProps(usernameCfg)}
-                />
-              </Field>
-            </Demo>
-
-            <VariantGroup
-              items={[
-                { id: "check-box", name: "Checkbox" },
-                { id: "check-switch", name: "Switch" },
-              ]}
-              configs={knobs}
-              onChange={putKnob}
-              enums={checkEnums}
-              render={(c, id) => (
-                <div className="flex items-center gap-2">
-                  {c.style === "switch" ? (
-                    <Switch
-                      id={id}
-                      checked={Boolean(c.checked)}
-                      onCheckedChange={(v) => putKnob(id, { ...c, checked: v })}
-                    />
-                  ) : (
-                    <Checkbox
-                      id={id}
-                      checked={Boolean(c.checked)}
-                      onCheckedChange={(v) =>
-                        putKnob(id, { ...c, checked: Boolean(v) })
-                      }
-                    />
-                  )}
-                  <Label htmlFor={id}>{String(c.label)}</Label>
-                </div>
-              )}
-            />
-
-            <Demo name="Radio Group">
-              <RadioGroup defaultValue="monthly" className="flex gap-4">
-                <div className="flex items-center gap-2">
-                  <RadioGroupItem value="monthly" id="m" />
-                  <Label htmlFor="m">Monthly</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <RadioGroupItem value="yearly" id="y" />
-                  <Label htmlFor="y">Yearly</Label>
-                </div>
-              </RadioGroup>
-            </Demo>
-
-            <VariantGroup
-              items={[{ id: "slider-one", name: "Slider" }]}
-              configs={knobs}
-              onChange={putKnob}
-              render={(c, id) => (
-                <div className="flex w-full flex-col gap-2">
-                  <Slider
-                    value={[Number(c.value)]}
-                    max={Number(c.max)}
-                    step={Number(c.step)}
-                    onValueChange={(v) => putKnob(id, { ...c, value: v[0] })}
-                  />
-                  <span className="text-xs text-muted-foreground tabular-nums">
-                    {Number(c.value)}
-                  </span>
-                </div>
-              )}
-            />
-
-            <VariantGroup
-              items={[{ id: "select-one", name: "Select" }]}
-              configs={knobs}
-              onChange={putKnob}
-              render={(c) => (
-                <Select defaultValue="next" disabled={Boolean(c.disabled)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="next">Next.js</SelectItem>
-                    <SelectItem value="remix">Remix</SelectItem>
-                    <SelectItem value="astro">Astro</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-            />
-
-            <Demo name="Date Picker">
-              <Field config={{ ...defaultFieldConfig, label: "Due date" }}>
-                <DatePicker value={date} onChange={setDate} />
-              </Field>
-            </Demo>
-
-            <Demo name="File Upload">
-              <Field config={{ ...defaultFieldConfig, label: "Attachments" }}>
-                <FileUpload accept="image/*" multiple className="w-full" />
-              </Field>
-            </Demo>
-
-            <Demo name="Signature · required">
-              <Field
-                config={{
-                  ...defaultFieldConfig,
-                  label: "Signature",
-                  required: true,
-                }}
-                ringed={false}
-              >
-                <Signature required className="w-full" />
-              </Field>
-            </Demo>
-
-            <Demo name="Notes · editor">
-              <Field config={{ ...defaultFieldConfig, label: "Notes" }}>
-                <Notes
-                  defaultValue="<p>Edit <b>me</b> — try <i>bold</i>, lists, and a separator.</p>"
-                  className="w-full"
-                />
-              </Field>
-            </Demo>
-
-            <Demo name="Stopwatch">
-              <Stopwatch />
-            </Demo>
-
-            <Demo
-              name="Form · validated, config-driven"
-              span={2}
-              config={formCfg}
-              setConfig={setFormCfg}
-            >
-              <Form
-                config={formCfg as unknown as FormConfig}
-                onSubmit={() => {}}
-                className="w-full"
-              />
-            </Demo>
-          </Section>
-
-          {/* ============================== ACTIONS ============================ */}
-          <Section
-            title="Actions"
-            hint="Interacting fires a side-effect (navigate, workflow, API)."
-          >
-            <VariantGroup
-              items={[
-                { id: "btn-default", name: "Button · primary" },
-                { id: "btn-secondary", name: "Button · secondary" },
-                { id: "btn-outline", name: "Button · outline" },
-                { id: "btn-destructive", name: "Button · destructive" },
-              ]}
-              configs={knobs}
-              onChange={putKnob}
-              enums={buttonEnums}
-              render={(c) => (
-                <Button
-                  variant={
-                    c.variant as React.ComponentProps<typeof Button>["variant"]
-                  }
-                  size={c.size as React.ComponentProps<typeof Button>["size"]}
-                  disabled={Boolean(c.disabled)}
-                >
-                  {String(c.label)}
-                </Button>
-              )}
-            />
-
-            <VariantGroup
-              items={[{ id: "link-one", name: "Link (button asChild)" }]}
-              configs={knobs}
-              onChange={putKnob}
-              render={(c) => (
-                <Button variant="link" asChild>
-                  <a href="#">{String(c.label)}</a>
-                </Button>
-              )}
-            />
-
-            <VariantGroup
-              items={[
-                { id: "actionrow-one", name: "Action Row · profile" },
-                { id: "actionrow-two", name: "Action Row · trailing" },
-              ]}
-              configs={knobs}
-              onChange={putKnob}
-              render={(c) => (
-                <div className="w-full">
-                  <ActionRow
-                    icon={<User />}
+              <VariantGroup
+                items={[
+                  { id: "title-profile", name: "Title · profile" },
+                  { id: "title-cover", name: "Title · cover" },
+                  { id: "title-image", name: "Title · image" },
+                ]}
+                configs={knobs}
+                onChange={putKnob}
+                enums={titleEnums}
+                render={(c) => (
+                  <Title
+                    variant={
+                      c.variant as React.ComponentProps<typeof Title>["variant"]
+                    }
                     title={String(c.title)}
                     subtitle={String(c.subtitle)}
-                    trailing={
-                      c.trailing ? (
-                        <Badge variant="secondary">{String(c.trailing)}</Badge>
-                      ) : undefined
+                    image={String(c.image)}
+                    className="w-full"
+                  />
+                )}
+              />
+
+              <VariantGroup
+                items={[{ id: "typography-one", name: "Typography" }]}
+                configs={knobs}
+                onChange={putKnob}
+                render={(c) => (
+                  <>
+                    <Headline className="text-lg">
+                      {String(c.headline)}
+                    </Headline>
+                    <Body>{String(c.body)}</Body>
+                    <Hint>{String(c.hint)}</Hint>
+                  </>
+                )}
+              />
+
+              <VariantGroup
+                items={[
+                  { id: "badge-default", name: "Badge · default" },
+                  { id: "badge-success", name: "Badge · success" },
+                  { id: "badge-warning", name: "Badge · warning" },
+                  { id: "badge-outline", name: "Badge · outline" },
+                ]}
+                configs={knobs}
+                onChange={putKnob}
+                enums={badgeEnums}
+                render={(c) => (
+                  <Badge
+                    variant={
+                      c.variant as React.ComponentProps<typeof Badge>["variant"]
                     }
-                    onClick={() => {}}
+                  >
+                    {String(c.label)}
+                  </Badge>
+                )}
+              />
+
+              <VariantGroup
+                items={[
+                  { id: "rating-edit", name: "Rating · interactive" },
+                  { id: "rating-readonly", name: "Rating · read-only" },
+                ]}
+                configs={knobs}
+                onChange={putKnob}
+                render={(c, id) => (
+                  <Rating
+                    value={Number(c.value)}
+                    max={Number(c.max)}
+                    readOnly={Boolean(c.readOnly)}
+                    onChange={(v) => putKnob(id, { ...c, value: v })}
+                  />
+                )}
+              />
+
+              <VariantGroup
+                items={[{ id: "image-one", name: "Image" }]}
+                configs={knobs}
+                onChange={putKnob}
+                enums={imageEnums}
+                render={(c) => (
+                  <Image
+                    src={SHADCN}
+                    config={c as unknown as ImageConfig}
+                    className="w-full"
+                  />
+                )}
+              />
+
+              <VariantGroup
+                items={[{ id: "video-one", name: "Video" }]}
+                configs={knobs}
+                onChange={putKnob}
+                enums={videoEnums}
+                render={(c) => (
+                  <Video
+                    src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+                    poster={SHADCN}
+                    config={c as unknown as VideoConfig}
+                  />
+                )}
+              />
+
+              <VariantGroup
+                items={[{ id: "map-one", name: "Map" }]}
+                configs={knobs}
+                onChange={putKnob}
+                enums={mapEnums}
+                render={(c) => (
+                  <Map
+                    data={mapData}
+                    config={c as unknown as MapConfig}
+                    className="w-full"
+                  />
+                )}
+              />
+
+              <Demo name="Web Embed">
+                <WebEmbed
+                  src="https://www.openstreetmap.org/export/embed.html?bbox=-0.135%2C51.503%2C-0.10%2C51.520&layer=mapnik"
+                  title="Map"
+                  className="w-full"
+                />
+              </Demo>
+
+              <Demo name="Avatar & Tooltip">
+                <div className="flex items-center gap-3">
+                  <Avatar>
+                    <AvatarImage src={SHADCN} alt="@cn" />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>
+                  <Avatar>
+                    <AvatarFallback>AL</AvatarFallback>
+                  </Avatar>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        Hover
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>A token-styled tooltip</TooltipContent>
+                  </Tooltip>
+                </div>
+              </Demo>
+
+              <Demo name="Skeleton · variants">
+                <div className="flex w-full flex-col gap-4">
+                  <Skeleton variant="media" />
+                  <Skeleton variant="text" lines={3} />
+                  <Skeleton variant="list" lines={2} />
+                </div>
+              </Demo>
+
+              <Demo name="Alert">
+                <Alert>
+                  <Info />
+                  <AlertTitle>Heads up</AlertTitle>
+                  <AlertDescription>The default variant.</AlertDescription>
+                </Alert>
+              </Demo>
+            </Section>
+
+            {/* ========================= INPUTS & PICKERS ======================== */}
+            <Section
+              title="Inputs & pickers"
+              hint="Everything that collects input. Required fields get the animated teal ring; validation messages come from the config."
+            >
+              <Demo
+                name="Choice · dropdown + search (multi)"
+                config={pickedCfg}
+                setConfig={setPickedCfg}
+                enums={choiceEnums}
+              >
+                <div className="w-full">
+                  <Choice
+                    options={tagOptions}
+                    value={picked}
+                    onChange={setPicked}
+                    config={pickedCfg as unknown as ChoiceConfig}
                   />
                 </div>
-              )}
-            />
-          </Section>
-
-          {/* ============================== LAYOUT ============================= */}
-          <Section title="Layout" hint="Structure & spacing.">
-            <VariantGroup
-              items={[{ id: "card-one", name: "Card (container)" }]}
-              configs={knobs}
-              onChange={putKnob}
-              render={(c) => (
-                <Card className="w-full">
-                  <CardHeader>
-                    <CardTitle>{String(c.title)}</CardTitle>
-                    <CardDescription>{String(c.body)}</CardDescription>
-                  </CardHeader>
-                </Card>
-              )}
-            />
-
-            <VariantGroup
-              items={[{ id: "separator-one", name: "Separator" }]}
-              configs={knobs}
-              onChange={putKnob}
-              render={(c) => (
-                <div className="flex w-full items-center gap-3 text-xs text-muted-foreground">
-                  <Separator className="flex-1" />
-                  {String(c.label)}
-                  <Separator className="flex-1" />
-                </div>
-              )}
-            />
-
-            <VariantGroup
-              items={[{ id: "spacer-one", name: "Spacer" }]}
-              configs={knobs}
-              onChange={putKnob}
-              enums={spacerEnums}
-              render={(c) => (
-                <>
-                  <Badge>Above</Badge>
-                  <Spacer size={c.size as "sm" | "default" | "lg" | "xl"} />
-                  <Badge>Below</Badge>
-                </>
-              )}
-            />
-
-            <VariantGroup
-              items={[{ id: "spinner-one", name: "Spinner" }]}
-              configs={knobs}
-              onChange={putKnob}
-              enums={spinnerEnums}
-              render={(c) => (
-                <Spinner
-                  size={c.size as React.ComponentProps<typeof Spinner>["size"]}
+              </Demo>
+              <Demo
+                name="Choice · pills (single)"
+                config={planCfg}
+                setConfig={setPlanCfg}
+                enums={choiceEnums}
+              >
+                <Choice
+                  options={tagOptions}
+                  value={plan}
+                  onChange={setPlan}
+                  config={planCfg as unknown as ChoiceConfig}
                 />
-              )}
-            />
+              </Demo>
+              <Demo
+                name="Choice · chips (multi, max 3)"
+                config={chipsCfg}
+                setConfig={setChipsCfg}
+                enums={choiceEnums}
+              >
+                <Choice
+                  options={tagOptions}
+                  value={chips}
+                  onChange={setChips}
+                  config={chipsCfg as unknown as ChoiceConfig}
+                />
+              </Demo>
 
-            <VariantGroup
-              items={[{ id: "accordion-one", name: "Accordion" }]}
-              configs={knobs}
-              onChange={putKnob}
-              enums={accordionEnums}
-              render={(c) =>
-                c.type === "multiple" ? (
-                  <Accordion type="multiple" className="w-full">
-                    <AccordionItem value="1">
-                      <AccordionTrigger>Is it accessible?</AccordionTrigger>
-                      <AccordionContent>
-                        Yes, via Radix + ARIA.
-                      </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="2">
-                      <AccordionTrigger>Is it themed?</AccordionTrigger>
-                      <AccordionContent>Yes, from tokens.</AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                ) : (
-                  <Accordion type="single" collapsible className="w-full">
-                    <AccordionItem value="1">
-                      <AccordionTrigger>Is it accessible?</AccordionTrigger>
-                      <AccordionContent>
-                        Yes, via Radix + ARIA.
-                      </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="2">
-                      <AccordionTrigger>Is it themed?</AccordionTrigger>
-                      <AccordionContent>Yes, from tokens.</AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                )
-              }
-            />
+              <VariantGroup
+                items={[
+                  { id: "entry-text", name: "Entry · text" },
+                  { id: "entry-email", name: "Entry · email" },
+                  { id: "entry-number", name: "Entry · number" },
+                  { id: "entry-multiline", name: "Entry · multi-line (size)" },
+                ]}
+                configs={knobs}
+                onChange={putKnob}
+                enums={entryEnums}
+                render={(c, id) => (
+                  <div className="flex w-full flex-col gap-1.5">
+                    <Label htmlFor={id}>{String(c.label)}</Label>
+                    {c.multiline ? (
+                      <Textarea
+                        id={id}
+                        rows={3}
+                        placeholder={String(c.placeholder)}
+                      />
+                    ) : (
+                      <Input
+                        id={id}
+                        type={String(c.type)}
+                        placeholder={String(c.placeholder)}
+                      />
+                    )}
+                  </div>
+                )}
+              />
 
-            <Demo name="Tabs">
-              <Tabs defaultValue="a" className="w-full">
-                <TabsList>
-                  <TabsTrigger value="a">Account</TabsTrigger>
-                  <TabsTrigger value="b">Billing</TabsTrigger>
-                </TabsList>
-                <TabsContent
-                  value="a"
-                  className="text-sm text-muted-foreground"
+              <Demo name="Field · required + live validation">
+                <Field
+                  config={usernameCfg}
+                  htmlFor="username"
+                  error={
+                    usernameTouched
+                      ? (validateField(username, usernameCfg) ?? undefined)
+                      : undefined
+                  }
                 >
-                  Account settings.
-                </TabsContent>
-                <TabsContent
-                  value="b"
-                  className="text-sm text-muted-foreground"
-                >
-                  Billing details.
-                </TabsContent>
-              </Tabs>
-            </Demo>
+                  <Input
+                    id="username"
+                    value={username}
+                    placeholder="ada_lovelace"
+                    onChange={(e) => setUsername(e.target.value)}
+                    onBlur={() => setUsernameTouched(true)}
+                    {...fieldProps(usernameCfg)}
+                  />
+                </Field>
+              </Demo>
 
-            <Demo name="Collapsible">
-              <Collapsible className="w-full">
-                <CollapsibleTrigger asChild>
-                  <Button variant="outline" className="w-full justify-between">
-                    Toggle details
-                    <ChevronsUpDown className="size-4" />
+              <VariantGroup
+                items={[
+                  { id: "check-box", name: "Checkbox" },
+                  { id: "check-switch", name: "Switch" },
+                ]}
+                configs={knobs}
+                onChange={putKnob}
+                enums={checkEnums}
+                render={(c, id) => (
+                  <div className="flex items-center gap-2">
+                    {c.style === "switch" ? (
+                      <Switch
+                        id={id}
+                        checked={Boolean(c.checked)}
+                        onCheckedChange={(v) =>
+                          putKnob(id, { ...c, checked: v })
+                        }
+                      />
+                    ) : (
+                      <Checkbox
+                        id={id}
+                        checked={Boolean(c.checked)}
+                        onCheckedChange={(v) =>
+                          putKnob(id, { ...c, checked: Boolean(v) })
+                        }
+                      />
+                    )}
+                    <Label htmlFor={id}>{String(c.label)}</Label>
+                  </div>
+                )}
+              />
+
+              <Demo name="Radio Group">
+                <RadioGroup defaultValue="monthly" className="flex gap-4">
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="monthly" id="m" />
+                    <Label htmlFor="m">Monthly</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="yearly" id="y" />
+                    <Label htmlFor="y">Yearly</Label>
+                  </div>
+                </RadioGroup>
+              </Demo>
+
+              <VariantGroup
+                items={[{ id: "slider-one", name: "Slider" }]}
+                configs={knobs}
+                onChange={putKnob}
+                render={(c, id) => (
+                  <div className="flex w-full flex-col gap-2">
+                    <Slider
+                      value={[Number(c.value)]}
+                      max={Number(c.max)}
+                      step={Number(c.step)}
+                      onValueChange={(v) => putKnob(id, { ...c, value: v[0] })}
+                    />
+                    <span className="text-xs text-muted-foreground tabular-nums">
+                      {Number(c.value)}
+                    </span>
+                  </div>
+                )}
+              />
+
+              <VariantGroup
+                items={[{ id: "select-one", name: "Select" }]}
+                configs={knobs}
+                onChange={putKnob}
+                render={(c) => (
+                  <Select defaultValue="next" disabled={Boolean(c.disabled)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="next">Next.js</SelectItem>
+                      <SelectItem value="remix">Remix</SelectItem>
+                      <SelectItem value="astro">Astro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+
+              <Demo name="Date Picker">
+                <Field config={{ ...defaultFieldConfig, label: "Due date" }}>
+                  <DatePicker value={date} onChange={setDate} />
+                </Field>
+              </Demo>
+
+              <Demo name="File Upload">
+                <Field config={{ ...defaultFieldConfig, label: "Attachments" }}>
+                  <FileUpload accept="image/*" multiple className="w-full" />
+                </Field>
+              </Demo>
+
+              <Demo name="Signature · required">
+                <Field
+                  config={{
+                    ...defaultFieldConfig,
+                    label: "Signature",
+                    required: true,
+                  }}
+                  ringed={false}
+                >
+                  <Signature required className="w-full" />
+                </Field>
+              </Demo>
+
+              <Demo name="Notes · editor">
+                <Field config={{ ...defaultFieldConfig, label: "Notes" }}>
+                  <Notes
+                    defaultValue="<p>Edit <b>me</b> — try <i>bold</i>, lists, and a separator.</p>"
+                    className="w-full"
+                  />
+                </Field>
+              </Demo>
+
+              <Demo name="Stopwatch">
+                <Stopwatch />
+              </Demo>
+
+              <Demo
+                name="Form · validated, config-driven"
+                span={2}
+                config={formCfg}
+                setConfig={setFormCfg}
+              >
+                <Form
+                  config={formCfg as unknown as FormConfig}
+                  onSubmit={() => {}}
+                  className="w-full"
+                />
+              </Demo>
+            </Section>
+
+            {/* ============================== ACTIONS ============================ */}
+            <Section
+              title="Actions"
+              hint="Interacting fires a side-effect (navigate, workflow, API)."
+            >
+              <VariantGroup
+                items={[
+                  { id: "btn-default", name: "Button · primary" },
+                  { id: "btn-secondary", name: "Button · secondary" },
+                  { id: "btn-outline", name: "Button · outline" },
+                  { id: "btn-destructive", name: "Button · destructive" },
+                ]}
+                configs={knobs}
+                onChange={putKnob}
+                enums={buttonEnums}
+                render={(c) => (
+                  <Button
+                    variant={
+                      c.variant as React.ComponentProps<
+                        typeof Button
+                      >["variant"]
+                    }
+                    size={c.size as React.ComponentProps<typeof Button>["size"]}
+                    disabled={Boolean(c.disabled)}
+                  >
+                    {String(c.label)}
                   </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="mt-2 rounded-lg border p-3 text-sm text-muted-foreground">
-                  Hidden content revealed on demand.
-                </CollapsibleContent>
-              </Collapsible>
-            </Demo>
+                )}
+              />
 
-            <Demo name="Aspect Ratio (16:9)">
-              <div className="w-full">
-                <AspectRatio
-                  ratio={16 / 9}
-                  className="overflow-hidden rounded-lg border bg-gradient-to-br from-primary/20 to-chart-3/20"
-                />
-              </div>
-            </Demo>
+              <VariantGroup
+                items={[{ id: "link-one", name: "Link (button asChild)" }]}
+                configs={knobs}
+                onChange={putKnob}
+                render={(c) => (
+                  <Button variant="link" asChild>
+                    <a href="#">{String(c.label)}</a>
+                  </Button>
+                )}
+              />
 
-            <Demo name="Scroll Area">
-              <ScrollArea className="h-28 w-full rounded-lg border p-3">
-                <div className="flex flex-col gap-2 text-sm">
-                  {Array.from({ length: 12 }).map((_, i) => (
-                    <div key={i}>Item {i + 1}</div>
-                  ))}
-                </div>
-              </ScrollArea>
-            </Demo>
+              <VariantGroup
+                items={[
+                  { id: "actionrow-one", name: "Action Row · profile" },
+                  { id: "actionrow-two", name: "Action Row · trailing" },
+                ]}
+                configs={knobs}
+                onChange={putKnob}
+                render={(c) => (
+                  <div className="w-full">
+                    <ActionRow
+                      icon={<User />}
+                      title={String(c.title)}
+                      subtitle={String(c.subtitle)}
+                      trailing={
+                        c.trailing ? (
+                          <Badge variant="secondary">
+                            {String(c.trailing)}
+                          </Badge>
+                        ) : undefined
+                      }
+                      onClick={() => {}}
+                    />
+                  </div>
+                )}
+              />
 
-            <Demo name="Table (primitive)">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Invoice</TableHead>
-                    <TableHead className="text-right">Total</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {invoices.map((inv) => (
-                    <TableRow key={inv.id}>
-                      <TableCell className="font-medium">{inv.id}</TableCell>
-                      <TableCell className="text-right tabular-nums">
-                        {inv.total}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Demo>
-          </Section>
+              <VariantGroup
+                items={[
+                  { id: "action-disabled", name: "Button · access-gated" },
+                ]}
+                configs={knobs}
+                onChange={putKnob}
+                enums={actionEnums}
+                render={(c) => {
+                  // No access: show it greyed-out, or hide it entirely.
+                  if (c.disabled && !c.showWhenDisabled)
+                    return (
+                      <span className="text-xs text-muted-foreground">
+                        Hidden — the signed-in user lacks access.
+                      </span>
+                    )
+                  return (
+                    <Button disabled={Boolean(c.disabled)}>Run workflow</Button>
+                  )
+                }}
+              />
+            </Section>
 
-          {/* =========================== NAVIGATION =========================== */}
-          <Section title="Navigation" hint="Move between pages & views.">
-            <VariantGroup
-              items={[{ id: "toggle-one", name: "Toggle & Toggle Group" }]}
-              configs={knobs}
-              onChange={putKnob}
-              render={(c) => (
-                <>
-                  <Toggle aria-label="Bold">
-                    <Bold />
-                  </Toggle>
-                  {c.type === "multiple" ? (
-                    <ToggleGroup type="multiple" defaultValue={["left"]}>
-                      <ToggleGroupItem value="left" aria-label="Left">
-                        <AlignLeft />
-                      </ToggleGroupItem>
-                      <ToggleGroupItem value="center" aria-label="Center">
-                        <AlignCenter />
-                      </ToggleGroupItem>
-                      <ToggleGroupItem value="right" aria-label="Right">
-                        <AlignRight />
-                      </ToggleGroupItem>
-                    </ToggleGroup>
+            {/* ============================== LAYOUT ============================= */}
+            <Section title="Layout" hint="Structure & spacing.">
+              <VariantGroup
+                items={[
+                  {
+                    id: "container-demo",
+                    name: "Container · background & stacking",
+                    span: 3,
+                  },
+                ]}
+                configs={knobs}
+                onChange={putKnob}
+                enums={containerEnums}
+                render={(c) => (
+                  <Container
+                    config={c as unknown as ContainerConfig}
+                    className="w-full"
+                  >
+                    {["One", "Two", "Three"].map((t) => (
+                      <div
+                        key={t}
+                        className="rounded-lg border bg-background/40 p-4 text-sm"
+                      >
+                        {t}
+                      </div>
+                    ))}
+                  </Container>
+                )}
+              />
+
+              <VariantGroup
+                items={[{ id: "card-one", name: "Card (container)" }]}
+                configs={knobs}
+                onChange={putKnob}
+                render={(c) => (
+                  <Card className="w-full">
+                    <CardHeader>
+                      <CardTitle>{String(c.title)}</CardTitle>
+                      <CardDescription>{String(c.body)}</CardDescription>
+                    </CardHeader>
+                  </Card>
+                )}
+              />
+
+              <VariantGroup
+                items={[{ id: "separator-one", name: "Separator" }]}
+                configs={knobs}
+                onChange={putKnob}
+                render={(c) => (
+                  <div className="flex w-full items-center gap-3 text-xs text-muted-foreground">
+                    <Separator className="flex-1" />
+                    {String(c.label)}
+                    <Separator className="flex-1" />
+                  </div>
+                )}
+              />
+
+              <VariantGroup
+                items={[{ id: "spacer-one", name: "Spacer" }]}
+                configs={knobs}
+                onChange={putKnob}
+                enums={spacerEnums}
+                render={(c) => (
+                  <>
+                    <Badge>Above</Badge>
+                    <Spacer size={c.size as "sm" | "default" | "lg" | "xl"} />
+                    <Badge>Below</Badge>
+                  </>
+                )}
+              />
+
+              <VariantGroup
+                items={[{ id: "spinner-one", name: "Spinner" }]}
+                configs={knobs}
+                onChange={putKnob}
+                enums={spinnerEnums}
+                render={(c) => (
+                  <Spinner
+                    size={
+                      c.size as React.ComponentProps<typeof Spinner>["size"]
+                    }
+                  />
+                )}
+              />
+
+              <VariantGroup
+                items={[{ id: "accordion-one", name: "Accordion" }]}
+                configs={knobs}
+                onChange={putKnob}
+                enums={accordionEnums}
+                render={(c) =>
+                  c.type === "multiple" ? (
+                    <Accordion type="multiple" className="w-full">
+                      <AccordionItem value="1">
+                        <AccordionTrigger>Is it accessible?</AccordionTrigger>
+                        <AccordionContent>
+                          Yes, via Radix + ARIA.
+                        </AccordionContent>
+                      </AccordionItem>
+                      <AccordionItem value="2">
+                        <AccordionTrigger>Is it themed?</AccordionTrigger>
+                        <AccordionContent>Yes, from tokens.</AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
                   ) : (
-                    <ToggleGroup type="single" defaultValue="left">
-                      <ToggleGroupItem value="left" aria-label="Left">
-                        <AlignLeft />
-                      </ToggleGroupItem>
-                      <ToggleGroupItem value="center" aria-label="Center">
-                        <AlignCenter />
-                      </ToggleGroupItem>
-                      <ToggleGroupItem value="right" aria-label="Right">
-                        <AlignRight />
-                      </ToggleGroupItem>
-                    </ToggleGroup>
-                  )}
-                </>
-              )}
-            />
+                    <Accordion type="single" collapsible className="w-full">
+                      <AccordionItem value="1">
+                        <AccordionTrigger>Is it accessible?</AccordionTrigger>
+                        <AccordionContent>
+                          Yes, via Radix + ARIA.
+                        </AccordionContent>
+                      </AccordionItem>
+                      <AccordionItem value="2">
+                        <AccordionTrigger>Is it themed?</AccordionTrigger>
+                        <AccordionContent>Yes, from tokens.</AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  )
+                }
+              />
 
-            <Demo name="Breadcrumb">
-              <Breadcrumb>
-                <BreadcrumbList>
-                  <BreadcrumbItem>
-                    <BreadcrumbLink href="#">Home</BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
-                    <BreadcrumbLink href="#">Components</BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
-                    <BreadcrumbPage>Choice</BreadcrumbPage>
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb>
-            </Demo>
+              <Demo name="Tabs">
+                <Tabs defaultValue="a" className="w-full">
+                  <TabsList>
+                    <TabsTrigger value="a">Account</TabsTrigger>
+                    <TabsTrigger value="b">Billing</TabsTrigger>
+                  </TabsList>
+                  <TabsContent
+                    value="a"
+                    className="text-sm text-muted-foreground"
+                  >
+                    Account settings.
+                  </TabsContent>
+                  <TabsContent
+                    value="b"
+                    className="text-sm text-muted-foreground"
+                  >
+                    Billing details.
+                  </TabsContent>
+                </Tabs>
+              </Demo>
 
-            <Demo name="Pagination">
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious href="#" />
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationLink href="#">1</PaginationLink>
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationLink href="#" isActive>
-                      2
-                    </PaginationLink>
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationEllipsis />
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationNext href="#" />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            </Demo>
+              <Demo name="Collapsible">
+                <Collapsible className="w-full">
+                  <CollapsibleTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-between"
+                    >
+                      Toggle details
+                      <ChevronsUpDown className="size-4" />
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-2 rounded-lg border p-3 text-sm text-muted-foreground">
+                    Hidden content revealed on demand.
+                  </CollapsibleContent>
+                </Collapsible>
+              </Demo>
 
-            <Demo name="Command (⌘K)">
-              <Command className="border">
-                <CommandInput placeholder="Type a command…" />
-                <CommandList>
-                  <CommandEmpty>No results found.</CommandEmpty>
-                  <CommandGroup heading="Suggestions">
-                    <CommandItem>
-                      <User /> Profile <CommandShortcut>⌘P</CommandShortcut>
-                    </CommandItem>
-                    <CommandItem>
-                      <Settings /> Settings{" "}
-                      <CommandShortcut>⌘S</CommandShortcut>
-                    </CommandItem>
-                  </CommandGroup>
-                  <CommandSeparator />
-                  <CommandGroup heading="Account">
-                    <CommandItem>
+              <Demo name="Aspect Ratio (16:9)">
+                <div className="w-full">
+                  <AspectRatio
+                    ratio={16 / 9}
+                    className="overflow-hidden rounded-lg border bg-gradient-to-br from-primary/20 to-chart-3/20"
+                  />
+                </div>
+              </Demo>
+
+              <Demo name="Scroll Area">
+                <ScrollArea className="h-28 w-full rounded-lg border p-3">
+                  <div className="flex flex-col gap-2 text-sm">
+                    {Array.from({ length: 12 }).map((_, i) => (
+                      <div key={i}>Item {i + 1}</div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </Demo>
+
+              <Demo name="Table (primitive)">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Invoice</TableHead>
+                      <TableHead className="text-right">Total</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {invoices.map((inv) => (
+                      <TableRow key={inv.id}>
+                        <TableCell className="font-medium">{inv.id}</TableCell>
+                        <TableCell className="text-right tabular-nums">
+                          {inv.total}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Demo>
+            </Section>
+
+            {/* =========================== NAVIGATION =========================== */}
+            <Section title="Navigation" hint="Move between pages & views.">
+              <VariantGroup
+                items={[{ id: "toggle-one", name: "Toggle & Toggle Group" }]}
+                configs={knobs}
+                onChange={putKnob}
+                render={(c) => (
+                  <>
+                    <Toggle aria-label="Bold">
+                      <Bold />
+                    </Toggle>
+                    {c.type === "multiple" ? (
+                      <ToggleGroup type="multiple" defaultValue={["left"]}>
+                        <ToggleGroupItem value="left" aria-label="Left">
+                          <AlignLeft />
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="center" aria-label="Center">
+                          <AlignCenter />
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="right" aria-label="Right">
+                          <AlignRight />
+                        </ToggleGroupItem>
+                      </ToggleGroup>
+                    ) : (
+                      <ToggleGroup type="single" defaultValue="left">
+                        <ToggleGroupItem value="left" aria-label="Left">
+                          <AlignLeft />
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="center" aria-label="Center">
+                          <AlignCenter />
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="right" aria-label="Right">
+                          <AlignRight />
+                        </ToggleGroupItem>
+                      </ToggleGroup>
+                    )}
+                  </>
+                )}
+              />
+
+              <Demo name="Breadcrumb">
+                <Breadcrumb>
+                  <BreadcrumbList>
+                    <BreadcrumbItem>
+                      <BreadcrumbLink href="#">Home</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                      <BreadcrumbLink href="#">Components</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                      <BreadcrumbPage>Choice</BreadcrumbPage>
+                    </BreadcrumbItem>
+                  </BreadcrumbList>
+                </Breadcrumb>
+              </Demo>
+
+              <Demo name="Pagination">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious href="#" />
+                    </PaginationItem>
+                    <PaginationItem>
+                      <PaginationLink href="#">1</PaginationLink>
+                    </PaginationItem>
+                    <PaginationItem>
+                      <PaginationLink href="#" isActive>
+                        2
+                      </PaginationLink>
+                    </PaginationItem>
+                    <PaginationItem>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                    <PaginationItem>
+                      <PaginationNext href="#" />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </Demo>
+
+              <Demo name="Command (⌘K)">
+                <Command className="border">
+                  <CommandInput placeholder="Type a command…" />
+                  <CommandList>
+                    <CommandEmpty>No results found.</CommandEmpty>
+                    <CommandGroup heading="Suggestions">
+                      <CommandItem>
+                        <User /> Profile <CommandShortcut>⌘P</CommandShortcut>
+                      </CommandItem>
+                      <CommandItem>
+                        <Settings /> Settings{" "}
+                        <CommandShortcut>⌘S</CommandShortcut>
+                      </CommandItem>
+                    </CommandGroup>
+                    <CommandSeparator />
+                    <CommandGroup heading="Account">
+                      <CommandItem>
+                        <CreditCard /> Billing
+                      </CommandItem>
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </Demo>
+            </Section>
+
+            {/* ============================== OVERLAYS =========================== */}
+            <Section
+              title="Overlays"
+              hint="Float above the page. The ⚙ edits their trigger, title, and body text."
+            >
+              <VariantGroup
+                items={[{ id: "ov-dialog", name: "Dialog" }]}
+                configs={knobs}
+                onChange={putKnob}
+                render={(c) => (
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="outline">{String(c.trigger)}</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>{String(c.title)}</DialogTitle>
+                        <DialogDescription>
+                          {String(c.description)}
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <Button>Save</Button>
+                        </DialogClose>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                )}
+              />
+
+              <Demo name="Dropdown Menu">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline">Open menu</Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-52">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>
+                      <User /> Profile{" "}
+                      <DropdownMenuShortcut>⇧P</DropdownMenuShortcut>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
                       <CreditCard /> Billing
-                    </CommandItem>
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </Demo>
-          </Section>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Settings /> Settings
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>
+                      <LogOut /> Log out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </Demo>
 
-          {/* ============================== OVERLAYS =========================== */}
-          <Section
-            title="Overlays"
-            hint="Float above the page. The ⚙ edits their trigger, title, and body text."
-          >
-            <VariantGroup
-              items={[{ id: "ov-dialog", name: "Dialog" }]}
-              configs={knobs}
-              onChange={putKnob}
-              render={(c) => (
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="outline">{String(c.trigger)}</Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>{String(c.title)}</DialogTitle>
-                      <DialogDescription>
-                        {String(c.description)}
-                      </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                      <DialogClose asChild>
-                        <Button>Save</Button>
-                      </DialogClose>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              )}
-            />
-
-            <Demo name="Dropdown Menu">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline">Open menu</Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-52">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <User /> Profile{" "}
-                    <DropdownMenuShortcut>⇧P</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <CreditCard /> Billing
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Settings /> Settings
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <LogOut /> Log out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </Demo>
-
-            <VariantGroup
-              items={[{ id: "ov-popover", name: "Popover" }]}
-              configs={knobs}
-              onChange={putKnob}
-              render={(c) => (
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline">{String(c.trigger)}</Button>
-                  </PopoverTrigger>
-                  <PopoverContent>
-                    <div className="flex flex-col gap-2">
-                      <p className="text-sm font-medium">{String(c.title)}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {String(c.description)}
-                      </p>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              )}
-            />
-
-            <VariantGroup
-              items={[{ id: "ov-hover", name: "Hover Card" }]}
-              configs={knobs}
-              onChange={putKnob}
-              render={(c) => (
-                <HoverCard>
-                  <HoverCardTrigger asChild>
-                    <Button variant="link">{String(c.trigger)}</Button>
-                  </HoverCardTrigger>
-                  <HoverCardContent>
-                    <div className="flex gap-3">
-                      <Avatar>
-                        <AvatarFallback>BR</AvatarFallback>
-                      </Avatar>
-                      <div className="text-sm">
-                        <p className="font-medium">{String(c.title)}</p>
-                        <p className="text-muted-foreground">
+              <VariantGroup
+                items={[{ id: "ov-popover", name: "Popover" }]}
+                configs={knobs}
+                onChange={putKnob}
+                render={(c) => (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline">{String(c.trigger)}</Button>
+                    </PopoverTrigger>
+                    <PopoverContent>
+                      <div className="flex flex-col gap-2">
+                        <p className="text-sm font-medium">{String(c.title)}</p>
+                        <p className="text-sm text-muted-foreground">
                           {String(c.description)}
                         </p>
                       </div>
-                    </div>
-                  </HoverCardContent>
-                </HoverCard>
-              )}
-            />
+                    </PopoverContent>
+                  </Popover>
+                )}
+              />
 
-            <VariantGroup
-              items={[{ id: "ov-sheet", name: "Sheet" }]}
-              configs={knobs}
-              onChange={putKnob}
-              render={(c) => (
-                <Sheet>
-                  <SheetTrigger asChild>
-                    <Button variant="outline">{String(c.trigger)}</Button>
-                  </SheetTrigger>
-                  <SheetContent>
-                    <SheetHeader>
-                      <SheetTitle>{String(c.title)}</SheetTitle>
-                      <SheetDescription>
-                        {String(c.description)}
-                      </SheetDescription>
-                    </SheetHeader>
-                    <SheetFooter>
-                      <SheetClose asChild>
-                        <Button>Save changes</Button>
-                      </SheetClose>
-                    </SheetFooter>
-                  </SheetContent>
-                </Sheet>
-              )}
-            />
+              <VariantGroup
+                items={[{ id: "ov-hover", name: "Hover Card" }]}
+                configs={knobs}
+                onChange={putKnob}
+                render={(c) => (
+                  <HoverCard>
+                    <HoverCardTrigger asChild>
+                      <Button variant="link">{String(c.trigger)}</Button>
+                    </HoverCardTrigger>
+                    <HoverCardContent>
+                      <div className="flex gap-3">
+                        <Avatar>
+                          <AvatarFallback>BR</AvatarFallback>
+                        </Avatar>
+                        <div className="text-sm">
+                          <p className="font-medium">{String(c.title)}</p>
+                          <p className="text-muted-foreground">
+                            {String(c.description)}
+                          </p>
+                        </div>
+                      </div>
+                    </HoverCardContent>
+                  </HoverCard>
+                )}
+              />
 
-            <VariantGroup
-              items={[{ id: "ov-alert", name: "Alert Dialog" }]}
-              configs={knobs}
-              onChange={putKnob}
-              render={(c) => (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="destructive">{String(c.trigger)}</Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>{String(c.title)}</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        {String(c.description)}
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction>Continue</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              )}
-            />
+              <VariantGroup
+                items={[{ id: "ov-sheet", name: "Sheet" }]}
+                configs={knobs}
+                onChange={putKnob}
+                render={(c) => (
+                  <Sheet>
+                    <SheetTrigger asChild>
+                      <Button variant="outline">{String(c.trigger)}</Button>
+                    </SheetTrigger>
+                    <SheetContent>
+                      <SheetHeader>
+                        <SheetTitle>{String(c.title)}</SheetTitle>
+                        <SheetDescription>
+                          {String(c.description)}
+                        </SheetDescription>
+                      </SheetHeader>
+                      <SheetFooter>
+                        <SheetClose asChild>
+                          <Button>Save changes</Button>
+                        </SheetClose>
+                      </SheetFooter>
+                    </SheetContent>
+                  </Sheet>
+                )}
+              />
 
-            <Demo name="Toast">
-              <Button
-                variant="outline"
-                onClick={() =>
-                  toast("Changes saved", {
-                    description: "Your settings have been updated.",
-                  })
-                }
-              >
-                Show toast
-              </Button>
-            </Demo>
-          </Section>
-        </main>
+              <VariantGroup
+                items={[{ id: "ov-alert", name: "Alert Dialog" }]}
+                configs={knobs}
+                onChange={putKnob}
+                render={(c) => (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive">{String(c.trigger)}</Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>{String(c.title)}</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          {String(c.description)}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction>Continue</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+              />
+
+              <Demo name="Toast">
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    toast("Changes saved", {
+                      description: "Your settings have been updated.",
+                    })
+                  }
+                >
+                  Show toast
+                </Button>
+              </Demo>
+            </Section>
+          </main>
+        </ContainersCtx.Provider>
       </SearchCtx.Provider>
     </TooltipProvider>
   )

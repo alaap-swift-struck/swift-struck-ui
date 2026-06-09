@@ -155,8 +155,10 @@ export function validateField(
   return null
 }
 
-/** Action components — interacting triggers a side-effect. */
-export type ActionKind = "none" | "navigate" | "workflow" | "api"
+/** Action components — interacting triggers a side-effect. The DEFAULT for a
+ * tappable record/component is "detail" (open the detail screen), matching
+ * Glide; set to "none" to make it non-interactive. */
+export type ActionKind = "detail" | "none" | "navigate" | "workflow" | "api"
 
 export interface ActionConfig extends BaseConfig {
   action: ActionKind
@@ -164,13 +166,21 @@ export interface ActionConfig extends BaseConfig {
   target: string
   /** ask the user to confirm before firing. */
   confirm: boolean
+  /** Force a disabled (non-interactive, greyed) state — e.g. the signed-in user
+   * lacks the access rights the linked workflow needs. */
+  disabled: boolean
+  /** When disabled: TRUE shows it greyed-out, FALSE hides it entirely
+   * (use visibilityRules for the latter). Glide-style. */
+  showWhenDisabled: boolean
 }
 
 export const defaultActionConfig: ActionConfig = {
   ...defaultBaseConfig,
-  action: "none",
+  action: "detail",
   target: "",
   confirm: false,
+  disabled: false,
+  showWhenDisabled: true,
 }
 
 /** Collection components — data-bound views. `filter`/`sort`/`limit` are
@@ -187,6 +197,8 @@ export interface CollectionConfig extends BaseConfig {
   limit: number | null
   /** Rows per page (null = no pagination, show everything). */
   itemsPerPage: number | null
+  /** On page change, scroll the collection's top back into view. */
+  scrollToTop: boolean
   searchable: boolean
   /** Show a live "Showing X of Y" count in the header. */
   showCount: boolean
@@ -202,6 +214,7 @@ export const defaultCollectionConfig: CollectionConfig = {
   sortDir: "asc",
   limit: null,
   itemsPerPage: null,
+  scrollToTop: true,
   searchable: true,
   showCount: true,
   emptyText: "Nothing here yet.",
@@ -215,4 +228,117 @@ export interface ContentConfig extends BaseConfig {
 export const defaultContentConfig: ContentConfig = {
   ...defaultBaseConfig,
   emptyText: "",
+}
+
+/* --------------------------- container / layout --------------------------- */
+
+/** A Container wraps other components: it owns the BACKGROUND surface and the
+ * STACKING (vertical = stacked, horizontal = side-by-side columns). In Glide,
+ * layout lives on the container, not on each child — so this is how you lay
+ * components out horizontally vs vertically, and turn a card background on/off. */
+export type ContainerBackground = "none" | "card" | "dark" | "light" | "image"
+
+export interface ContainerConfig extends BaseConfig {
+  background: ContainerBackground
+  /** Image URL when background === "image". */
+  backgroundImage: string
+  /** vertical = stack children; horizontal = lay them out in columns. */
+  direction: "vertical" | "horizontal"
+  /** Columns when direction === "horizontal" (1–6). */
+  columns: number
+  padding: "none" | "sm" | "md" | "lg"
+  gap: "none" | "sm" | "md" | "lg"
+}
+
+export const defaultContainerConfig: ContainerConfig = {
+  ...defaultBaseConfig,
+  background: "card",
+  backgroundImage: "",
+  direction: "vertical",
+  columns: 2,
+  padding: "md",
+  gap: "md",
+}
+
+/* -------------------------------- media ---------------------------------- */
+
+/** Video player config. */
+export interface VideoConfig extends BaseConfig {
+  controls: boolean
+  /** Mute by default (browsers require this to allow autoplay). */
+  muted: boolean
+  autoplay: boolean
+  /** Loop the video. `loopCount` null = forever, N = play N times then stop. */
+  loop: boolean
+  loopCount: number | null
+  /** Offer the browser's download button. FALSE hides it (controlsList). */
+  allowDownload: boolean
+  /** Edge-to-edge: no rounding/border/letterbox. */
+  fullBleed: boolean
+  /** "contain" scales to the video's natural size; "cover" fills the frame. */
+  fit: "contain" | "cover"
+  /** "auto" = use the video's native ratio; otherwise force a ratio. */
+  aspect: "auto" | "16:9" | "4:3" | "1:1"
+}
+
+export const defaultVideoConfig: VideoConfig = {
+  ...defaultBaseConfig,
+  controls: true,
+  muted: true,
+  autoplay: false,
+  loop: false,
+  loopCount: null,
+  allowDownload: true,
+  fullBleed: false,
+  fit: "contain",
+  aspect: "16:9",
+}
+
+/** Image config. */
+export interface ImageConfig extends BaseConfig {
+  shape: "square" | "rounded" | "circle"
+  fit: "cover" | "contain"
+  aspect: "auto" | "16:9" | "4:3" | "1:1"
+  /** Edge-to-edge: no rounding/border. */
+  fullBleed: boolean
+  /** Tap to open the image full-screen. */
+  openOnClick: boolean
+  altText: string
+}
+
+export const defaultImageConfig: ImageConfig = {
+  ...defaultBaseConfig,
+  shape: "rounded",
+  fit: "cover",
+  aspect: "16:9",
+  fullBleed: false,
+  openOnClick: false,
+  altText: "",
+}
+
+/** Map config — data-bound: pins come from records, located by `addressField`
+ * (a "lat,lng" or address column). Live address geocoding + satellite tiles +
+ * clustering need a map-engine upgrade (Leaflet); the config is declared here so
+ * those land without a config change. */
+export interface MapConfig extends BaseConfig {
+  /** Record field holding the location ("lat,lng" or a street address). */
+  addressField: string
+  /** Record field used as a pin's caption/label. */
+  captionField: string
+  visualType: "street" | "satellite"
+  zoom: number
+  /** Cluster nearby pins (needs the Leaflet engine). */
+  cluster: boolean
+  /** Tap a pin → defaults to opening the detail screen. */
+  itemAction: ActionKind
+}
+
+export const defaultMapConfig: MapConfig = {
+  ...defaultBaseConfig,
+  addressField: "location",
+  captionField: "name",
+  visualType: "street",
+  zoom: 12,
+  cluster: false,
+  itemAction: "detail",
 }

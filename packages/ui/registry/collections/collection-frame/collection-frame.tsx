@@ -36,6 +36,7 @@ function CollectionFrame<T>({
 }) {
   const [query, setQuery] = React.useState("")
   const [page, setPage] = React.useState(0)
+  const rootRef = React.useRef<HTMLDivElement>(null)
 
   // A new search resets to the first page so results are never off-screen.
   React.useEffect(() => setPage(0), [query])
@@ -66,8 +67,15 @@ function CollectionFrame<T>({
 
   const showHeader = config.title || config.showCount || config.searchable
 
+  // Page change: optionally scroll the collection's top back into view.
+  const goTo = (p: number) => {
+    setPage(p)
+    if (config.scrollToTop)
+      rootRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+  }
+
   return (
-    <div className={cn("flex w-full flex-col gap-3", className)}>
+    <div ref={rootRef} className={cn("flex w-full flex-col gap-3", className)}>
       {showHeader && (
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-baseline gap-2">
@@ -112,7 +120,7 @@ function CollectionFrame<T>({
               variant="outline"
               size="sm"
               disabled={current === 0}
-              onClick={() => setPage(current - 1)}
+              onClick={() => goTo(current - 1)}
             >
               <ChevronLeft /> Prev
             </Button>
@@ -120,7 +128,7 @@ function CollectionFrame<T>({
               variant="outline"
               size="sm"
               disabled={current >= pageCount - 1}
-              onClick={() => setPage(current + 1)}
+              onClick={() => goTo(current + 1)}
             >
               Next <ChevronRight />
             </Button>
