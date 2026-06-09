@@ -428,6 +428,9 @@ export default function Documentation() {
         </div>
         <div className="flex items-center gap-2">
           <Button asChild variant="outline" size="sm">
+            <Link href="/">Dashboard</Link>
+          </Button>
+          <Button asChild variant="outline" size="sm">
             <Link href="/components">
               <Boxes /> Gallery
             </Link>
@@ -622,6 +625,122 @@ import { defaultCollectionConfig } from "@swift-struck/ui/lib/config"
         </div>
       </Section>
 
+      {/* ------------------------- how it's organised ----------------------- */}
+      <Section eyebrow="How it's organised" title="Two parts, one workspace">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <Badge variant="success">packages/ui</Badge> the library
+              </CardTitle>
+              <CardDescription>
+                The shippable library, published to npm as{" "}
+                <code>@swift-struck/ui</code>. Layered tokens → primitives →
+                collections, one folder per component.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <Badge variant="secondary">app/</Badge> the showcase
+              </CardTitle>
+              <CardDescription>
+                This site — dashboard, gallery, and these docs. A real app that
+                consumes the library, deployed to Cloudflare Pages.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+        <Body className="max-w-prose">
+          A fix in the library reaches every app that depends on it — instantly
+          in this workspace, and on the next install for anyone on npm. The
+          version number is the safety hatch.
+        </Body>
+      </Section>
+
+      {/* -------------------------- quality & guardrails -------------------- */}
+      <Section eyebrow="Confidence" title="Quality & guardrails">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[
+            {
+              t: "Enforced layering",
+              d: "A build-time referee fails the build if a layer reaches the wrong way — the architecture can't rot.",
+            },
+            {
+              t: "Typed & required",
+              d: "Strict TypeScript; every config field is required, so no setting is ever hidden.",
+            },
+            {
+              t: "Unit tested",
+              d: "Validation, the rule engine, and the collection pipeline are covered and run in CI.",
+            },
+            {
+              t: "Token-pure",
+              d: "No hardcoded colors or sizes — only theme tokens, so re-skinning is one edit.",
+            },
+            {
+              t: "Lean by mandate",
+              d: "Variants over new files; ~3% duplication; reuse before adding.",
+            },
+            {
+              t: "Accessible base",
+              d: "Built on Radix primitives for keyboard and screen-reader support.",
+            },
+          ].map((x) => (
+            <Card key={x.t}>
+              <CardHeader>
+                <CardTitle className="text-sm">{x.t}</CardTitle>
+                <CardDescription>{x.d}</CardDescription>
+              </CardHeader>
+            </Card>
+          ))}
+        </div>
+      </Section>
+
+      {/* ----------------------------- live & staging ----------------------- */}
+      <Section eyebrow="Shipping" title="Live & staging">
+        <Alert>
+          <Boxes />
+          <AlertTitle>Same code — only the URL differs.</AlertTitle>
+          <AlertDescription>
+            Staging and production are the <b>exact same build</b> deployed to
+            two addresses; every line of code is identical. You test on staging,
+            then promote that same build to live.
+          </AlertDescription>
+        </Alert>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <Badge variant="warning">Staging</Badge> test here first
+              </CardTitle>
+              <CardDescription>
+                <code>staging.swift-struck-ui.pages.dev</code> — where a change
+                lands before it's public. Click around and confirm it's right.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <Badge variant="success">Live</Badge> the public site
+              </CardTitle>
+              <CardDescription>
+                <code>swift-struck-ui.pages.dev</code> — promoted from the
+                verified staging build. What everyone sees.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+        <Body className="max-w-prose">
+          The library ships the same way on npm: a <code>@next</code> channel
+          for testing and <code>@latest</code> for everyone. Version numbers
+          mean a fix reaches you when you choose to update — and a breaking
+          change never surprise-breaks a running app.
+        </Body>
+      </Section>
+
       {/* ------------------------------ cross-platform ---------------------- */}
       <Section eyebrow="Reach" title="One build, every device">
         <Container
@@ -643,6 +762,9 @@ import { defaultCollectionConfig } from "@swift-struck/ui/lib/config"
       <footer className="flex flex-wrap items-center justify-between gap-3 pb-6 text-sm text-muted-foreground">
         <span>Swift Struck UI — built with itself.</span>
         <span className="flex items-center gap-3">
+          <Link href="/" className="hover:text-foreground">
+            Dashboard
+          </Link>
           <Link href="/components" className="hover:text-foreground">
             Gallery
           </Link>

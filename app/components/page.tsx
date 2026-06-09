@@ -616,12 +616,20 @@ export default function ComponentsGallery() {
           <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-10 px-6 py-10">
             <header className="animate-rise flex flex-wrap items-end justify-between gap-4">
               <div className="flex flex-col gap-1">
-                <Link
-                  href="/"
-                  className="text-xs text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  ← Dashboard
-                </Link>
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  <Link
+                    href="/"
+                    className="transition-colors hover:text-foreground"
+                  >
+                    ← Dashboard
+                  </Link>
+                  <Link
+                    href="/documentation"
+                    className="transition-colors hover:text-foreground"
+                  >
+                    Documentation →
+                  </Link>
+                </div>
                 <h1 className="text-2xl font-semibold tracking-tight">
                   Component Gallery
                 </h1>

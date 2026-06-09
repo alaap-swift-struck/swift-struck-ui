@@ -131,6 +131,9 @@ export default function Home() {
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" asChild>
+            <Link href="/documentation">Docs</Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
             <Link href="/components">Components →</Link>
           </Button>
           <ModeToggle />
