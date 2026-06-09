@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import dynamic from "next/dynamic"
 import Link from "next/link"
 import {
   AlignCenter,
@@ -123,7 +124,19 @@ import {
 import { WebEmbed } from "@swift-struck/ui/registry/primitives/web-embed/web-embed"
 import { Image } from "@swift-struck/ui/registry/primitives/image/image"
 import { Video } from "@swift-struck/ui/registry/primitives/video/video"
-import { Map } from "@swift-struck/ui/registry/primitives/map/map"
+// Leaflet needs the browser, so the Map is loaded client-only (no SSR/prerender).
+const Map = dynamic(
+  () =>
+    import("@swift-struck/ui/registry/primitives/map/map").then((m) => m.Map),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex aspect-video w-full items-center justify-center rounded-xl border bg-muted text-xs text-muted-foreground">
+        Loading map…
+      </div>
+    ),
+  }
+)
 import { Stopwatch } from "@swift-struck/ui/registry/primitives/stopwatch/stopwatch"
 import { Signature } from "@swift-struck/ui/registry/primitives/signature/signature"
 import { FileUpload } from "@swift-struck/ui/registry/primitives/file-upload/file-upload"
