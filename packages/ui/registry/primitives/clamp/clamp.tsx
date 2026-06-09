@@ -10,6 +10,7 @@
 import * as React from "react"
 
 import { type TextDisplayConfig } from "../../../lib/config"
+import { truncateText } from "../../../lib/text"
 import { cn } from "../../../lib/utils"
 
 const clampClass: Record<number, string> = {
@@ -38,11 +39,11 @@ function Clamp({
 
   // Truncate by a fixed character count (not responsive).
   if (config.truncateBy === "characters") {
-    const text =
-      children.length > config.maxChars
-        ? children.slice(0, config.maxChars).trimEnd() + "…"
-        : children
-    return <span className={cn("min-w-0", className)}>{text}</span>
+    return (
+      <span className={cn("min-w-0", className)}>
+        {truncateText(children, config.maxChars)}
+      </span>
+    )
   }
 
   // Truncate by line count — the responsive default (CSS line-clamp adapts the

@@ -21,38 +21,44 @@ Scanned 2026-06-09 · Overall **84/100 (Grade B)** · _Lean, well-architected, e
 
 ## Scores
 
-| Dimension | Before | Now | Status |
-|---|---|---|---|
-| Size & Scope | 85 | 87 | green |
-| Robustness | 63 | 76 | green |
-| Documentation | 84 | 90 | green |
-| Understandability | 82 | 85 | green |
-| Leanness & Optimization | 85 | 88 | green |
-| Scalability & Structure | 84 | 84 | green |
-| **Overall** | **79 (C)** | **84 (B)** | — |
+| Dimension               | Before     | Now        | Status |
+| ----------------------- | ---------- | ---------- | ------ |
+| Size & Scope            | 85         | 87         | green  |
+| Robustness              | 63         | 76         | green  |
+| Documentation           | 84         | 90         | green  |
+| Understandability       | 82         | 85         | green  |
+| Leanness & Optimization | 85         | 88         | green  |
+| Scalability & Structure | 84         | 84         | green  |
+| **Overall**             | **79 (C)** | **84 (B)** | —      |
 
 ## Full findings
 
 ### Size & Scope — 87/100 (green)
+
 - Strengths: lean shipped library, one folder per component; deleted the deletable `preview/`.
 - To improve: the ~2,290-line gallery harness (`app/components/page.tsx`) is worth splitting per section.
 
 ### Robustness — 76/100 (green)
+
 - Strengths: now unit-tested (validation + rule engine, the exact logic a recent bug slipped through) running in CI; strict TS, required config fields, enforced layering, validation, graceful fallbacks.
 - To improve: widen coverage to `CollectionFrame`/`Clamp`/components; wire the declared "detail" action and data-layer filter/sort.
 
 ### Documentation — 90/100 (green)
+
 - Strengths: refreshed root README + full doc set; codename retired (consistent naming); plain-English comments on every file.
 - To improve: per-component `.mdx` docs later for a true reference site.
 
 ### Understandability — 85/100 (green)
+
 - Strengths: clean layering, one folder per component, consistent names + codename, clear entry point (README → HANDOFF).
 - To improve: the 2.3k-line showcase file — split per section.
 
 ### Leanness & Optimization — 88/100 (green)
+
 - Strengths: reuse-first (Field/Container/CollectionFrame/Clamp/VariantGroup); trimmed unused `ContentConfig`; tokens single source of truth; duplication down to 3.0%.
 - To improve: the small remaining duplication is the repeated demo blocks in the harness.
 
 ### Scalability & Structure — 84/100 (green)
+
 - Strengths: monorepo (library vs showcase), real npm package, config-driven with a declared data-layer seam, static export → host-agnostic.
 - To improve: the data layer (filter/sort execution) and the Leaflet map engine are declared seams not yet implemented.

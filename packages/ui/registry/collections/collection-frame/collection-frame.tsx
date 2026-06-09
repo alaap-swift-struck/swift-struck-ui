@@ -4,15 +4,18 @@
 // FULL row array plus a function that renders one page of rows; it applies the
 // Glide-style collection config for you:
 //   • title           — an optional header
+//   • filter / sort    — EXECUTED here (via selectRows) from the config's rules
 //   • showCount        — a LIVE "Showing X of Y" that reacts to search/filter
 //   • searchable       — a search box that filters on the columns you name
 //   • limit            — caps the TOTAL rows (e.g. "only ever show 50")
 //   • itemsPerPage     — paginates the (filtered) rows, with a Prev/Next pager
-// One component so List, Card, Table, etc. all behave identically — no repeat.
+// The data math lives in lib/collection (selectRows) so it stays unit-tested;
+// one component so List, Card, Table, etc. all behave identically — no repeat.
 
 import * as React from "react"
 import { ChevronLeft, ChevronRight, Search } from "lucide-react"
 
+import { selectRows } from "../../../lib/collection"
 import { type CollectionConfig } from "../../../lib/config"
 import { cn } from "../../../lib/utils"
 import { Button } from "../../primitives/button/button"
@@ -44,26 +47,14 @@ function CollectionFrame<T>({
   const visibleConfig = useIsVisible(config)
   if (!visibleConfig) return null
 
-  // 1) cap the total, 2) search-filter, 3) slice to the current page.
-  const limited = config.limit != null ? data.slice(0, config.limit) : data
-  const q = query.trim().toLowerCase()
-  const filtered =
-    config.searchable && q
-      ? limited.filter((row) =>
-          searchKeys.some((k) =>
-            String(row[k] ?? "")
-              .toLowerCase()
-              .includes(q)
-          )
-        )
-      : limited
-
-  const per = config.itemsPerPage ?? filtered.length
-  const pageCount = per > 0 ? Math.max(1, Math.ceil(filtered.length / per)) : 1
-  const current = Math.min(page, pageCount - 1)
-  const visible = config.itemsPerPage
-    ? filtered.slice(current * per, current * per + per)
-    : filtered
+  // limit → filter rules → search → sort → paginate (all pure, see selectRows).
+  const {
+    visible,
+    filtered,
+    total,
+    pageCount,
+    page: current,
+  } = selectRows(data, config, { query, searchKeys, page })
 
   const showHeader = config.title || config.showCount || config.searchable
 
