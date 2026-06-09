@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:static": "BUILD_STATIC=1 next build",
     "start": "next start",
     "lint": "next lint",
     "guardrails": "depcruise packages/ui/registry packages/ui/lib --config .dependency-cruiser.cjs",
