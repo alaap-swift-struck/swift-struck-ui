@@ -1,36 +1,44 @@
-# brimba
+# Swift Struck UI
 
-A web-first, cross-platform component & collection library you build entire
-applications on top of — inspired by [shadcn/ui](https://ui.shadcn.com) for the
-primitives and [Glide](https://www.glideapps.com) for the data-bound
-collections.
+A **web-first, cross-platform component & collection library** you build entire
+apps on top of — primitives inspired by [shadcn/ui](https://ui.shadcn.com) and
+data-bound, configurable collections inspired by [Glide](https://www.glideapps.com).
 
-- **Primitives** — shadcn-style atoms (Button, Input, Dialog…).
-- **Collections** — Glide-style data views (List, Grid, Kanban, Calendar…).
-- **Copy-in** — components are source you own, pulled per-project via a registry.
+- **~70 components** — primitives (Button, Input, Dialog…) and collections
+  (List, Card, Table, Kanban, Calendar, Chart…).
+- **Token-driven** — every color/size resolves to one theme; re-skin in one file.
+- **Config-driven** — collections and inputs take one typed `config`; every field
+  is required, so no setting is ever hidden.
+- **Strictly layered** — `tokens → primitives → collections`, enforced in CI.
 - **Cross-platform** — one web build, wrapped natively with Tauri (desktop) and
-  Capacitor (mobile). No rewrite.
+  Capacitor (mobile) later. No rewrite.
 
-## Status
+## Repo layout
 
-**Phase 0 — Foundation.** The layered skeleton and the guardrails that keep it
-that way are in place. Layers fill in next; see the roadmap in
-[ARCHITECTURE.md](ARCHITECTURE.md).
+- **`packages/ui/`** — the library, published to npm as **`@swift-struck/ui`**.
+- **`app/`** — the docs & showcase site (Next.js), deployed to Cloudflare Pages.
 
-## Getting started
+## Develop
 
 ```bash
 npm install
-npm run dev      # http://localhost:3000 — docs + showcase harness
-npm run check    # enforce the architecture (run before committing)
+npm run dev        # showcase at http://localhost:3000  (and /components)
+npm test           # unit tests (vitest)
+npm run guardrails # enforce the tokens → primitives → collections layering
+npx tsc --noEmit   # type-check
 ```
 
-## Read next
+## Docs
 
-- [ARCHITECTURE.md](ARCHITECTURE.md) — the layers, the rules, the cross-platform
-  plan. The contract.
-- [CONTRIBUTING.md](CONTRIBUTING.md) — how to add a component without breaking
-  the rules.
+- **[HANDOFF.md](HANDOFF.md)** — start here: full state + how to run/verify.
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** — the layering & config contract.
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** — how to add a component.
+- **[DEPLOY.md](DEPLOY.md)** — staging/live publishing (npm + Cloudflare).
+- **[GLIDE-CONFIG-RESEARCH.md](GLIDE-CONFIG-RESEARCH.md)** — per-component config reference.
 
-> Stack: Next.js · React 19 · Tailwind CSS v4 · Radix UI · CVA ·
-> dependency-cruiser (layering enforcement).
+> Stack: Next.js 15 · React 19 · Tailwind CSS v4 · Radix UI · CVA · recharts ·
+> dependency-cruiser (layering) · vitest (tests).
+
+## License
+
+[MIT](LICENSE).

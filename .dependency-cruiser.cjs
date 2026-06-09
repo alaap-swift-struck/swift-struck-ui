@@ -1,5 +1,5 @@
 /**
- * Guardrails that physically enforce brimba's layering. Run with
+ * Guardrails that physically enforce Swift Struck UI's layering. Run with
  * `npm run guardrails`. The build is meant to FAIL if any of these are
  * violated — that is the whole point. See ARCHITECTURE.md for the rationale.
  *

@@ -1,9 +1,9 @@
-# Glide config research — the source of truth for brimba's config parity
+# Glide config research — the source of truth for Swift Struck UI's config parity
 
 Compiled from Glide's official docs (essentials + reference) on 2026-06-08 via four
-parallel research passes. This is what every brimba component's `config` should
+parallel research passes. This is what every Swift Struck UI component's `config` should
 expose. Where Glide's live docs are JS-rendered, fields were reconstructed from
-reference/community sources and flagged. **brimba may be a superset** (e.g. we keep
+reference/community sources and flagged. **Swift Struck UI may be a superset** (e.g. we keep
 Big Numbers delta/trend even though Glide lacks it) — but we should never expose
 _fewer_ knobs than Glide for a component we claim parity on.
 
@@ -16,7 +16,7 @@ Glide splits the palette by **how much data a block shows**:
 - **Components** = one record / one value (single-row).
 - **Collections** = many rows (a list/grid/board).
 
-**Confirmed placements (correct these in brimba):**
+**Confirmed placements (correct these in Swift Struck UI):**
 
 - **Fields** (our `detail-view` / "record fields") → **Component**, NOT a collection.
 - **Big Numbers** (our `stat-grid`) → **Component**, NOT a collection.
@@ -75,7 +75,7 @@ Checklist, Comments, Chat, Custom.
 - **style / size / alignment** (vary by type) + custom CSS.
 
 > Item count: Glide has no explicit "show count" toggle — but the user WANTS a live
-> "showing X of Y" count that reacts to search/filter. This is a brimba addition.
+> "showing X of Y" count that reacts to search/filter. This is a Swift Struck UI addition.
 
 ---
 
@@ -136,7 +136,7 @@ Checklist, Comments, Chat, Custom.
 - **Map** — dataSource, address column, visualType: Street|Satellite, caption, itemClick.
   **Location** is separate (saveTo coords, label).
 - **Big Numbers** (our `stat-grid`, a COMPONENT) — repeatable items: value, name,
-  description; add/reorder; action. **Glide has NO delta/trend/prefix/suffix — brimba
+  description; add/reorder; action. **Glide has NO delta/trend/prefix/suffix — Swift Struck UI
   keeps its richer version as a superset.**
 - **Progress Bar** — value, min (0), max (100), title, description, colors (multi),
   hideValue, formattedValue.
@@ -170,7 +170,7 @@ Checklist, Comments, Chat, Custom.
 
 ---
 
-## Part E — What this means for brimba (gap list)
+## Part E — What this means for Swift Struck UI (gap list)
 
 1. **Re-categorize:** move `detail-view` (Fields) and `stat-grid` (Big Numbers) out of
    Collections into a **Components** section. Keep `checklist` a Collection.

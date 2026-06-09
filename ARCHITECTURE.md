@@ -1,10 +1,10 @@
 # Architecture
 
 This document is the contract. If a change would violate something here, the
-change is wrong — not the document. Keeping to it is what stops brimba from
+change is wrong — not the document. Keeping to it is what stops Swift Struck UI from
 sprawling the way past projects did.
 
-## What brimba is
+## What Swift Struck UI is
 
 A **web-first, cross-platform component & collection library** that you use as a
 base to build entire applications. Two kinds of building blocks:
@@ -13,7 +13,7 @@ base to build entire applications. Two kinds of building blocks:
 2. **Collections** — Glide-style data-bound views (List, Grid, Kanban,
    Calendar, Detail, Form…). This is where the leverage is.
 
-Distribution is a **workspace package**: brimba is imported by your apps (one
+Distribution is a **workspace package**: Swift Struck UI is imported by your apps (one
 workspace/monorepo) so a central fix propagates to every app instantly, while
 each app keeps its own per-component `config`. A copy-in registry may be layered
 on later for external/standalone use.

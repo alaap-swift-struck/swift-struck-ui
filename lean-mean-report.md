@@ -1,51 +1,58 @@
 # Lean Mean Check — Swift Struck UI
 
-Scanned 2026-06-09 · Overall **79/100 (Grade C)** · _Lean, well-architected and exhaustively documented — held back almost entirely by zero automated tests._
+Scanned 2026-06-09 · Overall **84/100 (Grade B)** · _Lean, well-architected, exhaustively documented, and now tested on its core logic — ship-ready._
 
-## Fix first (ordered by impact)
+> Up from **79 (C)** after working the fix-list: added unit tests, a root README, retired the old codename, trimmed dead code.
 
-- [ ] **(robustness)** Add automated tests for the pure logic — _why:_ there are **0 tests**; `validateField`, the visibility rule engine (`evaluateRules`), `CollectionFrame` pagination math, and `Clamp` are pure functions that are cheap to test and high-value. A real number-coercion bug already slipped through review. Tests are the thing to add before others depend on the npm package. — _where:_ `packages/ui/lib/config.ts`, `packages/ui/registry/collections/collection-frame/collection-frame.tsx`, `packages/ui/registry/primitives/clamp/clamp.tsx`
-- [ ] **(documentation)** Add a root `README.md` — _why:_ the package has a README but the repo root doesn't; it's the first thing a GitHub/npm visitor opens. A short one pointing at HANDOFF/ARCHITECTURE/DEPLOY is enough. — _where:_ repo root
-- [ ] **(documentation)** Retire the `brimba` codename — _why:_ docs mix `brimba` (old internal name) with `swift-struck` (the real package); a find-replace removes newcomer confusion. — _where:_ `HANDOFF.md`, `ARCHITECTURE.md`, `PROGRESS.md`, `GLIDE-*.md`
-- [ ] **(size / understandability)** Split the 2,290-line showcase file — _why:_ `app/components/page.tsx` holds ~70 demos in one file; breaking it per section (one file per gallery section) makes edits and review far easier. It's the harness, not shipped, so low risk. — _where:_ `app/components/page.tsx`
-- [ ] **(size / leanness)** Delete the scratch `preview/` folder — _why:_ `app/preview/` (~356 lines) is marked deletable in the handoff; removing it trims dead weight. — _where:_ `app/preview/`
-- [ ] **(leanness)** Adopt or trim the unused config types — _why:_ `ActionConfig`/`ContentConfig` are defined but not consumed yet (kept as foundation); either wire them in or remove until needed, to keep the "no dead weight" promise honest. — _where:_ `packages/ui/lib/config.ts`
-- [ ] **(scalability)** Fill the declared seams — _why:_ filter/sort rules and the map's geocoding/clustering are config-only; the data layer and the Leaflet map engine are the implementations that make the scale story real (not just declared). — _where:_ `packages/ui/registry/collections/*`, `packages/ui/registry/primitives/map/map.tsx`
+## Done this pass
+
+- [x] **(robustness)** Added a unit-test suite (vitest, 11 tests) for `validateField` + the visibility rule engine — runs in CI via `npm test`.
+- [x] **(documentation)** Refreshed the root `README.md` (was a stale "brimba / Phase 0" stub).
+- [x] **(documentation)** Retired the `brimba` codename → consistent **Swift Struck UI** across docs, comments, and CSS vars.
+- [x] **(size / leanness)** Deleted the deletable `app/preview/` scratch folder.
+- [x] **(leanness)** Trimmed the unused `ContentConfig` type.
+
+## Fix next (ordered by impact)
+
+- [ ] **(robustness)** Widen test coverage — _why:_ tests cover the core pure logic; `CollectionFrame` pagination and `Clamp` still live untested inside components. Extract their logic or add render tests. — _where:_ `packages/ui/registry/collections/collection-frame/collection-frame.tsx`, `packages/ui/registry/primitives/clamp/clamp.tsx`
+- [ ] **(size / understandability)** Split the 2,290-line showcase file — _why:_ `app/components/page.tsx` holds ~70 demos in one file; breaking it per section makes edits/review easier. Harness-only, low risk. — _where:_ `app/components/page.tsx`
+- [ ] **(scalability)** Fill the declared seams — _why:_ filter/sort rules and the map's geocoding/clustering/satellite are config-only; the data layer + Leaflet engine make the scale story real. — _where:_ `packages/ui/registry/collections/*`, `packages/ui/registry/primitives/map/map.tsx`
+- [ ] **(robustness)** Wire the declared "open detail screen" action so it isn't a silent no-op. — _where:_ `packages/ui/lib/config.ts` (`ActionKind`), action components
 
 ## Scores
 
-| Dimension | Score | Status |
-|---|---|---|
-| Size & Scope | 85 | green |
-| Robustness | 63 | orange |
-| Documentation | 84 | green |
-| Understandability | 82 | green |
-| Leanness & Optimization | 85 | green |
-| Scalability & Structure | 84 | green |
-| **Overall** | **79** | **C** |
+| Dimension | Before | Now | Status |
+|---|---|---|---|
+| Size & Scope | 85 | 87 | green |
+| Robustness | 63 | 76 | green |
+| Documentation | 84 | 90 | green |
+| Understandability | 82 | 85 | green |
+| Leanness & Optimization | 85 | 88 | green |
+| Scalability & Structure | 84 | 84 | green |
+| **Overall** | **79 (C)** | **84 (B)** | — |
 
 ## Full findings
 
-### Size & Scope — 85/100 (green)
-- Strengths: shipped library (`packages/ui`) is lean, one folder per component; ~9.2k LOC for ~70 components + a full showcase is tight.
-- To improve: `app/components/page.tsx` is ~2,290 lines (split per section); `app/preview/` is deletable dead weight.
+### Size & Scope — 87/100 (green)
+- Strengths: lean shipped library, one folder per component; deleted the deletable `preview/`.
+- To improve: the ~2,290-line gallery harness (`app/components/page.tsx`) is worth splitting per section.
 
-### Robustness — 63/100 (orange)
-- Strengths: strict TypeScript, every config field required; enforced layering (dependency-cruiser), input validation, graceful fallbacks, CI (tsc + guardrails + format) on every push.
-- To improve: **0 automated tests** — add unit tests for the pure logic (validation, rules, pagination, clamp). A couple of features ("open detail" action, data-layer filter/sort) are declared but not wired — a thin implementation + tests prevents silent no-ops.
+### Robustness — 76/100 (green)
+- Strengths: now unit-tested (validation + rule engine, the exact logic a recent bug slipped through) running in CI; strict TS, required config fields, enforced layering, validation, graceful fallbacks.
+- To improve: widen coverage to `CollectionFrame`/`Clamp`/components; wire the declared "detail" action and data-layer filter/sort.
 
-### Documentation — 84/100 (green)
-- Strengths: a real doc set (HANDOFF, ARCHITECTURE, CONTRIBUTING, GLIDE-PARITY, GLIDE-CONFIG-RESEARCH, PROGRESS, DEPLOY); plain-English comments on every file.
-- To improve: no root README (OSS front door); the `brimba` codename lingers alongside `swift-struck`.
+### Documentation — 90/100 (green)
+- Strengths: refreshed root README + full doc set; codename retired (consistent naming); plain-English comments on every file.
+- To improve: per-component `.mdx` docs later for a true reference site.
 
-### Understandability — 82/100 (green)
-- Strengths: clean tokens → primitives → collections layering, one folder per component (findable by convention); clear names (Field, Clamp, Container, CollectionFrame); HANDOFF as the entry point.
-- To improve: the ~70-demo showcase lives in one 2.3k-line file — split it to lower the surprise factor.
+### Understandability — 85/100 (green)
+- Strengths: clean layering, one folder per component, consistent names + codename, clear entry point (README → HANDOFF).
+- To improve: the 2.3k-line showcase file — split per section.
 
-### Leanness & Optimization — 85/100 (green)
-- Strengths: reuse-first (one Field/Container/CollectionFrame/Clamp/VariantGroup, variants over new files); tokens as the single source of truth; anti-bloat enforced by guardrails. Duplication only 3.3%.
-- To improve: `ActionConfig`/`ContentConfig` defined-but-unused; repeated demo blocks make up most of the small duplication.
+### Leanness & Optimization — 88/100 (green)
+- Strengths: reuse-first (Field/Container/CollectionFrame/Clamp/VariantGroup); trimmed unused `ContentConfig`; tokens single source of truth; duplication down to 3.0%.
+- To improve: the small remaining duplication is the repeated demo blocks in the harness.
 
 ### Scalability & Structure — 84/100 (green)
-- Strengths: monorepo (library vs showcase), published as a real npm package; config-driven with a declared data-layer seam; static export → not coupled to any one host.
-- To improve: the data layer (filter/sort execution) and the Leaflet map engine are seams declared in config but not yet implemented — the scale story is partly aspirational until they land.
+- Strengths: monorepo (library vs showcase), real npm package, config-driven with a declared data-layer seam, static export → host-agnostic.
+- To improve: the data layer (filter/sort execution) and the Leaflet map engine are declared seams not yet implemented.

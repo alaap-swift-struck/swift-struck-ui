@@ -1,6 +1,6 @@
 # Layer 2 — Collections
 
-The high-leverage layer and the reason brimba exists: **Glide-style,
+The high-leverage layer and the reason Swift Struck UI exists: **Glide-style,
 data-bound views**. You hand a collection an array of records and a small config,
 and it renders a polished, interactive surface.
 

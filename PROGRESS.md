@@ -1,4 +1,4 @@
-# brimba — build progress
+# Swift Struck UI — build progress
 
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.

@@ -1,5 +1,5 @@
 // =============================================================================
-// brimba configuration system — the shared vocabulary every component's
+// Swift Struck UI configuration system — the shared vocabulary every component's
 // `config` is built from. See ARCHITECTURE.md "Configuration" + "Taxonomy".
 //
 // Model: a universal BaseConfig (visibility) sits under every component, then a
@@ -244,16 +244,6 @@ export const defaultTextDisplayConfig: TextDisplayConfig = {
   truncateBy: "lines",
   lines: 2,
   maxChars: 80,
-}
-
-/** Content components — display data, read-only. */
-export interface ContentConfig extends BaseConfig {
-  emptyText: string
-}
-
-export const defaultContentConfig: ContentConfig = {
-  ...defaultBaseConfig,
-  emptyText: "",
 }
 
 /* --------------------------- container / layout --------------------------- */

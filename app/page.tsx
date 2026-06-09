@@ -125,7 +125,9 @@ export default function Home() {
           <span className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
             Demo dashboard · built from the registry
           </span>
-          <h1 className="text-2xl font-semibold tracking-tight">brimba</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Swift Struck UI
+          </h1>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" asChild>

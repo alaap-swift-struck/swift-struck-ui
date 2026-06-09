@@ -9,7 +9,7 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 
 export const metadata: Metadata = {
-  title: "brimba",
+  title: "Swift Struck UI",
   description:
     "A web-first, cross-platform component & collection library you build apps on top of.",
 }

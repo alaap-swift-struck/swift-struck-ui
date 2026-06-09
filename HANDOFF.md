@@ -1,10 +1,10 @@
-# brimba — handoff (read me first)
+# Swift Struck UI — handoff (read me first)
 
 This is the single catch-up doc for a fresh chat. Read this, then
 `ARCHITECTURE.md`, `GLIDE-PARITY.md`, and `PROGRESS.md`. Everything below is the
 current state of the project as of this handoff.
 
-## What brimba is
+## What Swift Struck UI is
 
 A **web-first, cross-platform component & collection library** — inspired by
 **shadcn/ui** (primitives) + **Glide** (data-bound, configurable collections) —
@@ -38,7 +38,7 @@ sonner (toasts) · dependency-cruiser (layering). No CSS-in-JS.
 
 ## Repo map
 
-> **Naming:** the public package is **`@swift-struck/ui`**; "brimba" is the old
+> **Naming:** the public package is **`@swift-struck/ui`**; "Swift Struck UI" is the old
 > internal codename still used across these docs (mass-rename is optional).
 >
 > The repo is now an **npm workspace**: the showcase site at the root, the

@@ -887,7 +887,7 @@ const initialKnobs: Record<string, Record<string, unknown>> = {
     disabled: false,
   },
   "link-one": {
-    label: "Visit brimba",
+    label: "Visit Swift Struck UI",
     variant: "link",
     size: "default",
     disabled: false,
@@ -1015,8 +1015,8 @@ const initialKnobs: Record<string, Record<string, unknown>> = {
     description: "Set the width and height.",
   },
   "ov-hover": {
-    trigger: "@brimba",
-    title: "brimba",
+    trigger: "@Swift Struck UI",
+    title: "Swift Struck UI",
     description: "The component library.",
   },
   "ov-alert": {

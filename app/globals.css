@@ -8,7 +8,7 @@
 /* ---------------------------------------------------------------------------
  * LAYER 0 — DESIGN TOKENS (the single source of truth)
  *
- * Every color, radius, and surface in brimba resolves to a variable defined
+ * Every color, radius, and surface in Swift Struck UI resolves to a variable defined
  * here. Primitives and collections reference these tokens (e.g. `bg-background`,
  * `text-foreground`, `rounded-lg`) and NEVER hardcode a hex value or pixel size.
  * Re-theming any project — including future native skins — is a matter of
@@ -221,7 +221,7 @@
   }
   .animate-rise {
     opacity: 0;
-    animation: brimba-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: ss-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
   /* Ambient interactive background — drifting token-colored "smoke" that
@@ -266,7 +266,7 @@
   }
 }
 
-@keyframes brimba-rise {
+@keyframes ss-rise {
   from {
     opacity: 0;
     transform: translateY(12px);
@@ -292,7 +292,7 @@
  * signalling "this is required" (paired with the red asterisk). Wrap the input
  * in <div class="required-ring">. Global rule for forms/edit containers.
  * ------------------------------------------------------------------------- */
-@property --brimba-angle {
+@property --ss-angle {
   syntax: "<angle>";
   initial-value: 0deg;
   inherits: false;
@@ -310,7 +310,7 @@
     border-radius: inherit;
     padding: 1.5px;
     background: conic-gradient(
-      from var(--brimba-angle),
+      from var(--ss-angle),
       transparent 0deg,
       color-mix(in oklch, var(--primary) 90%, transparent) 70deg,
       transparent 150deg,
@@ -325,14 +325,14 @@
       linear-gradient(#000 0 0) content-box,
       linear-gradient(#000 0 0);
     mask-composite: exclude;
-    animation: brimba-rotate 3.5s linear infinite;
+    animation: ss-rotate 3.5s linear infinite;
     pointer-events: none;
   }
 }
 
-@keyframes brimba-rotate {
+@keyframes ss-rotate {
   to {
-    --brimba-angle: 360deg;
+    --ss-angle: 360deg;
   }
 }
 

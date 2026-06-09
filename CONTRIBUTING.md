@@ -1,6 +1,6 @@
 # Contributing
 
-How to add to brimba without re-creating the sprawl. Read
+How to add to Swift Struck UI without re-creating the sprawl. Read
 [ARCHITECTURE.md](ARCHITECTURE.md) first — this file is the practical workflow
 that follows from it.
 

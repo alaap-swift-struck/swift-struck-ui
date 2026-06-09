@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
-  "name": "brimba",
-  "homepage": "https://brimba.dev",
+  "name": "swift-struck-ui",
+  "homepage": "https://swift-struck-ui.pages.dev",
   "items": [
     { "name": "theme-provider", "type": "registry:lib", "layer": "tokens" },
     { "name": "button", "type": "registry:ui", "layer": "primitives" },

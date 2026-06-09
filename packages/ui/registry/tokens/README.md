@@ -1,6 +1,6 @@
 # Layer 0 — Tokens
 
-The single source of truth for every visual value in brimba: colors, radii,
+The single source of truth for every visual value in Swift Struck UI: colors, radii,
 surfaces, and (later) spacing and typography scales.
 
 ## Where they live
