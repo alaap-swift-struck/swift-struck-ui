@@ -8,8 +8,10 @@ const staticExport = process.env.BUILD_STATIC
   : {}
 
 const nextConfig: NextConfig = {
-  // Compile the workspace component library (shipped as TS source) on the fly.
-  transpilePackages: ["@swift-struck/ui"],
+  // The library lives one level up (the repo root) and is pulled in as TS source
+  // via the `@swift-struck/ui/*` tsconfig paths. externalDir lets Next compile
+  // files that sit outside this app folder.
+  experimental: { externalDir: true },
   ...staticExport,
 }
 
