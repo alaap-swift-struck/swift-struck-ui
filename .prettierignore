@@ -1,6 +1,7 @@
 dist/
 node_modules/
 .next/
+out/
 .turbo/
 coverage/
 pnpm-lock.yaml
