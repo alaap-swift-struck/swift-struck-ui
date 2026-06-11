@@ -1,6 +1,9 @@
+# These patterns are NOT anchored to the repo root — they match in any folder
+# (e.g. both /node_modules and /www/node_modules), so the workspace stays clean.
+
 # dependencies
-/node_modules
-/.pnp
+node_modules/
+.pnp
 .pnp.*
 .yarn/*
 !.yarn/patches
@@ -9,14 +12,14 @@
 !.yarn/versions
 
 # testing
-/coverage
+coverage/
 
-# next.js
-/.next/
-/out/
+# next.js build output + cache (never commit — large & regenerated)
+.next/
+out/
 
 # production
-/build
+build/
 
 # misc
 .DS_Store
@@ -34,4 +37,3 @@ pnpm-debug.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-/out
