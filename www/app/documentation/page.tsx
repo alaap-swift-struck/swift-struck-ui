@@ -484,11 +484,19 @@ export default function Documentation() {
             <TabsTrigger value="theme">Theme</TabsTrigger>
           </TabsList>
           <TabsContent value="install" className="flex flex-col gap-3 pt-2">
-            <Body>Install the package and its peer dependencies:</Body>
-            <Code>{code(`npm install @swift-struck/ui react react-dom`)}</Code>
+            <Body>
+              Install straight from GitHub (no npm account needed) along with
+              its peer dependencies:
+            </Body>
+            <Code>
+              {code(
+                `npm install github:alaap-swift-struck/swift-struck-ui react react-dom`
+              )}
+            </Code>
             <Body>
               The package ships TypeScript source, so your bundler tree-shakes
-              it and Tailwind can see the class names.
+              it and Tailwind can see the class names. To pull later updates,
+              re-run that same install — it re-fetches the latest from GitHub.
             </Body>
           </TabsContent>
           <TabsContent value="use" className="flex flex-col gap-3 pt-2">
@@ -623,27 +631,42 @@ import { defaultCollectionConfig } from "@swift-struck/ui/lib/config"
             </Card>
           ))}
         </div>
+        <Body className="max-w-prose">
+          That's the shape every component shares. For the exhaustive,
+          field-by-field reference — every component, every option, and what
+          each value does — see{" "}
+          <a
+            href="https://github.com/alaap-swift-struck/swift-struck-ui/blob/main/CONFIG-REFERENCE.md"
+            target="_blank"
+            rel="noreferrer"
+            className="font-medium text-foreground underline underline-offset-4"
+          >
+            CONFIG-REFERENCE.md
+          </a>{" "}
+          on GitHub.
+        </Body>
       </Section>
 
       {/* ------------------------- how it's organised ----------------------- */}
-      <Section eyebrow="How it's organised" title="Two parts, one workspace">
+      <Section eyebrow="How it's organised" title="Two parts, one repo">
         <div className="grid gap-4 sm:grid-cols-2">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sm">
-                <Badge variant="success">packages/ui</Badge> the library
+                <Badge variant="success">repo root</Badge> the library
               </CardTitle>
               <CardDescription>
-                The shippable library, published to npm as{" "}
-                <code>@swift-struck/ui</code>. Layered tokens → primitives →
-                collections, one folder per component.
+                <code>registry/</code> + <code>lib/</code> at the repo root{" "}
+                <b>are</b> <code>@swift-struck/ui</code> — exactly what a GitHub
+                install delivers. Layered tokens → primitives → collections, one
+                folder per component.
               </CardDescription>
             </CardHeader>
           </Card>
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sm">
-                <Badge variant="secondary">app/</Badge> the showcase
+                <Badge variant="secondary">www/</Badge> the showcase
               </CardTitle>
               <CardDescription>
                 This site — dashboard, gallery, and these docs. A real app that
@@ -654,8 +677,8 @@ import { defaultCollectionConfig } from "@swift-struck/ui/lib/config"
         </div>
         <Body className="max-w-prose">
           A fix in the library reaches every app that depends on it — instantly
-          in this workspace, and on the next install for anyone on npm. The
-          version number is the safety hatch.
+          in this repo, and on the next GitHub install for anyone consuming it.
+          Pinning to a commit or tag is the safety hatch.
         </Body>
       </Section>
 
@@ -734,10 +757,10 @@ import { defaultCollectionConfig } from "@swift-struck/ui/lib/config"
           </Card>
         </div>
         <Body className="max-w-prose">
-          The library ships the same way on npm: a <code>@next</code> channel
-          for testing and <code>@latest</code> for everyone. Version numbers
-          mean a fix reaches you when you choose to update — and a breaking
-          change never surprise-breaks a running app.
+          Apps pull library updates the same controlled way: re-run the GitHub
+          install to fetch the latest, or pin to a specific commit or tag so a
+          change only reaches you when you choose — a breaking change never
+          surprise-breaks a running app.
         </Body>
       </Section>
 
