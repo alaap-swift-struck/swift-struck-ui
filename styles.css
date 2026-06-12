@@ -168,21 +168,35 @@
   * {
     border-color: var(--color-border);
   }
+  /* No rubber-band / overscroll bounce anywhere — a page only moves when it
+   * genuinely has content past the fold. Single-screen pages (sign-in,
+   * onboarding) sit perfectly still on every device. See UI-RULES.md. */
+  html {
+    overscroll-behavior: none;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
-    /* Faint, fixed brand-tinted glow in two corners — gives the page depth and
-     * gives glass surfaces something to refract. Token-driven, very subtle. */
+    min-height: 100svh;
+    /* A soft "source of light" from the top, plus two brand-tinted corner
+     * glows — depth for the page and something for glass to refract. The
+     * AmbientBackground component layers a slow heartbeat on top. Subtle on
+     * purpose (token-driven); never a painted gloss. */
     background-image:
       radial-gradient(
+        60rem 40rem at 50% -14%,
+        color-mix(in oklch, var(--primary) 13%, transparent),
+        transparent 62%
+      ),
+      radial-gradient(
         48rem 48rem at 100% -8%,
-        color-mix(in oklch, var(--primary) 10%, transparent),
+        color-mix(in oklch, var(--primary) 12%, transparent),
         transparent 60%
       ),
       radial-gradient(
         42rem 42rem at -8% 8%,
-        color-mix(in oklch, var(--chart-3) 9%, transparent),
+        color-mix(in oklch, var(--chart-3) 12%, transparent),
         transparent 55%
       );
     background-attachment: fixed;
@@ -241,22 +255,31 @@
     background:
       radial-gradient(
         26% 26% at 18% 28%,
-        color-mix(in oklch, var(--chart-3) 16%, transparent),
+        color-mix(in oklch, var(--chart-3) 20%, transparent),
         transparent 60%
       ),
       radial-gradient(
         24% 24% at 82% 68%,
-        color-mix(in oklch, var(--chart-4) 14%, transparent),
+        color-mix(in oklch, var(--chart-4) 18%, transparent),
         transparent 60%
       ),
+      /* the breathing core — a slow heartbeat of brand light at center */
+        radial-gradient(
+          32% 32% at 50% 46%,
+          color-mix(in oklch, var(--primary) 16%, transparent),
+          transparent 62%
+        ),
       radial-gradient(
         22% 22% at 62% 16%,
-        color-mix(in oklch, var(--chart-2) 12%, transparent),
+        color-mix(in oklch, var(--chart-2) 14%, transparent),
         transparent 60%
       );
-    filter: blur(72px) saturate(1.25);
-    opacity: 0.5;
-    animation: ambient-drift 26s ease-in-out infinite;
+    filter: blur(72px) saturate(1.3);
+    opacity: 0.62;
+    /* drift = slow wander; breathe = the heartbeat (opacity pulse) */
+    animation:
+      ambient-drift 26s ease-in-out infinite,
+      ambient-breathe 7.5s ease-in-out infinite;
   }
   /* the pointer-following bloom (faint on move, brighter on tap) */
   .ambient::after {
@@ -291,6 +314,18 @@
   }
   50% {
     transform: translate3d(2%, -2%, 0) scale(1.08);
+  }
+}
+
+/* The heartbeat: a slow, shallow opacity pulse so the light feels alive
+ * without ever being busy. Disabled under prefers-reduced-motion below. */
+@keyframes ambient-breathe {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.72;
   }
 }
 
