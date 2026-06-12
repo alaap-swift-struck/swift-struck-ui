@@ -9,9 +9,11 @@
   "exports": {
     "./registry/*": "./registry/*.tsx",
     "./lib/*": "./lib/*.ts",
-    "./registry.json": "./registry.json"
+    "./registry.json": "./registry.json",
+    "./styles.css": "./styles.css"
   },
   "files": [
+    "styles.css",
     "registry",
     "lib",
     "registry.json",
