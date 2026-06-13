@@ -179,27 +179,45 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     min-height: 100svh;
-    /* A soft "source of light" from the top, plus two brand-tinted corner
-     * glows — depth for the page and something for glass to refract. The
-     * AmbientBackground component layers a slow heartbeat on top. Subtle on
-     * purpose (token-driven); never a painted gloss. */
+    /* A soft "source of light" from the top, two brand-tinted corner glows,
+     * and a gentle vignette that pulls focus to the centre. The
+     * AmbientBackground layers flowing light + a slow heartbeat on top, and
+     * body::after adds a fine film grain. Elegant and alive, never a gloss. */
     background-image:
       radial-gradient(
-        60rem 40rem at 50% -14%,
-        color-mix(in oklch, var(--primary) 13%, transparent),
-        transparent 62%
-      ),
-      radial-gradient(
-        48rem 48rem at 100% -8%,
-        color-mix(in oklch, var(--primary) 12%, transparent),
+        62rem 42rem at 50% -16%,
+        color-mix(in oklch, var(--primary) 14%, transparent),
         transparent 60%
       ),
       radial-gradient(
-        42rem 42rem at -8% 8%,
-        color-mix(in oklch, var(--chart-3) 12%, transparent),
+        46rem 46rem at 100% -6%,
+        color-mix(in oklch, var(--primary) 11%, transparent),
+        transparent 58%
+      ),
+      radial-gradient(
+        44rem 44rem at -8% 6%,
+        color-mix(in oklch, var(--chart-3) 11%, transparent),
         transparent 55%
-      );
+      ),
+      /* vignette — subtle depth, frames the content */
+        radial-gradient(
+          130% 130% at 50% 32%,
+          transparent 56%,
+          color-mix(in oklch, black 16%, transparent)
+        );
     background-attachment: fixed;
+  }
+  /* Fine film grain — a barely-there premium texture over the light. Fixed,
+   * non-interactive, sits between the ambient light and the content. */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -5;
+    pointer-events: none;
+    opacity: 0.05;
+    mix-blend-mode: soft-light;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 }
 
@@ -252,45 +270,41 @@
   .ambient::before {
     content: "";
     position: absolute;
-    inset: -30%;
+    inset: -35%;
     background:
       radial-gradient(
-        28% 28% at 16% 24%,
-        color-mix(in oklch, var(--chart-3) 26%, transparent),
-        transparent 60%
+        40% 40% at 14% 22%,
+        color-mix(in oklch, var(--chart-3) 22%, transparent),
+        transparent 62%
       ),
       radial-gradient(
-        26% 26% at 84% 70%,
-        color-mix(in oklch, var(--chart-4) 24%, transparent),
-        transparent 60%
+        38% 38% at 86% 72%,
+        color-mix(in oklch, var(--chart-4) 20%, transparent),
+        transparent 62%
       ),
       /* the breathing core — a slow heartbeat of brand light at center */
         radial-gradient(
-          30% 30% at 50% 44%,
-          color-mix(in oklch, var(--primary) 22%, transparent),
-          transparent 62%
+          42% 42% at 50% 42%,
+          color-mix(in oklch, var(--primary) 20%, transparent),
+          transparent 64%
         ),
       radial-gradient(
-        22% 22% at 64% 14%,
-        color-mix(in oklch, var(--chart-2) 20%, transparent),
-        transparent 60%
+        30% 30% at 66% 12%,
+        color-mix(in oklch, var(--chart-2) 16%, transparent),
+        transparent 62%
       ),
       radial-gradient(
-        24% 24% at 30% 82%,
-        color-mix(in oklch, var(--primary) 18%, transparent),
-        transparent 60%
-      ),
-      radial-gradient(
-        20% 20% at 88% 32%,
-        color-mix(in oklch, var(--chart-5) 18%, transparent),
-        transparent 60%
+        32% 32% at 28% 84%,
+        color-mix(in oklch, var(--primary) 15%, transparent),
+        transparent 62%
       );
-    filter: blur(64px) saturate(1.4);
-    opacity: 0.8;
-    /* drift = slow abstract wander; breathe = the heartbeat (opacity pulse) */
+    /* big, soft, flowing light — elegant aurora rather than tight blobs */
+    filter: blur(96px) saturate(1.35);
+    opacity: 0.7;
+    /* drift = slow flowing wander; breathe = the heartbeat (opacity pulse) */
     animation:
-      ambient-drift 24s ease-in-out infinite,
-      ambient-breathe 7.5s ease-in-out infinite;
+      ambient-drift 38s ease-in-out infinite,
+      ambient-breathe 9s ease-in-out infinite;
   }
   /* the pointer-following bloom (faint on move, brighter on tap) */
   .ambient::after {
