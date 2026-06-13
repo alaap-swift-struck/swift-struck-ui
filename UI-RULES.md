@@ -22,7 +22,7 @@ How the library enforces it (you inherit this for free):
 
 - `html { overscroll-behavior: none }` — kills the rubber-band bounce globally.
 - `body { min-height: 100svh }` — uses the **small viewport height**, so a
-  full-height page fits the *visible* area even with a mobile toolbar showing.
+  full-height page fits the _visible_ area even with a mobile toolbar showing.
 
 How apps apply it on single-screen pages:
 
