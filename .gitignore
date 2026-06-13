@@ -37,3 +37,7 @@ pnpm-debug.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Lean-mean-check audit artifacts (dev tooling, never shipped)
+lean-mean-report.html
+lean-mean-report.md

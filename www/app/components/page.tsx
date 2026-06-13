@@ -51,7 +51,12 @@ import {
   mapEnums,
   people,
   peopleLarge,
+  permissionEnums,
+  permissionMatrixConfig,
+  permissionMatrixValue,
   profile,
+  salesMatrixConfig,
+  salesMatrixValue,
   SHADCN,
   spacerEnums,
   spinnerEnums,
@@ -126,6 +131,11 @@ import {
   Kanban,
   type KanbanConfig,
 } from "@swift-struck/ui/registry/collections/kanban/kanban"
+import {
+  PermissionMatrix,
+  type PermissionMatrixConfig,
+  type PermissionMatrixValue,
+} from "@swift-struck/ui/registry/collections/permission-matrix/permission-matrix"
 import {
   CalendarView,
   type CalendarViewConfig,
@@ -609,6 +619,30 @@ export default function ComponentsGallery() {
   const [eventData, setEventData] = React.useState(events)
   const [profileData, setProfileData] = React.useState(profile)
 
+  // Permission matrix — the editable role shares one value across the editable
+  // and read-only demos (so they show the same role two ways). Read/locked use
+  // their own config (mode override); locked ignores its value entirely.
+  const [permEditCfg, setPermEditCfg] = React.useState<Record<string, unknown>>(
+    permissionMatrixConfig as unknown as Record<string, unknown>
+  )
+  const [permReadCfg, setPermReadCfg] = React.useState<Record<string, unknown>>(
+    { ...permissionMatrixConfig, mode: "read" } as unknown as Record<
+      string,
+      unknown
+    >
+  )
+  const [permLockedCfg, setPermLockedCfg] = React.useState<
+    Record<string, unknown>
+  >({ ...permissionMatrixConfig, mode: "locked" } as unknown as Record<
+    string,
+    unknown
+  >)
+  const [permValue, setPermValue] = React.useState(permissionMatrixValue)
+  const [salesCfg, setSalesCfg] = React.useState<Record<string, unknown>>(
+    salesMatrixConfig as unknown as Record<string, unknown>
+  )
+  const [salesValue, setSalesValue] = React.useState(salesMatrixValue)
+
   return (
     <TooltipProvider>
       <SearchCtx.Provider value={query}>
@@ -826,6 +860,70 @@ export default function ComponentsGallery() {
                       },
                     ])
                   }
+                  className="w-full"
+                />
+              </Demo>
+
+              <Demo
+                name="Permissions · edit a role"
+                span={3}
+                config={permEditCfg}
+                setConfig={setPermEditCfg}
+                enums={permissionEnums}
+                data={permValue}
+                setData={(d) => setPermValue(d as PermissionMatrixValue)}
+              >
+                <PermissionMatrix
+                  config={permEditCfg as unknown as PermissionMatrixConfig}
+                  value={permValue}
+                  onChange={setPermValue}
+                  className="w-full"
+                />
+              </Demo>
+
+              <Demo
+                name="Permissions · view-only role"
+                span={3}
+                config={permReadCfg}
+                setConfig={setPermReadCfg}
+                enums={permissionEnums}
+              >
+                <PermissionMatrix
+                  config={permReadCfg as unknown as PermissionMatrixConfig}
+                  value={permValue}
+                  onChange={setPermValue}
+                  className="w-full"
+                />
+              </Demo>
+
+              <Demo
+                name="Permissions · locked Admin role"
+                span={3}
+                config={permLockedCfg}
+                setConfig={setPermLockedCfg}
+                enums={permissionEnums}
+              >
+                <PermissionMatrix
+                  config={permLockedCfg as unknown as PermissionMatrixConfig}
+                  value={permValue}
+                  onChange={() => {}}
+                  className="w-full"
+                />
+              </Demo>
+
+              <Demo
+                name="Permissions · a different app (Sales)"
+                span={3}
+                config={salesCfg}
+                setConfig={setSalesCfg}
+                enums={permissionEnums}
+                data={salesValue}
+                setData={(d) => setSalesValue(d as PermissionMatrixValue)}
+              >
+                <PermissionMatrix
+                  config={salesCfg as unknown as PermissionMatrixConfig}
+                  value={salesValue}
+                  onChange={setSalesValue}
                   className="w-full"
                 />
               </Demo>

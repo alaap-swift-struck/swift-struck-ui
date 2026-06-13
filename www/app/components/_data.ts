@@ -41,6 +41,11 @@ import {
   type KanbanConfig,
 } from "@swift-struck/ui/registry/collections/kanban/kanban"
 import {
+  defaultPermissionMatrixConfig,
+  type PermissionMatrixConfig,
+  type PermissionMatrixValue,
+} from "@swift-struck/ui/registry/collections/permission-matrix/permission-matrix"
+import {
   defaultStatGridConfig,
   type StatGridConfig,
   type StatItem,
@@ -380,6 +385,56 @@ export const usernameCfg: FieldConfig = {
     pattern: "^[A-Za-z0-9_]+$",
   },
 }
+
+/* --------------------------- permission matrix --------------------------- */
+
+// A sample module list for one app (the rows of the grid). The app supplies its
+// own — this is just the showcase's.
+export const permissionModules = [
+  { key: "teams", label: "Teams" },
+  { key: "members", label: "Members" },
+  { key: "roles", label: "Roles" },
+  { key: "learning", label: "Learning" },
+  { key: "help", label: "Help" },
+  { key: "selectable", label: "Selectable data" },
+]
+
+// A DIFFERENT app's modules — proves the matrix is generic (config-only change).
+export const salesModules = [
+  { key: "orders", label: "Sales Orders" },
+  { key: "invoices", label: "Invoices" },
+  { key: "products", label: "Products" },
+]
+
+export const permissionMatrixConfig: PermissionMatrixConfig = {
+  ...defaultPermissionMatrixConfig,
+  modules: permissionModules,
+  mode: "edit",
+}
+
+export const salesMatrixConfig: PermissionMatrixConfig = {
+  ...defaultPermissionMatrixConfig,
+  modules: salesModules,
+  mode: "edit",
+}
+
+// A representative role. "help" is deliberately omitted to prove a module
+// missing from the value renders as all-off (no crash).
+export const permissionMatrixValue: PermissionMatrixValue = {
+  teams: { read: true, create: false, edit: false, delete: false },
+  members: { read: true, create: true, edit: true, delete: false },
+  roles: { read: true, create: false, edit: false, delete: false },
+  learning: { read: true, create: false, edit: false, delete: false },
+  selectable: { read: false, create: false, edit: false, delete: false },
+}
+
+export const salesMatrixValue: PermissionMatrixValue = {
+  orders: { read: true, create: true, edit: true, delete: false },
+  invoices: { read: true, create: false, edit: false, delete: false },
+  products: { read: true, create: true, edit: false, delete: false },
+}
+
+export const permissionEnums = { mode: ["edit", "read", "locked"] }
 
 /* ----------------------- enum + initial knob configs ----------------------- */
 

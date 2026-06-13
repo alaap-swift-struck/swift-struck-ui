@@ -85,6 +85,11 @@
     { "name": "chart", "type": "registry:ui", "layer": "collections" },
     { "name": "form", "type": "registry:ui", "layer": "collections" },
     { "name": "comments", "type": "registry:ui", "layer": "collections" },
-    { "name": "chat", "type": "registry:ui", "layer": "collections" }
+    { "name": "chat", "type": "registry:ui", "layer": "collections" },
+    {
+      "name": "permission-matrix",
+      "type": "registry:ui",
+      "layer": "collections"
+    }
   ]
 }
