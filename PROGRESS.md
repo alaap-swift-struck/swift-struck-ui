@@ -3,7 +3,7 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 68** &nbsp;·&nbsp; **To build: ~1** &nbsp;·&nbsp; _Glide parity complete · gallery restructured to mirror Glide (Collections / Display / Inputs & Pickers / Actions / Layout / Navigation / Overlays) · every demo card is one configuration with its own ⚙ · collections wear a shared frame (title + live count + search + pagination + limit)_
+> **Built: 69** &nbsp;·&nbsp; **To build: ~1** &nbsp;·&nbsp; _Glide parity complete · gallery restructured to mirror Glide (Collections / Display / Inputs & Pickers / Actions / Layout / Navigation / Overlays) · every demo card is one configuration with its own ⚙ · collections wear a shared frame (title + live count + search + pagination + limit) · permission-matrix added (role access-rights grid)_
 
 > **Glide config reference:** see `GLIDE-CONFIG-RESEARCH.md` — every component's real Glide config options, the source of truth for parity.
 
@@ -114,6 +114,7 @@ what's built and what's left.
 - [x] field (FieldConfig wrapper: label + required-ring + helpText + validation)
 - [x] form (collection, config-driven + validation)
 - [x] comments · chat (collections)
+- [x] permission-matrix (collection: role access-rights grid — modules × Read/Create/Edit/Delete, auto-flip-read, edit/read/locked modes; pure logic unit-tested)
 
 ## ⬜ To build
 

@@ -51,9 +51,11 @@ check.
 3. **Variants, not new components.** A visual variation is a
    [CVA](https://cva.style) variant on the existing component, never a new file.
    `Button` with a `variant`, not `PrimaryButton` + `GhostButton` + `IconButton`.
-4. **Every component ships its docs.** A component is not "done" until it has a
-   co-located `.mdx` doc with at least one live example. No exceptions — this is
-   how documentation stays "super robust" without a doc-debt backlog.
+4. **Every component ships its docs.** A component is not "done" until it appears
+   in the self-documenting showcase: a live demo in the gallery, an entry in the
+   searchable catalog, and (if config-driven) a row in `CONFIG-REFERENCE.md`. One
+   searchable source of truth — not co-located `.mdx` files (tried and dropped) —
+   keeps documentation robust without a doc-debt backlog. See CONTRIBUTING.md.
 5. **Reuse before adding.** Before writing a component, check whether an existing
    one plus a variant or a prop covers it. The smallest set that works wins.
 
@@ -137,7 +139,7 @@ Two different axes — don't conflate them:
 | Input      | collects user input                                   | input, choice, checkbox, switch, slider, date-picker, file-upload, signature, notes, rating |
 | Content    | displays data, read-only                              | typography, image, video, map, stat-grid, progress, chart, detail-view, badge               |
 | Action     | interacting triggers a side-effect (api/workflow/nav) | button, action-row, link                                                                    |
-| Collection | data-bound view over a list/table                     | list, card-grid, data-table, kanban, calendar, checklist, comments, chat                    |
+| Collection | data-bound view over a list/table                     | list, card-grid, data-table, kanban, calendar, checklist, comments, chat, permission-matrix |
 | Navigation | move between pages/views                              | tabs, breadcrumb, pagination, nav-menu                                                      |
 | Overlay    | floats above content                                  | dialog, sheet, popover, dropdown, tooltip, command, toast                                   |
 | Layout     | structure & space                                     | card, separator, spacer, scroll-area, accordion                                             |

@@ -21,18 +21,19 @@ intentionally skipped (niche / out of scope for now)
 
 ## Collections
 
-| Glide     | Swift Struck UI  | Notes                                        |
-| --------- | ---------------- | -------------------------------------------- |
-| Card      | ✅ card-grid     |                                              |
-| List      | ✅ list          |                                              |
-| Table     | ✅ data-table    |                                              |
-| Data Grid | ✅ data-table    | Same component; spreadsheet-grid mode later. |
-| Checklist | ✅ checklist     |                                              |
-| Calendar  | ✅ calendar-view |                                              |
-| Kanban    | ✅ kanban        |                                              |
-| Comments  | ✅ comments      | Threaded comments collection.                |
-| Chat      | ✅ chat          | Message thread UI.                           |
-| Custom    | ➖               | App-specific.                                |
+| Glide     | Swift Struck UI      | Notes                                                                      |
+| --------- | -------------------- | -------------------------------------------------------------------------- |
+| Card      | ✅ card-grid         |                                                                            |
+| List      | ✅ list              |                                                                            |
+| Table     | ✅ data-table        |                                                                            |
+| Data Grid | ✅ data-table        | Same component; spreadsheet-grid mode later.                               |
+| Checklist | ✅ checklist         |                                                                            |
+| Calendar  | ✅ calendar-view     |                                                                            |
+| Kanban    | ✅ kanban            |                                                                            |
+| Comments  | ✅ comments          | Threaded comments collection.                                              |
+| Chat      | ✅ chat              | Message thread UI.                                                         |
+| —         | ✅ permission-matrix | Beyond Glide: role access-rights grid (modules × Read/Create/Edit/Delete). |
+| Custom    | ➖                   | App-specific.                                                              |
 
 ## Layout
 

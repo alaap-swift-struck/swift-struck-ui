@@ -259,6 +259,16 @@ How any displayed text handles being too long. Never grows width left-to-right.
 | `submitLabel` | `string`      | The submit button text.                                               |
 | `columns`     | `1 \| 2`      | One- or two-column layout.                                            |
 
+### `PermissionMatrixConfig` (Permission Matrix)
+
+A role's access-rights grid: rows are the app's modules (passed in), columns are the four fixed rights **Read · Create · Edit · Delete**, cells are on/off toggles. The value is a `Record<moduleKey, { read, create, edit, delete }>`; a module missing from the value renders all-off.
+
+| Field          | Type                               | What it does                                                                                                        |
+| -------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `modules`      | `{ key: string; label: string }[]` | The rows. `key` is the app's module id, `label` is shown. Adding/removing a module is a config-only change.         |
+| `mode`         | `"edit" \| "read" \| "locked"`     | `edit` = toggleable; `read` = view-only (disabled); `locked` = view-only AND every cell forced ON (the Admin role). |
+| `autoFlipRead` | `boolean`                          | When `true`, turning ON Create/Edit/Delete forces Read ON and locks it (you can't have write without read).         |
+
 ---
 
 ## Simple primitives (props, not a config object)

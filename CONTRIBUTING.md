@@ -51,9 +51,22 @@ A change is done only when **all** of these hold:
 - [ ] It lives in the correct layer and respects the dependency direction.
 - [ ] No hardcoded colors or sizes — tokens only.
 - [ ] New looks are CVA variants, not new components.
-- [ ] It has a co-located `.mdx` doc with a live example.
-- [ ] It is registered in [`registry.json`](registry.json) (from Phase 4 on).
-- [ ] `npm run check` is green (`guardrails` + `format:check`).
+- [ ] It is registered in [`registry.json`](registry.json).
+- [ ] **It is wired into the showcase _and_ the docs** — this is how the library
+      documents itself, so it is not optional:
+  - [ ] a live demo in the gallery ([`www/app/components/page.tsx`](www/app/components/page.tsx),
+        presets in [`_data.ts`](www/app/components/_data.ts));
+  - [ ] an entry in the searchable catalog (`CATALOG` in
+        [`www/app/documentation/page.tsx`](www/app/documentation/page.tsx)) — **miss
+        this and the component is invisible to search**;
+  - [ ] if it's config-driven, a row in [`CONFIG-REFERENCE.md`](CONFIG-REFERENCE.md).
+- [ ] `npm run check` is green (`guardrails` + `format:check`), `tsc --noEmit` and
+      `npm test` pass.
+
+> Docs live in the central showcase + catalog, **not** in co-located `.mdx` files
+> (we tried per-component `.mdx` and dropped it — one searchable source of truth
+> beats a doc-debt backlog). The gallery, the catalog, and `CONFIG-REFERENCE.md`
+> are the doc surface; keep all three current.
 
 ## Commands
 

@@ -254,6 +254,12 @@ const CATALOG: CatalogItem[] = [
   },
   { name: "Chat", category: "Collections", blurb: "A message thread." },
   {
+    name: "Permission Matrix",
+    category: "Collections",
+    blurb:
+      "Edit a role's permissions — a grid of modules × Read, Create, Edit, Delete toggles.",
+  },
+  {
     name: "Collection Frame",
     category: "Collections",
     blurb:

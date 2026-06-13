@@ -112,8 +112,9 @@ Apps consume the library via `@swift-struck/ui/registry/*` + `@swift-struck/ui/l
 
 ## Current status
 
-- ~**68 components**, Glide-palette parity **complete** (only `Contact` and
-  intentionally-skipped niche items remain; see GLIDE-PARITY.md).
+- ~**69 components**, Glide-palette parity **complete** (only `Contact` and
+  intentionally-skipped niche items remain; see GLIDE-PARITY.md). Newest:
+  `permission-matrix` (a role access-rights grid — beyond Glide).
 - **Inputs pass DONE:** `Field` wrapper (label + animated required-ring +
   helpText + `validateField`); Signature fixed (dot-on-tap, pointer capture,
   ring hugs just the canvas); `rich-text` renamed → `notes` (highlight / ordered
