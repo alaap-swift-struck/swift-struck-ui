@@ -27,7 +27,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
-:root {
+/* `:root` is the light palette; `.light` re-applies it so a `light` Container can
+ * re-establish the light token scope even when nested inside a `.dark` page. */
+:root,
+.light {
   --radius: 0.75rem;
 
   --background: oklch(1 0 0);

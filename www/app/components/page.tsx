@@ -524,15 +524,22 @@ export default function ComponentsGallery() {
   const [containers, setContainers] = React.useState<
     Record<string, Record<string, unknown>>
   >({})
+  // A GLOBAL background override applied to EVERY demo at once (null = off, each
+  // demo keeps its own ⚙). Lets you stress-test every component on one surface —
+  // e.g. flip all to "light" to confirm nothing breaks in a light container.
+  const [globalBg, setGlobalBg] = React.useState<string | null>(null)
   const containersApi = React.useMemo(
     () => ({
-      get: (k: string) =>
-        containers[k] ??
-        ({ ...defaultContainerConfig } as unknown as Record<string, unknown>),
+      get: (k: string) => {
+        const base =
+          containers[k] ??
+          ({ ...defaultContainerConfig } as unknown as Record<string, unknown>)
+        return globalBg ? { ...base, background: globalBg } : base
+      },
       set: (k: string, n: Record<string, unknown>) =>
         setContainers((s) => ({ ...s, [k]: n })),
     }),
-    [containers]
+    [containers, globalBg]
   )
 
   // Keyed store for all the simple-primitive demo cards.
@@ -685,6 +692,39 @@ export default function ComponentsGallery() {
                 <ModeToggle />
               </div>
             </header>
+
+            {/* Global controls — force ONE background across EVERY demo at once,
+                so you can stress-test all components on the same surface (and the
+                ModeToggle above flips the whole page light/dark). */}
+            <div className="glass animate-rise sticky top-2 z-30 flex flex-wrap items-center gap-2 rounded-xl border p-3">
+              <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                Apply to all
+              </span>
+              <Button
+                size="sm"
+                variant={globalBg === null ? "default" : "outline"}
+                onClick={() => setGlobalBg(null)}
+              >
+                Per-demo
+              </Button>
+              <Separator orientation="vertical" className="h-5" />
+              {(["none", "card", "dark", "light", "image"] as const).map(
+                (bg) => (
+                  <Button
+                    key={bg}
+                    size="sm"
+                    variant={globalBg === bg ? "default" : "outline"}
+                    onClick={() => setGlobalBg(bg)}
+                    className="capitalize"
+                  >
+                    {bg}
+                  </Button>
+                )
+              )}
+              <span className="ml-auto hidden text-xs text-muted-foreground sm:inline">
+                Light / dark theme: the toggle above ↑
+              </span>
+            </div>
 
             {/* ============================ COLLECTIONS ============================ */}
             <Section

@@ -15,12 +15,20 @@ import { useIsVisible } from "../visibility/visibility"
 // Backgrounds: `card` is the theme's frosted-glass token surface; `dark` and
 // `light` are ALWAYS dark/light (absolute, theme-independent — like Glide);
 // `none` is transparent; `image` is a cover photo with a readability scrim.
+//
+// `dark`/`light`/`image` also carry the matching theme-scope class (`dark` /
+// `light`) so that nested token-based components (anything using `bg-card`,
+// `border`, `text-muted-foreground`, …) re-resolve their OWN surface to the same
+// light/dark palette. Without this, a child that paints its own `bg-card` would
+// keep the page's theme and render invisible (e.g. dark text on a dark card
+// inside a light container).
 const bgClass: Record<ContainerConfig["background"], string> = {
   none: "",
   card: "glass rounded-2xl border",
-  dark: "rounded-2xl border border-white/10 bg-neutral-900 text-neutral-50",
-  light: "rounded-2xl border border-black/10 bg-neutral-50 text-neutral-900",
-  image: "relative overflow-hidden rounded-2xl border bg-cover bg-center",
+  dark: "dark rounded-2xl border border-white/10 bg-neutral-900 text-neutral-50",
+  light:
+    "light rounded-2xl border border-black/10 bg-neutral-50 text-neutral-900",
+  image: "dark relative overflow-hidden rounded-2xl border bg-cover bg-center",
 }
 const padClass = { none: "", sm: "p-2", md: "p-4", lg: "p-6" } as const
 const gapClass = {
