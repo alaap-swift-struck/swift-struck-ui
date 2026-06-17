@@ -622,6 +622,8 @@ export default function ComponentsGallery() {
   const [messages, setMessages] = React.useState(initialMessages)
   const [date, setDate] = React.useState<string | null>(null)
   const [peopleData, setPeopleData] = React.useState(peopleLarge)
+  // Selected row for the "List · selectable" story (single-select).
+  const [listSel, setListSel] = React.useState<string>(peopleLarge[0].id)
   const [statData, setStatData] = React.useState(stats)
   const [eventData, setEventData] = React.useState(events)
   const [profileData, setProfileData] = React.useState(profile)
@@ -765,6 +767,29 @@ export default function ComponentsGallery() {
                       }))}
                     />
                   )}
+                />
+              </Demo>
+
+              <Demo name="List · selectable" span={3}>
+                <List
+                  selectedId={listSel}
+                  onSelect={(item) => setListSel(item.id)}
+                  className="w-full"
+                  items={peopleData.slice(0, 6).map((p) => ({
+                    id: p.id,
+                    title: p.name,
+                    subtitle: p.role,
+                    leading: (
+                      <Avatar className="size-9">
+                        <AvatarFallback>{p.name.slice(0, 2)}</AvatarFallback>
+                      </Avatar>
+                    ),
+                    trailing: (
+                      <Badge variant={statusVariant(p.status)}>
+                        {p.status}
+                      </Badge>
+                    ),
+                  }))}
                 />
               </Demo>
 

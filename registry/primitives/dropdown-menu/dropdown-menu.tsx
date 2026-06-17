@@ -24,7 +24,10 @@ function DropdownMenuContent({
       <DropdownMenuPrimitive.Content
         sideOffset={sideOffset}
         className={cn(
-          "glass z-50 min-w-[8rem] overflow-hidden rounded-lg border p-1 text-popover-foreground shadow-lg",
+          // OPAQUE surface (bg-popover, not glass): a menu floats over arbitrary
+          // page content, so a translucent frost would make it unreadable. Mirrors
+          // select/command. See styles.css `.glass`.
+          "z-50 min-w-[8rem] overflow-hidden rounded-lg border bg-popover p-1 text-popover-foreground shadow-lg",
           overlayAnim,
           className
         )}
@@ -133,7 +136,8 @@ function DropdownMenuSubContent({
   return (
     <DropdownMenuPrimitive.SubContent
       className={cn(
-        "glass z-50 min-w-[8rem] overflow-hidden rounded-lg border p-1 text-popover-foreground shadow-lg",
+        // Opaque, same as the top-level content (a submenu also floats over content).
+        "z-50 min-w-[8rem] overflow-hidden rounded-lg border bg-popover p-1 text-popover-foreground shadow-lg",
         overlayAnim,
         className
       )}
