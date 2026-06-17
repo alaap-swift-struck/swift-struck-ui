@@ -220,7 +220,7 @@ const CATALOG: CatalogItem[] = [
   {
     name: "List",
     category: "Collections",
-    blurb: "A polished, data-bound list.",
+    blurb: "A polished, data-bound list — with optional single-select rows.",
   },
   {
     name: "Card Grid",
