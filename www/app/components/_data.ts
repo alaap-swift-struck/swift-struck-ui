@@ -50,6 +50,10 @@ import {
   type StatGridConfig,
   type StatItem,
 } from "@swift-struck/ui/registry/collections/stat-grid/stat-grid"
+import {
+  defaultTabsConfig,
+  type TabsConfig,
+} from "@swift-struck/ui/registry/primitives/tabs/tabs"
 import { Badge } from "@swift-struck/ui/registry/primitives/badge/badge"
 
 export const invoices = [
@@ -435,6 +439,70 @@ export const salesMatrixValue: PermissionMatrixValue = {
 }
 
 export const permissionEnums = { mode: ["edit", "read", "locked"] }
+
+/* ------------------------------ config tabs ------------------------------ */
+
+// Glide-style "Tabs Container": the tabs are DATA. Each has a label, a lucide
+// icon name, and an optional badge (a count or a tag). Editable as JSON in the ⚙.
+export const tabsConfig: TabsConfig = {
+  ...defaultTabsConfig,
+  variant: "pill",
+  fullWidth: false,
+  tabs: [
+    {
+      value: "inbox",
+      label: "Inbox",
+      icon: "inbox",
+      badge: "24",
+      badgeVariant: "",
+    },
+    {
+      value: "drafts",
+      label: "Drafts",
+      icon: "file-pen",
+      badge: "3",
+      badgeVariant: "",
+    },
+    {
+      value: "flagged",
+      label: "Flagged",
+      icon: "flag",
+      badge: "8",
+      badgeVariant: "destructive",
+    },
+  ],
+}
+
+export const tabsLineConfig: TabsConfig = {
+  ...defaultTabsConfig,
+  variant: "line",
+  fullWidth: true,
+  tabs: [
+    {
+      value: "overview",
+      label: "Overview",
+      icon: "layout-dashboard",
+      badge: "",
+      badgeVariant: "",
+    },
+    {
+      value: "api",
+      label: "API",
+      icon: "code",
+      badge: "New",
+      badgeVariant: "success",
+    },
+    {
+      value: "labs",
+      label: "Labs",
+      icon: "flask-conical",
+      badge: "Beta",
+      badgeVariant: "warning",
+    },
+  ],
+}
+
+export const tabsEnums = { variant: ["pill", "line"] }
 
 /* ----------------------- enum + initial knob configs ----------------------- */
 

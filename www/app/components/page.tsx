@@ -64,6 +64,9 @@ import {
   statGridConfig,
   statusVariant,
   tableConfig,
+  tabsConfig,
+  tabsEnums,
+  tabsLineConfig,
   tagOptions,
   textOverflowEnums,
   titleEnums,
@@ -323,6 +326,8 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
+  TabsView,
+  type TabsConfig,
 } from "@swift-struck/ui/registry/primitives/tabs/tabs"
 import { Textarea } from "@swift-struck/ui/registry/primitives/textarea/textarea"
 import { Switch } from "@swift-struck/ui/registry/primitives/switch/switch"
@@ -651,6 +656,14 @@ export default function ComponentsGallery() {
     salesMatrixConfig as unknown as Record<string, unknown>
   )
   const [salesValue, setSalesValue] = React.useState(salesMatrixValue)
+
+  // Config-driven Tabs (Glide-style): the tabs are an editable JSON array.
+  const [tabsCfg, setTabsCfg] = React.useState<Record<string, unknown>>(
+    tabsConfig as unknown as Record<string, unknown>
+  )
+  const [tabsLineCfg, setTabsLineCfg] = React.useState<Record<string, unknown>>(
+    tabsLineConfig as unknown as Record<string, unknown>
+  )
 
   return (
     <TooltipProvider>
@@ -1706,82 +1719,45 @@ export default function ComponentsGallery() {
                 </Tabs>
               </Demo>
 
-              {/* Glide-style: each tab leads to a collection and shows its count
-                  (or a tag) as a trailing badge. `badge` takes any node; omit
-                  `badgeVariant` for a neutral count, or set one to colour-code. */}
-              <Demo name="Tabs · badge counts">
-                <Tabs defaultValue="inbox" className="w-full">
-                  <TabsList>
-                    <TabsTrigger value="inbox" badge={24}>
-                      Inbox
-                    </TabsTrigger>
-                    <TabsTrigger value="drafts" badge={3}>
-                      Drafts
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="flagged"
-                      badge={8}
-                      badgeVariant="destructive"
-                    >
-                      Flagged
-                    </TabsTrigger>
-                  </TabsList>
-                  <TabsContent
-                    value="inbox"
-                    className="text-sm text-muted-foreground"
-                  >
-                    24 messages in your inbox.
-                  </TabsContent>
-                  <TabsContent
-                    value="drafts"
-                    className="text-sm text-muted-foreground"
-                  >
-                    3 unsent drafts.
-                  </TabsContent>
-                  <TabsContent
-                    value="flagged"
-                    className="text-sm text-muted-foreground"
-                  >
-                    8 flagged for follow-up.
-                  </TabsContent>
-                </Tabs>
+              {/* Glide-style "Tabs Container": the tabs are DATA (config.tabs) —
+                  each with a label, a lucide icon name, and an optional badge
+                  count/tag. Open the ⚙ and edit the `tabs` JSON array, the
+                  `variant` (pill/line), or `fullWidth` live. */}
+              <Demo
+                name="Tabs · config (icons + counts)"
+                span={2}
+                config={tabsCfg}
+                setConfig={setTabsCfg}
+                enums={tabsEnums}
+              >
+                <TabsView
+                  config={tabsCfg as unknown as TabsConfig}
+                  className="w-full"
+                  renderPanel={(t) => (
+                    <span className="text-sm text-muted-foreground">
+                      {t.label} — {t.badge || "no"} items.
+                    </span>
+                  )}
+                />
               </Demo>
 
-              {/* Badges can also be short tags, not just numbers. */}
-              <Demo name="Tabs · tag badges">
-                <Tabs defaultValue="overview" className="w-full">
-                  <TabsList>
-                    <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="api" badge="New" badgeVariant="success">
-                      API
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="beta"
-                      badge="Beta"
-                      badgeVariant="warning"
-                    >
-                      Labs
-                    </TabsTrigger>
-                  </TabsList>
-                  <TabsContent
-                    value="overview"
-                    className="text-sm text-muted-foreground"
-                  >
-                    Product overview.
-                  </TabsContent>
-                  <TabsContent
-                    value="api"
-                    className="text-sm text-muted-foreground"
-                  >
-                    Newly released API.
-                  </TabsContent>
-                  <TabsContent
-                    value="beta"
-                    className="text-sm text-muted-foreground"
-                  >
-                    Experimental features.
-                  </TabsContent>
-                </Tabs>
+              {/* The "line" style + full width + tag badges. */}
+              <Demo
+                name="Tabs · line style + tags"
+                span={2}
+                config={tabsLineCfg}
+                setConfig={setTabsLineCfg}
+                enums={tabsEnums}
+              >
+                <TabsView
+                  config={tabsLineCfg as unknown as TabsConfig}
+                  className="w-full"
+                  renderPanel={(t) => (
+                    <span className="text-sm text-muted-foreground">
+                      {t.label} content.
+                    </span>
+                  )}
+                />
               </Demo>
 
               <Demo name="Collapsible">

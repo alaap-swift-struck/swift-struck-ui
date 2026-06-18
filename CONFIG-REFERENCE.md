@@ -269,6 +269,18 @@ A role's access-rights grid: rows are the app's modules (passed in), columns are
 | `mode`         | `"edit" \| "read" \| "locked"`     | `edit` = toggleable; `read` = view-only (disabled); `locked` = view-only AND every cell forced ON (the Admin role). |
 | `autoFlipRead` | `boolean`                          | When `true`, turning ON Create/Edit/Delete forces Read ON and locks it (you can't have write without read).         |
 
+### `TabsConfig` (Tabs — config-driven, Glide-style)
+
+Tabs can be driven by data via `<TabsView config={…} />`: the tabs are an array, each with a label, a lucide icon name, and an optional badge (a count or a short tag). Add/remove/reorder a tab = a config change, no code change. (The compositional `<Tabs><TabsList><TabsTrigger>` API still exists for hand-built tabs.)
+
+| Field       | Type               | What it does                                                                                          |
+| ----------- | ------------------ | ----------------------------------------------------------------------------------------------------- |
+| `tabs`      | `TabItem[]`        | The tabs as data — each `{ value, label, icon, badge, badgeVariant }` (see below).                    |
+| `variant`   | `"pill" \| "line"` | `pill` = a frosted segmented control (Glide's "Button"); `line` = an underline rail (Glide's "Line"). |
+| `fullWidth` | `boolean`          | Stretch the bar so the tabs share the full width equally.                                             |
+
+`TabItem`: `value` (id) · `label` (shown) · `icon` (lucide name, kebab-case e.g. `"inbox"`; `""` = none) · `badge` (a count or tag e.g. `"24"`/`"New"`; `""` = none) · `badgeVariant` (`""` = neutral count chip, else a Badge variant like `"destructive"` to colour-code). A bar that overflows its container scrolls horizontally rather than spilling out.
+
 ---
 
 ## Simple primitives (props, not a config object)

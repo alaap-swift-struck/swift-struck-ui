@@ -291,7 +291,7 @@ const CATALOG: CatalogItem[] = [
     name: "Tabs",
     category: "Layout",
     blurb:
-      "Tabbed panels — each tab can show a badge count or tag (Glide-style).",
+      "Tabbed panels (pill or line) — config-driven, with per-tab icons and badge counts/tags (Glide-style).",
   },
   { name: "Accordion", category: "Layout", blurb: "Expandable sections." },
   {
