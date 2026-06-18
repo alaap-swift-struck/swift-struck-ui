@@ -65,6 +65,12 @@
     { "name": "container", "type": "registry:ui", "layer": "primitives" },
     { "name": "clamp", "type": "registry:ui", "layer": "primitives" },
     { "name": "title", "type": "registry:ui", "layer": "primitives" },
+    {
+      "name": "search-input",
+      "type": "registry:ui",
+      "layer": "primitives"
+    },
+    { "name": "filter-bar", "type": "registry:ui", "layer": "primitives" },
     { "name": "list", "type": "registry:ui", "layer": "collections" },
     { "name": "card-grid", "type": "registry:ui", "layer": "collections" },
     {

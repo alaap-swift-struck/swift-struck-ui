@@ -4,7 +4,7 @@
 
 import { describe, expect, it } from "vitest"
 
-import { selectRows } from "./collection"
+import { facetOptions, selectRows } from "./collection"
 import {
   defaultCollectionConfig,
   type CollectionConfig,
@@ -86,5 +86,67 @@ describe("selectRows", () => {
     )
     expect(r.total).toBe(2) // two Eng rows
     expect(r.visible.map((x) => x.n)).toEqual([30]) // desc → 30,20 ; page 0 of size 1
+  })
+
+  /* ----------------------------- facet filters ---------------------------- */
+
+  it("applies a facet value as an `is` rule (select control)", () => {
+    const r = selectRows(rows, cfg(), { facetValues: { role: "Eng" } })
+    expect(r.total).toBe(2)
+    expect(r.visible.map((x) => x.name)).toEqual(["Ada", "Alan"])
+  })
+
+  it("a chips facet uses the SAME engine (value → is rule)", () => {
+    // control is presentation only — the logic is identical to select.
+    const r = selectRows(rows, cfg(), { facetValues: { role: "Design" } })
+    expect(r.visible.map((x) => x.name)).toEqual(["Grace"])
+  })
+
+  it("ignores an empty facet value", () => {
+    expect(selectRows(rows, cfg(), { facetValues: { role: "" } }).total).toBe(4)
+  })
+
+  it("ANDs multiple facets with each other and the builder filter", () => {
+    const filter: Rule[] = [
+      { source: "row", field: "role", op: "is", value: "Eng" },
+    ]
+    // builder: role=Eng (Ada, Alan) AND facet name=Ada → just Ada
+    const r = selectRows(rows, cfg({ filter }), {
+      facetValues: { name: "Ada" },
+    })
+    expect(r.visible.map((x) => x.name)).toEqual(["Ada"])
+  })
+
+  it("combines facet + search + sort + paginate (order preserved)", () => {
+    const r = selectRows(
+      rows,
+      cfg({ sortBy: "n", sortDir: "desc", itemsPerPage: 1, searchable: true }),
+      {
+        facetValues: { role: "Eng" },
+        query: "a",
+        searchKeys: ["name"],
+        page: 0,
+      }
+    )
+    // facet Eng → Ada(30), Alan(20); search "a" keeps both; desc by n → 30,20;
+    // page size 1, page 0 → [30] (Ada)
+    expect(r.total).toBe(2)
+    expect(r.visible.map((x) => x.name)).toEqual(["Ada"])
+  })
+})
+
+describe("facetOptions", () => {
+  it("derives distinct values, sorted, skipping empties", () => {
+    const data = [
+      { role: "Eng" },
+      { role: "Design" },
+      { role: "Eng" },
+      { role: "" },
+      { role: null },
+    ]
+    expect(facetOptions(data, "role")).toEqual([
+      { value: "Design", label: "Design" },
+      { value: "Eng", label: "Eng" },
+    ])
   })
 })

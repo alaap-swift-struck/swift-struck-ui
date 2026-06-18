@@ -183,6 +183,18 @@ export const defaultActionConfig: ActionConfig = {
   showWhenDisabled: true,
 }
 
+/** A user-facing filter control. A chosen value becomes an `is` Rule on `field`,
+ * run through the SAME `evaluateRules` engine as the builder `filter` (no new
+ * matching engine). `control` is just presentation: a dropdown or chips. When
+ * `options` is omitted, the distinct values are derived from the data at render
+ * (see `facetOptions` in lib/collection.ts). */
+export interface FilterFacet {
+  field: string
+  label: string
+  control: "select" | "chips"
+  options?: { value: string; label: string }[]
+}
+
 /** Collection components — data-bound views. `filter`/`sort`/`limit` are
  * DECLARED here and EXECUTED by the data layer (D1/SQL) — the component itself
  * just receives the resulting rows. */
@@ -190,6 +202,8 @@ export interface CollectionConfig extends BaseConfig {
   dataSource: string
   /** Header shown above the collection (empty = no header). */
   title: string
+  /** Builder-side conditions (always applied). User-facing facets live in
+   * `filterFacets` and are ANDed with these. */
   filter: Rule[]
   sortBy: string
   sortDir: "asc" | "desc"
@@ -200,6 +214,13 @@ export interface CollectionConfig extends BaseConfig {
   /** On page change, scroll the collection's top back into view. */
   scrollToTop: boolean
   searchable: boolean
+  /** Placeholder shown inside the search box. */
+  searchPlaceholder: string
+  /** Show a runtime, USER-facing filter bar (the `filterFacets` below). Separate
+   * from `searchable` and from the builder `filter` — Glide calls this out. */
+  userFilter: boolean
+  /** The facets rendered when `userFilter` is on (a dropdown or chips each). */
+  filterFacets: FilterFacet[]
   /** Show a live "Showing X of Y" count in the header. */
   showCount: boolean
   emptyText: string
@@ -216,6 +237,9 @@ export const defaultCollectionConfig: CollectionConfig = {
   itemsPerPage: null,
   scrollToTop: true,
   searchable: true,
+  searchPlaceholder: "Search…",
+  userFilter: false,
+  filterFacets: [],
   showCount: true,
   emptyText: "Nothing here yet.",
 }

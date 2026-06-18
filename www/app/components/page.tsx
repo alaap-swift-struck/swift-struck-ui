@@ -64,6 +64,7 @@ import {
   activityItems,
   descriptionItems,
   descriptionListConfig,
+  filterableListConfig,
   recordDetailConfig,
   stats,
   statGridConfig,
@@ -618,6 +619,9 @@ export default function ComponentsGallery() {
   const [tableCfg, setTableCfg] = React.useState<Record<string, unknown>>(
     tableConfig as unknown as Record<string, unknown>
   )
+  const [filterListCfg, setFilterListCfg] = React.useState<
+    Record<string, unknown>
+  >(filterableListConfig as unknown as Record<string, unknown>)
   const [tasks, setTasks] = React.useState(initialTasks)
   const [kanbanCfg, setKanbanCfg] = React.useState<Record<string, unknown>>(
     kanbanConfig as unknown as Record<string, unknown>
@@ -787,6 +791,46 @@ export default function ComponentsGallery() {
               >
                 <CollectionFrame
                   config={listCfg as unknown as CollectionConfig}
+                  data={peopleData}
+                  searchKeys={["name", "role", "status"]}
+                  renderItems={(rows) => (
+                    <List
+                      items={rows.map((p) => ({
+                        id: p.id,
+                        title: p.name,
+                        subtitle: p.role,
+                        leading: (
+                          <Avatar className="size-9">
+                            <AvatarFallback>
+                              {p.name.slice(0, 2)}
+                            </AvatarFallback>
+                          </Avatar>
+                        ),
+                        trailing: (
+                          <Badge variant={statusVariant(p.status)}>
+                            {p.status}
+                          </Badge>
+                        ),
+                      }))}
+                    />
+                  )}
+                />
+              </Demo>
+
+              {/* User-facing SEARCH + FILTER FACETS — all from the shared
+                  CollectionFrame engine. Role = chips, Status = dropdown; the
+                  count + pager react to both. Edit `filterFacets` in the ⚙. */}
+              <Demo
+                name="List · search + filter facets"
+                span={3}
+                config={filterListCfg}
+                setConfig={setFilterListCfg}
+                enums={collectionEnums}
+                data={peopleData}
+                setData={(d) => setPeopleData(d as typeof peopleLarge)}
+              >
+                <CollectionFrame
+                  config={filterListCfg as unknown as CollectionConfig}
                   data={peopleData}
                   searchKeys={["name", "role", "status"]}
                   renderItems={(rows) => (

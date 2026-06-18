@@ -1,18 +1,21 @@
 "use client"
 
-import * as React from "react"
-import {
-  ArrowDown,
-  ArrowUp,
-  ArrowUpDown,
-  MoreHorizontal,
-  Search,
-} from "lucide-react"
+// DataTable — a sortable, searchable table. It renders THROUGH CollectionFrame,
+// so it shares the one search/filter/sort/limit/pagination engine (lib/collection
+// selectRows) with every other collection — no parallel system. DataTable keeps
+// its own interactive column-sort (click a header) by threading that choice into
+// the config it hands the frame; everything else (search box, filter facets,
+// pagination, "Showing X of Y", empty state) is the frame's.
 
-import { type BaseConfig, defaultBaseConfig } from "../../../lib/config"
+import * as React from "react"
+import { ArrowDown, ArrowUp, ArrowUpDown, MoreHorizontal } from "lucide-react"
+
+import {
+  type CollectionConfig,
+  defaultCollectionConfig,
+} from "../../../lib/config"
 import { cn } from "../../../lib/utils"
 import { Badge } from "../../primitives/badge/badge"
-import { useIsVisible } from "../../primitives/visibility/visibility"
 import { Button } from "../../primitives/button/button"
 import {
   DropdownMenu,
@@ -20,7 +23,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../../primitives/dropdown-menu/dropdown-menu"
-import { Input } from "../../primitives/input/input"
 import {
   Table,
   TableBody,
@@ -29,6 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from "../../primitives/table/table"
+import { CollectionFrame } from "../collection-frame/collection-frame"
 
 /* ------------------------------- config ------------------------------- */
 
@@ -46,35 +49,31 @@ export interface DataTableColumn {
   align: Align
 }
 
-/** Every field is required on purpose — see ARCHITECTURE.md "Configuration". */
-export interface DataTableConfig extends BaseConfig {
+/** Extends CollectionConfig so the table inherits the shared collection knobs
+ * (searchable, searchPlaceholder, filter, userFilter, filterFacets, limit,
+ * itemsPerPage, showCount, emptyText…) on top of its own table-specific ones.
+ * Every field is required on purpose — see ARCHITECTURE.md "Configuration". */
+export interface DataTableConfig extends CollectionConfig {
   columns: DataTableColumn[]
-  /** Global search box over all columns. */
-  searchable: boolean
   /** Zebra-striped rows. */
   striped: boolean
   density: DataTableDensity
   /** Trailing actions (⋯) column — supply `actions` to populate it. */
   rowActions: boolean
-  /** Placeholder inside the search box. */
-  searchPlaceholder: string
-  /** Text shown when no rows match. */
-  emptyText: string
-  /** "card" = the rounded, bordered surface (default); "none" = flat, no
+  /** "card" = rounded, bordered surface (default); "none" = flat, no
    *  border/background — for apps whose design language has no card surfaces. */
   surface: "card" | "none"
 }
 
 export const defaultDataTableConfig: DataTableConfig = {
-  ...defaultBaseConfig,
+  ...defaultCollectionConfig,
   columns: [],
-  searchable: true,
   striped: true,
   density: "comfortable",
   rowActions: false,
-  searchPlaceholder: "Search…",
-  emptyText: "No results.",
   surface: "card",
+  // table-friendly default; CollectionConfig's is "Nothing here yet."
+  emptyText: "No results.",
 }
 
 /* ------------------------------ component ------------------------------ */
@@ -109,183 +108,159 @@ function DataTable<T extends Record<string, unknown>>({
   onRowClick,
   className,
 }: DataTableProps<T>) {
-  const [query, setQuery] = React.useState("")
-  const [sort, setSort] = React.useState<{ key: string; dir: 1 | -1 } | null>(
-    null
-  )
+  // Interactive column-sort lives here; we feed it into the frame's config so
+  // selectRows does the sort BEFORE pagination (clicking a header re-runs it).
+  const [sort, setSort] = React.useState<{
+    key: string
+    dir: "asc" | "desc"
+  } | null>(null)
 
   const pad = config.density === "compact" ? "py-1.5" : "py-3"
   const rowInteractive = Boolean(onRowClick)
 
-  const rows = React.useMemo(() => {
-    let r = data
-    if (config.searchable && query.trim()) {
-      const q = query.toLowerCase()
-      r = r.filter((row) =>
-        config.columns.some((c) =>
-          String(row[c.key] ?? "")
-            .toLowerCase()
-            .includes(q)
-        )
-      )
-    }
-    if (sort) {
-      const col = config.columns.find((c) => c.key === sort.key)
-      r = [...r].sort((a, b) => {
-        const av = a[sort.key]
-        const bv = b[sort.key]
-        if (col?.type === "number") {
-          return (Number(av) - Number(bv)) * sort.dir
-        }
-        return String(av).localeCompare(String(bv)) * sort.dir
-      })
-    }
-    return r
-  }, [data, query, sort, config])
-
   function toggleSort(key: string) {
     setSort((s) =>
-      s?.key === key ? (s.dir === 1 ? { key, dir: -1 } : null) : { key, dir: 1 }
+      s?.key === key
+        ? s.dir === "asc"
+          ? { key, dir: "desc" }
+          : null // asc → desc → off (back to config default)
+        : { key, dir: "asc" }
     )
   }
 
-  if (!useIsVisible(config)) return null
+  // The config the frame runs: our interactive sort overrides the config's.
+  const frameConfig = {
+    ...config,
+    sortBy: sort?.key ?? config.sortBy,
+    sortDir: sort?.dir ?? config.sortDir,
+  }
 
   return (
-    <div className={cn("flex flex-col gap-3", className)}>
-      {config.searchable && (
-        <div className="relative w-full max-w-xs">
-          <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={config.searchPlaceholder}
-            className="pl-8"
-          />
+    <CollectionFrame
+      config={frameConfig as CollectionConfig}
+      data={data}
+      searchKeys={config.columns.map((c) => c.key) as (keyof T)[]}
+      className={className}
+      renderItems={(rows) => (
+        <div
+          className={cn(
+            "overflow-hidden",
+            config.surface === "card" && "rounded-xl border"
+          )}
+        >
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {config.columns.map((c) => {
+                  const active = sort?.key === c.key
+                  return (
+                    <TableHead key={c.key} className={alignClass[c.align]}>
+                      {c.sortable ? (
+                        <button
+                          type="button"
+                          onClick={() => toggleSort(c.key)}
+                          className="inline-flex items-center gap-1 transition-colors hover:text-foreground"
+                        >
+                          {c.header}
+                          {active ? (
+                            sort?.dir === "asc" ? (
+                              <ArrowUp className="size-3.5" />
+                            ) : (
+                              <ArrowDown className="size-3.5" />
+                            )
+                          ) : (
+                            <ArrowUpDown className="size-3.5 opacity-40" />
+                          )}
+                        </button>
+                      ) : (
+                        c.header
+                      )}
+                    </TableHead>
+                  )
+                })}
+                {config.rowActions && <TableHead className="w-10" />}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((row, i) => (
+                <TableRow
+                  key={i}
+                  // Link-like row: a keyboard-accessible control when onRowClick is set.
+                  role={rowInteractive ? "button" : undefined}
+                  tabIndex={rowInteractive ? 0 : undefined}
+                  onClick={rowInteractive ? () => onRowClick?.(row) : undefined}
+                  onKeyDown={
+                    rowInteractive
+                      ? (e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault()
+                            onRowClick?.(row)
+                          }
+                        }
+                      : undefined
+                  }
+                  className={cn(
+                    config.striped && i % 2 === 1 && "bg-muted/40",
+                    rowInteractive &&
+                      "cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+                  )}
+                >
+                  {config.columns.map((c) => (
+                    <TableCell
+                      key={c.key}
+                      className={cn(
+                        pad,
+                        alignClass[c.align],
+                        c.type === "number" && "tabular-nums"
+                      )}
+                    >
+                      {c.type === "badge" ? (
+                        <Badge variant="secondary">
+                          {String(row[c.key] ?? "")}
+                        </Badge>
+                      ) : (
+                        (row[c.key] as React.ReactNode)
+                      )}
+                    </TableCell>
+                  ))}
+                  {config.rowActions && (
+                    // stopPropagation: tapping/keying the ⋯ menu must NOT also
+                    // fire the row-open. Covers click + keyboard activation.
+                    <TableCell
+                      className={cn(pad, "text-right")}
+                      onClick={(e) => e.stopPropagation()}
+                      onKeyDown={(e) => e.stopPropagation()}
+                    >
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-7"
+                          >
+                            <MoreHorizontal />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {actions.map((a) => (
+                            <DropdownMenuItem
+                              key={a.label}
+                              onSelect={() => a.onSelect(row)}
+                            >
+                              {a.label}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       )}
-
-      <div
-        className={cn(
-          "overflow-hidden",
-          config.surface === "card" && "rounded-xl border"
-        )}
-      >
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {config.columns.map((c) => (
-                <TableHead key={c.key} className={alignClass[c.align]}>
-                  {c.sortable ? (
-                    <button
-                      type="button"
-                      onClick={() => toggleSort(c.key)}
-                      className="inline-flex items-center gap-1 transition-colors hover:text-foreground"
-                    >
-                      {c.header}
-                      {sort?.key === c.key ? (
-                        sort.dir === 1 ? (
-                          <ArrowUp className="size-3.5" />
-                        ) : (
-                          <ArrowDown className="size-3.5" />
-                        )
-                      ) : (
-                        <ArrowUpDown className="size-3.5 opacity-40" />
-                      )}
-                    </button>
-                  ) : (
-                    c.header
-                  )}
-                </TableHead>
-              ))}
-              {config.rowActions && <TableHead className="w-10" />}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.map((row, i) => (
-              <TableRow
-                key={i}
-                // Link-like row: a keyboard-accessible control when onRowClick is set.
-                role={rowInteractive ? "button" : undefined}
-                tabIndex={rowInteractive ? 0 : undefined}
-                onClick={rowInteractive ? () => onRowClick?.(row) : undefined}
-                onKeyDown={
-                  rowInteractive
-                    ? (e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault()
-                          onRowClick?.(row)
-                        }
-                      }
-                    : undefined
-                }
-                className={cn(
-                  config.striped && i % 2 === 1 && "bg-muted/40",
-                  rowInteractive &&
-                    "cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
-                )}
-              >
-                {config.columns.map((c) => (
-                  <TableCell
-                    key={c.key}
-                    className={cn(
-                      pad,
-                      alignClass[c.align],
-                      c.type === "number" && "tabular-nums"
-                    )}
-                  >
-                    {c.type === "badge" ? (
-                      <Badge variant="secondary">
-                        {String(row[c.key] ?? "")}
-                      </Badge>
-                    ) : (
-                      (row[c.key] as React.ReactNode)
-                    )}
-                  </TableCell>
-                ))}
-                {config.rowActions && (
-                  // stopPropagation: tapping/keying the ⋯ menu must NOT also
-                  // fire the row-open. Covers click + keyboard activation.
-                  <TableCell
-                    className={cn(pad, "text-right")}
-                    onClick={(e) => e.stopPropagation()}
-                    onKeyDown={(e) => e.stopPropagation()}
-                  >
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="size-7">
-                          <MoreHorizontal />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {actions.map((a) => (
-                          <DropdownMenuItem
-                            key={a.label}
-                            onSelect={() => a.onSelect(row)}
-                          >
-                            {a.label}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                )}
-              </TableRow>
-            ))}
-            {rows.length === 0 && (
-              <TableRow>
-                <TableCell
-                  colSpan={config.columns.length + (config.rowActions ? 1 : 0)}
-                  className="py-8 text-center text-sm text-muted-foreground"
-                >
-                  {config.emptyText}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-    </div>
+    />
   )
 }
 

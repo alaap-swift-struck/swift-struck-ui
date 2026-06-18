@@ -71,21 +71,39 @@ same explanations as comments) and you know the whole surface.
 ## Data views: `CollectionConfig` (List, Card, Table, Kanban, Calendar…)
 
 Declared here, **executed** by `CollectionFrame` (`selectRows`): `limit → filter
-→ search → sort → paginate`.
+(builder + facets) → search → sort → paginate`.
 
-| Field          | Type              | What it does                                                                           |
-| -------------- | ----------------- | -------------------------------------------------------------------------------------- |
-| `dataSource`   | `string`          | Name of the table/relation feeding the collection (used by the data layer).            |
-| `title`        | `string`          | Header above the collection. `""` = no header.                                         |
-| `filter`       | `Rule[]`          | Rows are kept only if they pass these rules (per-row).                                 |
-| `sortBy`       | `string`          | Field to sort by. `""` = original order.                                               |
-| `sortDir`      | `"asc" \| "desc"` | Sort direction.                                                                        |
-| `limit`        | `number \| null`  | Cap on the **total** rows ever shown. `null` = no cap.                                 |
-| `itemsPerPage` | `number \| null`  | Rows per page (adds a Prev/Next pager). `null` = show everything, no pagination.       |
-| `scrollToTop`  | `boolean`         | On page change, `true` scrolls the collection's top back into view; `false` stays put. |
-| `searchable`   | `boolean`         | Show a search box that filters on the named keys.                                      |
-| `showCount`    | `boolean`         | Show the live "Showing X of Y" count (updates with search/filter).                     |
-| `emptyText`    | `string`          | Message shown when no rows match.                                                      |
+| Field               | Type              | What it does                                                                                         |
+| ------------------- | ----------------- | ---------------------------------------------------------------------------------------------------- |
+| `dataSource`        | `string`          | Name of the table/relation feeding the collection (used by the data layer).                          |
+| `title`             | `string`          | Header above the collection. `""` = no header.                                                       |
+| `filter`            | `Rule[]`          | **Builder-side** rules, always applied (per-row). User facets are ANDed on top (see `filterFacets`). |
+| `sortBy`            | `string`          | Field to sort by. `""` = original order.                                                             |
+| `sortDir`           | `"asc" \| "desc"` | Sort direction.                                                                                      |
+| `limit`             | `number \| null`  | Cap on the **total** rows ever shown. `null` = no cap.                                               |
+| `itemsPerPage`      | `number \| null`  | Rows per page (adds a Prev/Next pager). `null` = show everything, no pagination.                     |
+| `scrollToTop`       | `boolean`         | On page change, `true` scrolls the collection's top back into view; `false` stays put.               |
+| `searchable`        | `boolean`         | Show the debounced `SearchInput` that filters on the named keys.                                     |
+| `searchPlaceholder` | `string`          | Placeholder inside the search box. Default `"Search…"`.                                              |
+| `userFilter`        | `boolean`         | Show a runtime, USER-facing `FilterBar` of `filterFacets`. Separate from `searchable` and `filter`.  |
+| `filterFacets`      | `FilterFacet[]`   | The facets rendered when `userFilter` is on (each a dropdown or chips). See below.                   |
+| `showCount`         | `boolean`         | Show the live "Showing X of Y" count (updates with search **and** facets).                           |
+| `emptyText`         | `string`          | Message shown when no rows match.                                                                    |
+
+### `FilterFacet` (a user-facing filter control)
+
+| Field     | Type                     | What it does                                                                 |
+| --------- | ------------------------ | ---------------------------------------------------------------------------- |
+| `field`   | `string`                 | The row field this facet filters on.                                         |
+| `label`   | `string`                 | Shown on the control (dropdown placeholder / chip group label).              |
+| `control` | `"select" \| "chips"`    | Presentation only — a dropdown or a set of removable chips.                  |
+| `options` | `{value;label}[]` (opt.) | The choices. **Omit** to derive the distinct values from the data at render. |
+
+A chosen facet value becomes an `is` `Rule` on `field`, run through the **same** `evaluateRules` engine as `filter` (no new matching engine), ANDed with the builder filter and any other active facets.
+
+**Server-side seam (CollectionFrame props, not config):** pass `serverSide={true}` + `onQueryChange={({query, facetValues}) => …}` and the frame stops filtering in memory — it emits the (debounced) query + facets and renders whatever `data` you hand it, so the app can refetch (`?q=` / FTS5) later. `searchable`/`filter` defaults are unchanged, so existing consumers are unaffected.
+
+**Primitives:** the search box is the **`SearchInput`** primitive (Input + lucide Search + a clear ✕, debounced via `debounceMs`); the facet row is the **`FilterBar`** primitive (Select or chips + "Clear all", keyboard-operable, polite live count). `List`/`CardGrid` get all of this by rendering inside `CollectionFrame` (the gallery shows the pattern).
 
 ---
 
@@ -184,15 +202,15 @@ How any displayed text handles being too long. Never grows width left-to-right.
 
 ### `DataTableConfig` (Data Table)
 
-| Field                             | Type                         | What it does                                                                                    |
-| --------------------------------- | ---------------------------- | ----------------------------------------------------------------------------------------------- |
-| `columns`                         | `DataTableColumn[]`          | The columns: each has `key`, `header`, `type` (`text`/`number`/`badge`/…), `sortable`, `align`. |
-| `searchable`                      | `boolean`                    | Global search box over all columns.                                                             |
-| `striped`                         | `boolean`                    | Zebra-striped rows.                                                                             |
-| `density`                         | `"comfortable" \| "compact"` | Row height.                                                                                     |
-| `rowActions`                      | `boolean`                    | Show a trailing ⋯ actions column (supply `actions`).                                            |
-| `searchPlaceholder` / `emptyText` | `string`                     | Search-box and no-rows text.                                                                    |
-| `surface`                         | `"card" \| "none"`           | `card` = rounded bordered surface (default); `none` = flat, no border/background.               |
+**Extends `CollectionConfig`** — it renders through `CollectionFrame`, so it inherits the whole collection engine: `searchable`/`searchPlaceholder`, builder `filter`, `userFilter`/`filterFacets`, `sortBy`/`sortDir`, `limit`/`itemsPerPage`, `showCount`, `emptyText`. On top it adds the table-specific knobs below. (Its own interactive column-sort — click a header — is threaded into that engine, so sort still happens before pagination.)
+
+| Field        | Type                         | What it does                                                                                    |
+| ------------ | ---------------------------- | ----------------------------------------------------------------------------------------------- |
+| `columns`    | `DataTableColumn[]`          | The columns: each has `key`, `header`, `type` (`text`/`number`/`badge`/…), `sortable`, `align`. |
+| `striped`    | `boolean`                    | Zebra-striped rows.                                                                             |
+| `density`    | `"comfortable" \| "compact"` | Row height.                                                                                     |
+| `rowActions` | `boolean`                    | Show a trailing ⋯ actions column (supply `actions`).                                            |
+| `surface`    | `"card" \| "none"`           | `card` = rounded bordered surface (default); `none` = flat, no border/background.               |
 
 Pass `onRowClick?: (row) => void` (a prop, not config) to make each row an activatable, keyboard-accessible control (click / Enter / Space) for "tap row → detail". The trailing ⋯ menu stops propagation, so it never also fires the row-open. Mirrors the List collection's `onItemClick`.
 

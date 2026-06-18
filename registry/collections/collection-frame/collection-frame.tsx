@@ -5,21 +5,27 @@
 // Glide-style collection config for you:
 //   • title           — an optional header
 //   • filter / sort    — EXECUTED here (via selectRows) from the config's rules
-//   • showCount        — a LIVE "Showing X of Y" that reacts to search/filter
-//   • searchable       — a search box that filters on the columns you name
+//   • searchable       — a debounced SearchInput that filters the named columns
+//   • userFilter       — a FilterBar of `filterFacets` (dropdowns / chips)
+//   • showCount        — a LIVE "Showing X of Y" that reacts to search + facets
 //   • limit            — caps the TOTAL rows (e.g. "only ever show 50")
 //   • itemsPerPage     — paginates the (filtered) rows, with a Prev/Next pager
 // The data math lives in lib/collection (selectRows) so it stays unit-tested;
 // one component so List, Card, Table, etc. all behave identically — no repeat.
+//
+// SERVER-SIDE seam: pass `serverSide` + `onQueryChange` and the frame stops
+// filtering in memory — it emits the (debounced) query + facets and renders
+// whatever `data` it's handed, so an app can refetch (?q= / FTS5) later.
 
 import * as React from "react"
-import { ChevronLeft, ChevronRight, Search } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 import { selectRows } from "../../../lib/collection"
 import { type CollectionConfig } from "../../../lib/config"
 import { cn } from "../../../lib/utils"
 import { Button } from "../../primitives/button/button"
-import { Input } from "../../primitives/input/input"
+import { FilterBar } from "../../primitives/filter-bar/filter-bar"
+import { SearchInput } from "../../primitives/search-input/search-input"
 import { useIsVisible } from "../../primitives/visibility/visibility"
 
 function CollectionFrame<T>({
@@ -27,6 +33,8 @@ function CollectionFrame<T>({
   data,
   searchKeys,
   renderItems,
+  serverSide = false,
+  onQueryChange,
   className,
 }: {
   config: CollectionConfig
@@ -35,28 +43,72 @@ function CollectionFrame<T>({
   searchKeys: (keyof T)[]
   /** Render one page of rows (the frame slices them for you). */
   renderItems: (rows: T[]) => React.ReactNode
+  /** When true, the frame does NOT filter/search/paginate in memory — it renders
+   * `data` as given and emits query/facets via `onQueryChange` (the app refetches). */
+  serverSide?: boolean
+  /** Notified (query already debounced by SearchInput) whenever the user's
+   * query or facet selection changes — the seam for server-side `?q=` / FTS5. */
+  onQueryChange?: (state: {
+    query: string
+    facetValues: Record<string, string>
+  }) => void
   className?: string
 }) {
   const [query, setQuery] = React.useState("")
+  const [facetValues, setFacetValues] = React.useState<Record<string, string>>(
+    {}
+  )
   const [page, setPage] = React.useState(0)
   const rootRef = React.useRef<HTMLDivElement>(null)
 
-  // A new search resets to the first page so results are never off-screen.
-  React.useEffect(() => setPage(0), [query])
+  // A new search/facet resets to the first page so results are never off-screen.
+  React.useEffect(() => setPage(0), [query, facetValues])
+
+  // Emit query/facets to the app (skip the initial mount). The query is already
+  // debounced upstream by SearchInput; facet changes are immediate.
+  const mounted = React.useRef(false)
+  React.useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true
+      return
+    }
+    onQueryChange?.({ query, facetValues })
+  }, [query, facetValues, onQueryChange])
 
   const visibleConfig = useIsVisible(config)
   if (!visibleConfig) return null
 
-  // limit → filter rules → search → sort → paginate (all pure, see selectRows).
-  const {
-    visible,
-    filtered,
-    total,
-    pageCount,
-    page: current,
-  } = selectRows(data, config, { query, searchKeys, page })
+  // limit → (builder filter + facets) → search → sort → paginate (see selectRows).
+  // serverSide: skip the in-memory pipeline — render whatever `data` we're given.
+  const slice = serverSide
+    ? {
+        visible: data,
+        filtered: data,
+        total: data.length,
+        pageCount: 1,
+        page: 0,
+      }
+    : selectRows(data, config, { query, searchKeys, page, facetValues })
+  const { visible, filtered, pageCount, page: current } = slice
 
-  const showHeader = config.title || config.showCount || config.searchable
+  const showFilterBar = config.userFilter && config.filterFacets.length > 0
+  const showHeader =
+    config.title || config.showCount || config.searchable || showFilterBar
+  const canClear =
+    query !== "" || Object.values(facetValues).some((v) => v !== "")
+
+  const setFacet = (field: string, value: string) =>
+    setFacetValues((s) => {
+      const next = { ...s }
+      if (value === "") delete next[field]
+      else next[field] = value
+      return next
+    })
+
+  const clearAll = () => {
+    setQuery("")
+    setFacetValues({})
+  }
 
   // Page change: optionally scroll the collection's top back into view.
   const goTo = (p: number) => {
@@ -68,27 +120,37 @@ function CollectionFrame<T>({
   return (
     <div ref={rootRef} className={cn("flex w-full flex-col gap-3", className)}>
       {showHeader && (
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-baseline gap-2">
-            {config.title && (
-              <h3 className="text-sm font-semibold">{config.title}</h3>
-            )}
-            {config.showCount && (
-              <span className="text-xs text-muted-foreground tabular-nums">
-                Showing {visible.length} of {filtered.length}
-              </span>
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-baseline gap-2">
+              {config.title && (
+                <h3 className="text-sm font-semibold">{config.title}</h3>
+              )}
+              {config.showCount && (
+                <span className="text-xs text-muted-foreground tabular-nums">
+                  Showing {visible.length} of {filtered.length}
+                </span>
+              )}
+            </div>
+            {config.searchable && (
+              <SearchInput
+                value={query}
+                onChange={setQuery}
+                placeholder={config.searchPlaceholder}
+                className="w-44"
+              />
             )}
           </div>
-          {config.searchable && (
-            <div className="relative w-44">
-              <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search…"
-                className="h-8 pl-8"
-              />
-            </div>
+          {showFilterBar && (
+            <FilterBar
+              facets={config.filterFacets}
+              values={facetValues}
+              data={data}
+              onChange={setFacet}
+              onClearAll={clearAll}
+              canClear={canClear}
+              resultCount={filtered.length}
+            />
           )}
         </div>
       )}
@@ -101,7 +163,7 @@ function CollectionFrame<T>({
         renderItems(visible)
       )}
 
-      {config.itemsPerPage != null && pageCount > 1 && (
+      {!serverSide && config.itemsPerPage != null && pageCount > 1 && (
         <div className="flex items-center justify-between gap-3 pt-1">
           <span className="text-xs text-muted-foreground tabular-nums">
             Page {current + 1} of {pageCount}

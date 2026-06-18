@@ -147,6 +147,18 @@ const CATALOG: CatalogItem[] = [
     category: "Inputs",
     blurb: "A config-driven form with built-in validation.",
   },
+  {
+    name: "Search Input",
+    category: "Inputs",
+    blurb:
+      "A debounced search box with a clear button — the one collections use.",
+  },
+  {
+    name: "Filter Bar",
+    category: "Inputs",
+    blurb:
+      "User-facing collection filters — facets as dropdowns or chips, with Clear all.",
+  },
   // Display
   {
     name: "Typography",

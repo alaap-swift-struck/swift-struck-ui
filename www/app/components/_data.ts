@@ -5,12 +5,14 @@ import * as React from "react"
 
 import {
   defaultActionConfig,
+  defaultCollectionConfig,
   defaultContainerConfig,
   defaultFieldConfig,
   defaultImageConfig,
   defaultMapConfig,
   defaultTextDisplayConfig,
   defaultVideoConfig,
+  type CollectionConfig,
   type FieldConfig,
 } from "@swift-struck/ui/lib/config"
 import {
@@ -182,6 +184,24 @@ export const tableConfig: DataTableConfig = {
     },
   ],
   rowActions: true,
+  // User-facing filtering on the table: a Status dropdown facet.
+  userFilter: true,
+  filterFacets: [{ field: "status", label: "Status", control: "select" }],
+}
+
+// A collection with the full user-facing search + filter facets, rendered
+// through CollectionFrame (the List/Card pattern). Role = chips, Status = select.
+export const filterableListConfig: CollectionConfig = {
+  ...defaultCollectionConfig,
+  title: "People",
+  searchable: true,
+  searchPlaceholder: "Search people…",
+  itemsPerPage: 6,
+  userFilter: true,
+  filterFacets: [
+    { field: "role", label: "Role", control: "chips" },
+    { field: "status", label: "Status", control: "select" },
+  ],
 }
 
 export const initialTasks = [

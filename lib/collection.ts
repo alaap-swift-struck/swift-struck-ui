@@ -4,7 +4,7 @@
 // returns the current page plus the totals the UI needs. Keeping this here (not
 // inside a component) means it's deterministic and unit-tested.
 
-import { type CollectionConfig, evaluateRules } from "./config"
+import { type CollectionConfig, evaluateRules, type Rule } from "./config"
 
 export interface CollectionSlice<T> {
   /** Rows for the current page (what you render). */
@@ -19,22 +19,53 @@ export interface CollectionSlice<T> {
   page: number
 }
 
+/** Derive the distinct, sorted values of a field from the data — used by the
+ * filter bar when a facet doesn't declare its own `options`. Pure + testable. */
+export function facetOptions<T>(
+  data: T[],
+  field: string
+): { value: string; label: string }[] {
+  const seen = new Set<string>()
+  const out: { value: string; label: string }[] = []
+  for (const row of data) {
+    const raw = (row as Record<string, unknown>)[field]
+    if (raw == null || raw === "") continue
+    const v = String(raw)
+    if (!seen.has(v)) {
+      seen.add(v)
+      out.push({ value: v, label: v })
+    }
+  }
+  return out.sort((a, b) => a.label.localeCompare(b.label))
+}
+
 export function selectRows<T>(
   data: T[],
   config: CollectionConfig,
-  opts: { query?: string; searchKeys?: (keyof T)[]; page?: number } = {}
+  opts: {
+    query?: string
+    searchKeys?: (keyof T)[]
+    page?: number
+    /** User-facing facet selections: { field: chosenValue }. Each becomes an
+     * `is` Rule ANDed with the builder `filter` in the SAME filter step. */
+    facetValues?: Record<string, string>
+  } = {}
 ): CollectionSlice<T> {
-  const { query = "", searchKeys = [], page = 0 } = opts
+  const { query = "", searchKeys = [], page = 0, facetValues = {} } = opts
   const get = (row: T, key: PropertyKey) =>
     (row as Record<PropertyKey, unknown>)[key]
 
   // 1) cap the TOTAL number of rows
   let rows = config.limit != null ? data.slice(0, config.limit) : data.slice()
 
-  // 2) filter rules (each row evaluated against the rule engine)
-  if (config.filter && config.filter.length > 0) {
+  // 2) filter: builder rules + user-facet rules, ANDed, via the SAME engine.
+  const facetRules: Rule[] = Object.entries(facetValues)
+    .filter(([, v]) => v != null && v !== "")
+    .map(([field, value]) => ({ source: "row", field, op: "is", value }))
+  const allFilters: Rule[] = [...(config.filter ?? []), ...facetRules]
+  if (allFilters.length > 0) {
     rows = rows.filter((row) =>
-      evaluateRules(config.filter, {
+      evaluateRules(allFilters, {
         row: row as Record<string, unknown>,
         user: {},
         app: {},

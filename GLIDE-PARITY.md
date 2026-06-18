@@ -21,19 +21,28 @@ intentionally skipped (niche / out of scope for now)
 
 ## Collections
 
-| Glide     | Swift Struck UI      | Notes                                                                      |
-| --------- | -------------------- | -------------------------------------------------------------------------- |
-| Card      | ✅ card-grid         |                                                                            |
-| List      | ✅ list              |                                                                            |
-| Table     | ✅ data-table        |                                                                            |
-| Data Grid | ✅ data-table        | Same component; spreadsheet-grid mode later.                               |
-| Checklist | ✅ checklist         |                                                                            |
-| Calendar  | ✅ calendar-view     |                                                                            |
-| Kanban    | ✅ kanban            |                                                                            |
-| Comments  | ✅ comments          | Threaded comments collection.                                              |
-| Chat      | ✅ chat              | Message thread UI.                                                         |
-| —         | ✅ permission-matrix | Beyond Glide: role access-rights grid (modules × Read/Create/Edit/Delete). |
-| Custom    | ➖                   | App-specific.                                                              |
+Every collection that renders through `CollectionFrame` shares one engine
+(`selectRows`): builder **filter**, user-facing **search** (`searchable` +
+debounced `SearchInput`) and **filter facets** (`userFilter` + `filterFacets`,
+dropdown or chips via `FilterBar`), **sort**, **limit**, and **pagination** —
+plus a `serverSide` + `onQueryChange` seam for server `?q=` / FTS5 later. See
+CONFIG-REFERENCE.md.
+
+| Glide      | Swift Struck UI      | Notes                                                                      |
+| ---------- | -------------------- | -------------------------------------------------------------------------- |
+| search     | ✅ searchable        | Debounced `SearchInput`, clear button, over the named keys.                |
+| userFilter | ✅ userFilter        | `filterFacets` → `FilterBar` (select / chips), ANDed via the rule engine.  |
+| Card       | ✅ card-grid         |                                                                            |
+| List       | ✅ list              |                                                                            |
+| Table      | ✅ data-table        | Renders through CollectionFrame — inherits search/filter/sort/limit/pages. |
+| Data Grid  | ✅ data-table        | Same component; spreadsheet-grid mode later.                               |
+| Checklist  | ✅ checklist         |                                                                            |
+| Calendar   | ✅ calendar-view     |                                                                            |
+| Kanban     | ✅ kanban            |                                                                            |
+| Comments   | ✅ comments          | Threaded comments collection.                                              |
+| Chat       | ✅ chat              | Message thread UI.                                                         |
+| —          | ✅ permission-matrix | Beyond Glide: role access-rights grid (modules × Read/Create/Edit/Delete). |
+| Custom     | ➖                   | App-specific.                                                              |
 
 ## Layout
 
