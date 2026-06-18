@@ -1706,6 +1706,84 @@ export default function ComponentsGallery() {
                 </Tabs>
               </Demo>
 
+              {/* Glide-style: each tab leads to a collection and shows its count
+                  (or a tag) as a trailing badge. `badge` takes any node; omit
+                  `badgeVariant` for a neutral count, or set one to colour-code. */}
+              <Demo name="Tabs · badge counts">
+                <Tabs defaultValue="inbox" className="w-full">
+                  <TabsList>
+                    <TabsTrigger value="inbox" badge={24}>
+                      Inbox
+                    </TabsTrigger>
+                    <TabsTrigger value="drafts" badge={3}>
+                      Drafts
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="flagged"
+                      badge={8}
+                      badgeVariant="destructive"
+                    >
+                      Flagged
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent
+                    value="inbox"
+                    className="text-sm text-muted-foreground"
+                  >
+                    24 messages in your inbox.
+                  </TabsContent>
+                  <TabsContent
+                    value="drafts"
+                    className="text-sm text-muted-foreground"
+                  >
+                    3 unsent drafts.
+                  </TabsContent>
+                  <TabsContent
+                    value="flagged"
+                    className="text-sm text-muted-foreground"
+                  >
+                    8 flagged for follow-up.
+                  </TabsContent>
+                </Tabs>
+              </Demo>
+
+              {/* Badges can also be short tags, not just numbers. */}
+              <Demo name="Tabs · tag badges">
+                <Tabs defaultValue="overview" className="w-full">
+                  <TabsList>
+                    <TabsTrigger value="overview">Overview</TabsTrigger>
+                    <TabsTrigger value="api" badge="New" badgeVariant="success">
+                      API
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="beta"
+                      badge="Beta"
+                      badgeVariant="warning"
+                    >
+                      Labs
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent
+                    value="overview"
+                    className="text-sm text-muted-foreground"
+                  >
+                    Product overview.
+                  </TabsContent>
+                  <TabsContent
+                    value="api"
+                    className="text-sm text-muted-foreground"
+                  >
+                    Newly released API.
+                  </TabsContent>
+                  <TabsContent
+                    value="beta"
+                    className="text-sm text-muted-foreground"
+                  >
+                    Experimental features.
+                  </TabsContent>
+                </Tabs>
+              </Demo>
+
               <Demo name="Collapsible">
                 <Collapsible className="w-full">
                   <CollapsibleTrigger asChild>

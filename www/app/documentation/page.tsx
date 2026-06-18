@@ -287,7 +287,12 @@ const CATALOG: CatalogItem[] = [
   { name: "Card", category: "Layout", blurb: "A frosted-glass surface." },
   { name: "Separator", category: "Layout", blurb: "A thin divider line." },
   { name: "Spacer", category: "Layout", blurb: "A fixed vertical gap." },
-  { name: "Tabs", category: "Layout", blurb: "Tabbed panels." },
+  {
+    name: "Tabs",
+    category: "Layout",
+    blurb:
+      "Tabbed panels — each tab can show a badge count or tag (Glide-style).",
+  },
   { name: "Accordion", category: "Layout", blurb: "Expandable sections." },
   {
     name: "Aspect Ratio",

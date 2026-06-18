@@ -4,8 +4,14 @@ import * as React from "react"
 import * as TabsPrimitive from "@radix-ui/react-tabs"
 
 import { cn } from "../../../lib/utils"
+import { Badge, type BadgeProps } from "../badge/badge"
 
 const Tabs = TabsPrimitive.Root
+
+// Shape for the optional per-tab count/tag pill (Glide-style). A rounded chip
+// that stays compact inside the h-9 tab; `min-w-5` keeps single digits circular.
+const tabBadgeClass =
+  "min-w-5 justify-center rounded-full px-1.5 py-0 text-xs leading-5"
 
 function TabsList({
   className,
@@ -24,8 +30,20 @@ function TabsList({
 
 function TabsTrigger({
   className,
+  children,
+  badge,
+  badgeVariant,
   ...props
-}: React.ComponentProps<typeof TabsPrimitive.Trigger>) {
+}: React.ComponentProps<typeof TabsPrimitive.Trigger> & {
+  /** Optional trailing pill — a count or short tag, like Glide's tab counts
+   *  when a tab leads to a collection. Accepts any node (number, string, node).
+   *  Pass `undefined`/`null` to hide it (so `badge={count || undefined}` works). */
+  badge?: React.ReactNode
+  /** Badge style (see Badge). Omit for a neutral count pill that reads on both
+   *  the active and inactive tab in light and dark; set e.g. "destructive" /
+   *  "success" / "warning" for a colour-coded count. */
+  badgeVariant?: BadgeProps["variant"]
+}) {
   return (
     <TabsPrimitive.Trigger
       className={cn(
@@ -33,7 +51,24 @@ function TabsTrigger({
         className
       )}
       {...props}
-    />
+    >
+      {children}
+      {badge != null && (
+        <Badge
+          variant={badgeVariant}
+          className={cn(
+            tabBadgeClass,
+            // Default (no variant given): a neutral foreground-tinted chip that
+            // contrasts on the muted (inactive) AND background (active) surfaces,
+            // in both themes. An explicit `badgeVariant` keeps its own colours.
+            !badgeVariant &&
+              "border-transparent bg-foreground/10 text-foreground"
+          )}
+        >
+          {badge}
+        </Badge>
+      )}
+    </TabsPrimitive.Trigger>
   )
 }
 
