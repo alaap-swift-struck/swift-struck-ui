@@ -30,6 +30,7 @@ import {
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from "../../primitives/tooltip/tooltip"
 import { useIsVisible } from "../../primitives/visibility/visibility"
@@ -88,12 +89,15 @@ function PermissionMatrix({
   const locked = config.mode === "locked"
 
   return (
-    <div
-      className={cn(
-        "animate-rise w-full overflow-hidden rounded-xl border bg-card",
-        className
-      )}
-    >
+    // Self-provide the tooltip context so the matrix is a true drop-in — apps
+    // never need a TooltipProvider at their root just to render this grid.
+    <TooltipProvider>
+      <div
+        className={cn(
+          "animate-rise w-full overflow-hidden rounded-xl border bg-card",
+          className
+        )}
+      >
       {/* The Table primitive already provides horizontal overflow; the module
           column is sticky so the four rights scroll under it on narrow screens. */}
       <Table>
@@ -195,7 +199,8 @@ function PermissionMatrix({
           )}
         </TableBody>
       </Table>
-    </div>
+      </div>
+    </TooltipProvider>
   )
 }
 

@@ -176,6 +176,10 @@
    * onboarding) sit perfectly still on every device. See UI-RULES.md. */
   html {
     overscroll-behavior: none;
+    /* No screen scrolls horizontally — the root clamps it (UI-RULES.md rule 2).
+     * Only designated scrollers (a table, a collection, a tab strip) scroll
+     * sideways, inside a contained wrapper that never widens the page. */
+    overflow-x: hidden;
   }
   body {
     background-color: var(--color-background);
