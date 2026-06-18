@@ -60,6 +60,9 @@ export interface DataTableConfig extends BaseConfig {
   searchPlaceholder: string
   /** Text shown when no rows match. */
   emptyText: string
+  /** "card" = the rounded, bordered surface (default); "none" = flat, no
+   *  border/background — for apps whose design language has no card surfaces. */
+  surface: "card" | "none"
 }
 
 export const defaultDataTableConfig: DataTableConfig = {
@@ -71,6 +74,7 @@ export const defaultDataTableConfig: DataTableConfig = {
   rowActions: false,
   searchPlaceholder: "Search…",
   emptyText: "No results.",
+  surface: "card",
 }
 
 /* ------------------------------ component ------------------------------ */
@@ -84,6 +88,11 @@ export interface DataTableProps<T extends Record<string, unknown>> {
   data: T[]
   config: DataTableConfig
   actions?: RowAction<T>[]
+  /** Opt-in: makes each row an activatable, keyboard-accessible control
+   *  (click / Enter / Space) for "tap row → open detail". The trailing actions
+   *  menu and any interactive cell stop propagation, so tapping ⋯ never also
+   *  fires this. Mirrors the List collection's `onItemClick`. */
+  onRowClick?: (row: T) => void
   className?: string
 }
 
@@ -97,6 +106,7 @@ function DataTable<T extends Record<string, unknown>>({
   data,
   config,
   actions = [],
+  onRowClick,
   className,
 }: DataTableProps<T>) {
   const [query, setQuery] = React.useState("")
@@ -105,6 +115,7 @@ function DataTable<T extends Record<string, unknown>>({
   )
 
   const pad = config.density === "compact" ? "py-1.5" : "py-3"
+  const rowInteractive = Boolean(onRowClick)
 
   const rows = React.useMemo(() => {
     let r = data
@@ -154,7 +165,12 @@ function DataTable<T extends Record<string, unknown>>({
         </div>
       )}
 
-      <div className="overflow-hidden rounded-xl border">
+      <div
+        className={cn(
+          "overflow-hidden",
+          config.surface === "card" && "rounded-xl border"
+        )}
+      >
         <Table>
           <TableHeader>
             <TableRow>
@@ -189,7 +205,25 @@ function DataTable<T extends Record<string, unknown>>({
             {rows.map((row, i) => (
               <TableRow
                 key={i}
-                className={cn(config.striped && i % 2 === 1 && "bg-muted/40")}
+                // Link-like row: a keyboard-accessible control when onRowClick is set.
+                role={rowInteractive ? "button" : undefined}
+                tabIndex={rowInteractive ? 0 : undefined}
+                onClick={rowInteractive ? () => onRowClick?.(row) : undefined}
+                onKeyDown={
+                  rowInteractive
+                    ? (e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault()
+                          onRowClick?.(row)
+                        }
+                      }
+                    : undefined
+                }
+                className={cn(
+                  config.striped && i % 2 === 1 && "bg-muted/40",
+                  rowInteractive &&
+                    "cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+                )}
               >
                 {config.columns.map((c) => (
                   <TableCell
@@ -210,7 +244,13 @@ function DataTable<T extends Record<string, unknown>>({
                   </TableCell>
                 ))}
                 {config.rowActions && (
-                  <TableCell className={cn(pad, "text-right")}>
+                  // stopPropagation: tapping/keying the ⋯ menu must NOT also
+                  // fire the row-open. Covers click + keyboard activation.
+                  <TableCell
+                    className={cn(pad, "text-right")}
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
+                  >
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="size-7">

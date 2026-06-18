@@ -54,6 +54,20 @@ import {
   defaultTabsConfig,
   type TabsConfig,
 } from "@swift-struck/ui/registry/primitives/tabs/tabs"
+import {
+  defaultActivityFeedConfig,
+  type ActivityFeedConfig,
+  type ActivityItem,
+} from "@swift-struck/ui/registry/collections/activity-feed/activity-feed"
+import {
+  defaultDescriptionListConfig,
+  type DescriptionItem,
+  type DescriptionListConfig,
+} from "@swift-struck/ui/registry/collections/description-list/description-list"
+import {
+  defaultRecordDetailConfig,
+  type RecordDetailConfig,
+} from "@swift-struck/ui/registry/collections/record-detail/record-detail"
 import { Badge } from "@swift-struck/ui/registry/primitives/badge/badge"
 
 export const invoices = [
@@ -438,7 +452,10 @@ export const salesMatrixValue: PermissionMatrixValue = {
   products: { read: true, create: true, edit: false, delete: false },
 }
 
-export const permissionEnums = { mode: ["edit", "read", "locked"] }
+export const permissionEnums = {
+  mode: ["edit", "read", "locked"],
+  surface: ["card", "none"],
+}
 
 /* ------------------------------ config tabs ------------------------------ */
 
@@ -504,13 +521,69 @@ export const tabsLineConfig: TabsConfig = {
 
 export const tabsEnums = { variant: ["pill", "line"] }
 
+/* ------------------------- record-detail blocks ------------------------- */
+
+export const surfaceEnums = { surface: ["card", "none"] }
+
+// Description / field list — empty values (Notes) drop out when hideEmpty is on.
+export const descriptionItems: DescriptionItem[] = [
+  { label: "Status", value: "Active" },
+  { label: "Owner", value: "Ada Lovelace" },
+  { label: "Plan", value: "Pro" },
+  { label: "Location", value: "London" },
+  { label: "Joined", value: "2021-03-14" },
+  { label: "Notes", value: "" },
+]
+export const descriptionListConfig: DescriptionListConfig = {
+  ...defaultDescriptionListConfig,
+  columns: 2,
+}
+
+// Activity feed — passed oldest-first; newestFirst sorts it so newest is on top.
+export const activityItems: ActivityItem[] = [
+  {
+    id: "1",
+    description: "Created the account",
+    actor: "Ada",
+    timestamp: "2024-06-01 09:12",
+  },
+  {
+    id: "2",
+    description: "Upgraded to the Pro plan",
+    actor: "Ada",
+    timestamp: "2024-06-05 14:30",
+  },
+  {
+    id: "3",
+    description: "Invited 3 teammates",
+    actor: "Grace",
+    timestamp: "2024-06-11 10:02",
+  },
+  {
+    id: "4",
+    description: "Changed the billing email",
+    actor: "Ada",
+    timestamp: "2024-06-18 08:40",
+  },
+]
+export const activityFeedConfig: ActivityFeedConfig = {
+  ...defaultActivityFeedConfig,
+}
+
+export const recordDetailConfig: RecordDetailConfig = {
+  ...defaultRecordDetailConfig,
+}
+
 /* ----------------------- enum + initial knob configs ----------------------- */
 
 export const choiceEnums = {
   mode: ["single", "multi"],
   display: ["dropdown", "chips", "pills"],
 }
-export const dataTableEnums = { density: ["comfortable", "compact"] }
+export const dataTableEnums = {
+  density: ["comfortable", "compact"],
+  surface: ["card", "none"],
+}
 export const calendarEnums = { weekStartsOn: ["sunday", "monday"] }
 export const chartEnums = {
   type: ["bar", "line", "area", "pie", "radar", "radial"],

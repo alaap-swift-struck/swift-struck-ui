@@ -87,6 +87,9 @@ function PermissionMatrix({
   if (!visible) return null
 
   const locked = config.mode === "locked"
+  // Flat ("none") drops the card surface; the sticky module column then fills
+  // with bg-background (not bg-card) so it stays opaque over scrolled cells.
+  const stickyFill = config.surface === "card" ? "bg-card" : "bg-background"
 
   return (
     // Self-provide the tooltip context so the matrix is a true drop-in — apps
@@ -94,111 +97,116 @@ function PermissionMatrix({
     <TooltipProvider>
       <div
         className={cn(
-          "animate-rise w-full overflow-hidden rounded-xl border bg-card",
+          "animate-rise w-full overflow-hidden",
+          config.surface === "card" && "rounded-xl border bg-card",
           className
         )}
       >
-      {/* The Table primitive already provides horizontal overflow; the module
+        {/* The Table primitive already provides horizontal overflow; the module
           column is sticky so the four rights scroll under it on narrow screens. */}
-      <Table>
-        <TableHeader>
-          <TableRow className="hover:bg-transparent">
-            <TableHead className="sticky left-0 z-10 min-w-[8rem] bg-card">
-              <span className="inline-flex items-center gap-2">
-                Module
-                {locked && (
-                  <Badge variant="secondary" className="gap-1">
-                    <Lock className="size-3" aria-hidden />
-                    Locked
-                  </Badge>
-                )}
-              </span>
-            </TableHead>
-            {RIGHTS.map((r) => (
-              <TableHead
-                key={r.key}
-                className="w-[4.75rem] min-w-[4.75rem] text-center"
-              >
-                {r.label}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-
-        <TableBody>
-          {config.modules.map((m) => (
-            <TableRow key={m.key}>
-              <TableCell className="sticky left-0 z-10 bg-card font-medium">
-                <span className="inline-flex items-center gap-1.5">
-                  {locked && (
-                    <Lock
-                      className="size-3.5 text-muted-foreground"
-                      aria-hidden
-                    />
-                  )}
-                  {m.label}
-                </span>
-              </TableCell>
-
-              {RIGHTS.map((r) => {
-                const st = cellState(config, value, m.key, r.key)
-                // In view-only modes the switch is truly disabled. A Read cell
-                // that's locked-on (edit mode) stays focusable via aria-disabled
-                // so screen readers reach it and hear the tooltip.
-                const ariaLabel = st.lockedOn
-                  ? `${r.label} — ${m.label} (locked on; Read is required for write access)`
-                  : `${r.label} — ${m.label}`
-
-                const control = (
-                  <Switch
-                    checked={st.checked}
-                    disabled={config.mode !== "edit"}
-                    aria-disabled={st.disabled || undefined}
-                    aria-label={ariaLabel}
-                    onCheckedChange={(on) => handleToggle(m.key, r.key, on)}
-                  />
-                )
-
-                return (
-                  <TableCell key={r.key} className="text-center">
-                    {st.lockedOn ? (
-                      // The Tooltip trigger is the wrapping span (not the Switch):
-                      // Radix would otherwise overwrite the Switch's own
-                      // data-state, breaking its on/off styling. The Switch keeps
-                      // its descriptive aria-label so the lock reaches SR users.
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="inline-flex items-center justify-center gap-1.5">
-                            {control}
-                            <Lock
-                              className="size-3 text-muted-foreground"
-                              aria-hidden
-                            />
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent>{READ_REQUIRED_HINT}</TooltipContent>
-                      </Tooltip>
-                    ) : (
-                      control
-                    )}
-                  </TableCell>
-                )
-              })}
-            </TableRow>
-          ))}
-
-          {config.modules.length === 0 && (
+        <Table>
+          <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableCell
-                colSpan={RIGHTS.length + 1}
-                className="py-8 text-center text-sm text-muted-foreground"
+              <TableHead
+                className={cn("sticky left-0 z-10 min-w-[8rem]", stickyFill)}
               >
-                No modules configured.
-              </TableCell>
+                <span className="inline-flex items-center gap-2">
+                  Module
+                  {locked && (
+                    <Badge variant="secondary" className="gap-1">
+                      <Lock className="size-3" aria-hidden />
+                      Locked
+                    </Badge>
+                  )}
+                </span>
+              </TableHead>
+              {RIGHTS.map((r) => (
+                <TableHead
+                  key={r.key}
+                  className="w-[4.75rem] min-w-[4.75rem] text-center"
+                >
+                  {r.label}
+                </TableHead>
+              ))}
             </TableRow>
-          )}
-        </TableBody>
-      </Table>
+          </TableHeader>
+
+          <TableBody>
+            {config.modules.map((m) => (
+              <TableRow key={m.key}>
+                <TableCell
+                  className={cn("sticky left-0 z-10 font-medium", stickyFill)}
+                >
+                  <span className="inline-flex items-center gap-1.5">
+                    {locked && (
+                      <Lock
+                        className="size-3.5 text-muted-foreground"
+                        aria-hidden
+                      />
+                    )}
+                    {m.label}
+                  </span>
+                </TableCell>
+
+                {RIGHTS.map((r) => {
+                  const st = cellState(config, value, m.key, r.key)
+                  // In view-only modes the switch is truly disabled. A Read cell
+                  // that's locked-on (edit mode) stays focusable via aria-disabled
+                  // so screen readers reach it and hear the tooltip.
+                  const ariaLabel = st.lockedOn
+                    ? `${r.label} — ${m.label} (locked on; Read is required for write access)`
+                    : `${r.label} — ${m.label}`
+
+                  const control = (
+                    <Switch
+                      checked={st.checked}
+                      disabled={config.mode !== "edit"}
+                      aria-disabled={st.disabled || undefined}
+                      aria-label={ariaLabel}
+                      onCheckedChange={(on) => handleToggle(m.key, r.key, on)}
+                    />
+                  )
+
+                  return (
+                    <TableCell key={r.key} className="text-center">
+                      {st.lockedOn ? (
+                        // The Tooltip trigger is the wrapping span (not the Switch):
+                        // Radix would otherwise overwrite the Switch's own
+                        // data-state, breaking its on/off styling. The Switch keeps
+                        // its descriptive aria-label so the lock reaches SR users.
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="inline-flex items-center justify-center gap-1.5">
+                              {control}
+                              <Lock
+                                className="size-3 text-muted-foreground"
+                                aria-hidden
+                              />
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>{READ_REQUIRED_HINT}</TooltipContent>
+                        </Tooltip>
+                      ) : (
+                        control
+                      )}
+                    </TableCell>
+                  )
+                })}
+              </TableRow>
+            ))}
+
+            {config.modules.length === 0 && (
+              <TableRow className="hover:bg-transparent">
+                <TableCell
+                  colSpan={RIGHTS.length + 1}
+                  className="py-8 text-center text-sm text-muted-foreground"
+                >
+                  No modules configured.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </div>
     </TooltipProvider>
   )

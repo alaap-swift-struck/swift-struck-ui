@@ -34,12 +34,12 @@ How apps apply it on single-screen pages:
 And the horizontal twin (added 2026-06-18):
 
 - **A screen NEVER scrolls horizontally.** The root clamps `overflow-x: hidden`
-  (library-enforced on `html` in `styles.css`). Only *designated* scrollers — a
+  (library-enforced on `html` in `styles.css`). Only _designated_ scrollers — a
   data table, a collection, or a tab strip — may scroll sideways, and only inside
   a **contained** wrapper (`overflow-x-auto`) that never widens its parent. Flex
   children holding variable-width content carry `min-w-0` so they shrink instead
   of forcing the page wide. (The `Table` primitive and the revised `Tabs` already
-  scroll *within themselves* — use them rather than hand-rolling a wide row.)
+  scroll _within themselves_ — use them rather than hand-rolling a wide row.)
 - **Installed apps don't pinch-zoom.** The app sets a fixed-scale viewport
   (`width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no`) so
   the installed PWA feels native and a stray pinch can't leave the screen panned.

@@ -30,6 +30,10 @@ export interface PermissionMatrixConfig extends BaseConfig {
   /** When true, turning ON any of Create/Edit/Delete forces Read ON and locks
    *  Read on (you can't have write without read). Default true. */
   autoFlipRead: boolean
+  /** "card" = the rounded, bordered surface (default); "none" = flat, no
+   *  border/background. When "none", the sticky module column fills with
+   *  `bg-background` (instead of `bg-card`) so scrolled cells stay opaque. */
+  surface: "card" | "none"
 }
 
 export const defaultPermissionMatrixConfig: PermissionMatrixConfig = {
@@ -37,6 +41,7 @@ export const defaultPermissionMatrixConfig: PermissionMatrixConfig = {
   modules: [],
   mode: "edit",
   autoFlipRead: true,
+  surface: "card",
 }
 
 /** All-off — the state of a module that has never been touched. */

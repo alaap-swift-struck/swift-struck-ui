@@ -192,6 +192,9 @@ How any displayed text handles being too long. Never grows width left-to-right.
 | `density`                         | `"comfortable" \| "compact"` | Row height.                                                                                     |
 | `rowActions`                      | `boolean`                    | Show a trailing ⋯ actions column (supply `actions`).                                            |
 | `searchPlaceholder` / `emptyText` | `string`                     | Search-box and no-rows text.                                                                    |
+| `surface`                         | `"card" \| "none"`           | `card` = rounded bordered surface (default); `none` = flat, no border/background.               |
+
+Pass `onRowClick?: (row) => void` (a prop, not config) to make each row an activatable, keyboard-accessible control (click / Enter / Space) for "tap row → detail". The trailing ⋯ menu stops propagation, so it never also fires the row-open. Mirrors the List collection's `onItemClick`.
 
 ### `ChartConfig` (Chart)
 
@@ -263,11 +266,38 @@ How any displayed text handles being too long. Never grows width left-to-right.
 
 A role's access-rights grid: rows are the app's modules (passed in), columns are the four fixed rights **Read · Create · Edit · Delete**, cells are on/off toggles. The value is a `Record<moduleKey, { read, create, edit, delete }>`; a module missing from the value renders all-off.
 
-| Field          | Type                               | What it does                                                                                                        |
-| -------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `modules`      | `{ key: string; label: string }[]` | The rows. `key` is the app's module id, `label` is shown. Adding/removing a module is a config-only change.         |
-| `mode`         | `"edit" \| "read" \| "locked"`     | `edit` = toggleable; `read` = view-only (disabled); `locked` = view-only AND every cell forced ON (the Admin role). |
-| `autoFlipRead` | `boolean`                          | When `true`, turning ON Create/Edit/Delete forces Read ON and locks it (you can't have write without read).         |
+| Field          | Type                               | What it does                                                                                                           |
+| -------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `modules`      | `{ key: string; label: string }[]` | The rows. `key` is the app's module id, `label` is shown. Adding/removing a module is a config-only change.            |
+| `mode`         | `"edit" \| "read" \| "locked"`     | `edit` = toggleable; `read` = view-only (disabled); `locked` = view-only AND every cell forced ON (the Admin role).    |
+| `autoFlipRead` | `boolean`                          | When `true`, turning ON Create/Edit/Delete forces Read ON and locks it (you can't have write without read).            |
+| `surface`      | `"card" \| "none"`                 | `card` = rounded bordered surface (default); `none` = flat (the sticky module column then fills with `bg-background`). |
+
+### Record-detail building blocks
+
+For composing a record-detail screen entirely from the library. All three are **flat by default** (`surface: "none"`), config-driven, and wrap long text instead of scrolling sideways.
+
+**`DescriptionListConfig` (Description List)** — a `{ label, value }[]` metadata block for an Overview panel.
+
+| Field       | Type               | What it does                                                        |
+| ----------- | ------------------ | ------------------------------------------------------------------- |
+| `columns`   | `1 \| 2`           | `1` = stacked, `2` = two-column grid.                               |
+| `hideEmpty` | `boolean`          | Drop rows whose `value` is empty (`""`/`null`/`undefined`/`false`). |
+| `surface`   | `"card" \| "none"` | `none` = flat (default); `card` = bordered surface.                 |
+
+**`ActivityFeedConfig` (Activity Feed)** — a `{ id, description, actor?, timestamp? }[]` timeline.
+
+| Field         | Type               | What it does                                                 |
+| ------------- | ------------------ | ------------------------------------------------------------ |
+| `newestFirst` | `boolean`          | Sort newest-first by `timestamp` (descending; ISO/sortable). |
+| `surface`     | `"card" \| "none"` | `none` = flat (default); `card` = bordered surface.          |
+| `emptyText`   | `string`           | Shown when there's no activity.                              |
+
+**`RecordDetailConfig` (Record Detail)** — the scaffold: a header (`title`, `subtitle`, `avatarSrc`/`avatarFallback`, `actions` slot — all props) above its `children` (typically a `TabsView` composing the two blocks above).
+
+| Field     | Type               | What it does                                        |
+| --------- | ------------------ | --------------------------------------------------- |
+| `surface` | `"card" \| "none"` | `none` = flat (default); `card` = bordered surface. |
 
 ### `TabsConfig` (Tabs — config-driven, Glide-style)
 

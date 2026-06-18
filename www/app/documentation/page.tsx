@@ -230,7 +230,8 @@ const CATALOG: CatalogItem[] = [
   {
     name: "Data Table",
     category: "Collections",
-    blurb: "Sortable, searchable table with row actions.",
+    blurb:
+      "Sortable, searchable table — row actions, tap-to-open rows, flat or card surface.",
   },
   {
     name: "Kanban",
@@ -258,6 +259,23 @@ const CATALOG: CatalogItem[] = [
     category: "Collections",
     blurb:
       "Edit a role's permissions — a grid of modules × Read, Create, Edit, Delete toggles.",
+  },
+  {
+    name: "Description List",
+    category: "Collections",
+    blurb:
+      "A flat label/value metadata block for a record's Overview — empty rows drop out.",
+  },
+  {
+    name: "Activity Feed",
+    category: "Collections",
+    blurb: "A flat, newest-first timeline of events — who did what, and when.",
+  },
+  {
+    name: "Record Detail",
+    category: "Collections",
+    blurb:
+      "A record-detail scaffold: an avatar/title/subtitle header + actions over a tab area.",
   },
   {
     name: "Collection Frame",

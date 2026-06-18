@@ -24,6 +24,9 @@ export interface ListProps<T extends ListItem> {
   selectedId?: string | null
   /** When provided, rows become buttons; clicking one fires this with the row. */
   onSelect?: (item: T) => void
+  /** "card" = the frosted card surface (default); "none" = flat, no
+   *  background/border — for apps whose design language has no card surfaces. */
+  surface?: "card" | "none"
   /** Rendered when `items` is empty. */
   empty?: React.ReactNode
   className?: string
@@ -43,26 +46,31 @@ function List<T extends ListItem>({
   onItemClick,
   selectedId,
   onSelect,
+  surface = "card",
   empty,
   className,
 }: ListProps<T>) {
+  // "none" = a flat container (no card background/border); "card" = the frosted
+  // Card. Either way rows keep their divider + hover/selected affordances.
+  const Surface = surface === "card" ? Card : "div"
+
   if (items.length === 0) {
     return (
-      <Card
+      <Surface
         className={cn(
           "p-8 text-center text-sm text-muted-foreground",
           className
         )}
       >
         {empty ?? "Nothing here yet."}
-      </Card>
+      </Surface>
     )
   }
 
   const interactive = Boolean(onItemClick || onSelect)
 
   return (
-    <Card className={cn("divide-y overflow-hidden p-0", className)}>
+    <Surface className={cn("divide-y overflow-hidden p-0", className)}>
       {items.map((item) => {
         const selected = selectedId != null && item.id === selectedId
         const content = (
@@ -123,7 +131,7 @@ function List<T extends ListItem>({
           </div>
         )
       })}
-    </Card>
+    </Surface>
   )
 }
 

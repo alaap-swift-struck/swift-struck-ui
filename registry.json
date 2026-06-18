@@ -90,6 +90,17 @@
       "name": "permission-matrix",
       "type": "registry:ui",
       "layer": "collections"
-    }
+    },
+    {
+      "name": "description-list",
+      "type": "registry:ui",
+      "layer": "collections"
+    },
+    {
+      "name": "activity-feed",
+      "type": "registry:ui",
+      "layer": "collections"
+    },
+    { "name": "record-detail", "type": "registry:ui", "layer": "collections" }
   ]
 }

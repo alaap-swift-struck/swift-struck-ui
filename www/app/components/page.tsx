@@ -60,9 +60,15 @@ import {
   SHADCN,
   spacerEnums,
   spinnerEnums,
+  activityFeedConfig,
+  activityItems,
+  descriptionItems,
+  descriptionListConfig,
+  recordDetailConfig,
   stats,
   statGridConfig,
   statusVariant,
+  surfaceEnums,
   tableConfig,
   tabsConfig,
   tabsEnums,
@@ -139,6 +145,18 @@ import {
   type PermissionMatrixConfig,
   type PermissionMatrixValue,
 } from "@swift-struck/ui/registry/collections/permission-matrix/permission-matrix"
+import {
+  DescriptionList,
+  type DescriptionListConfig,
+} from "@swift-struck/ui/registry/collections/description-list/description-list"
+import {
+  ActivityFeed,
+  type ActivityFeedConfig,
+} from "@swift-struck/ui/registry/collections/activity-feed/activity-feed"
+import {
+  RecordDetail,
+  type RecordDetailConfig,
+} from "@swift-struck/ui/registry/collections/record-detail/record-detail"
 import {
   CalendarView,
   type CalendarViewConfig,
@@ -322,6 +340,7 @@ import {
   TableRow,
 } from "@swift-struck/ui/registry/primitives/table/table"
 import {
+  defaultTabsConfig,
   Tabs,
   TabsContent,
   TabsList,
@@ -657,6 +676,17 @@ export default function ComponentsGallery() {
   )
   const [salesValue, setSalesValue] = React.useState(salesMatrixValue)
 
+  // Record-detail building blocks.
+  const [descCfg, setDescCfg] = React.useState<Record<string, unknown>>(
+    descriptionListConfig as unknown as Record<string, unknown>
+  )
+  const [activityCfg, setActivityCfg] = React.useState<Record<string, unknown>>(
+    activityFeedConfig as unknown as Record<string, unknown>
+  )
+  const [recordCfg, setRecordCfg] = React.useState<Record<string, unknown>>(
+    recordDetailConfig as unknown as Record<string, unknown>
+  )
+
   // Config-driven Tabs (Glide-style): the tabs are an editable JSON array.
   const [tabsCfg, setTabsCfg] = React.useState<Record<string, unknown>>(
     tabsConfig as unknown as Record<string, unknown>
@@ -853,6 +883,11 @@ export default function ComponentsGallery() {
                     { label: "View", onSelect: () => {} },
                     { label: "Edit", onSelect: () => {} },
                   ]}
+                  onRowClick={(row) =>
+                    toast(`Open detail: ${String(row.name)}`, {
+                      description: "Tapping the ⋯ menu does NOT fire this.",
+                    })
+                  }
                   className="w-full"
                 />
               </Demo>
@@ -1004,6 +1039,98 @@ export default function ComponentsGallery() {
                   onChange={setSalesValue}
                   className="w-full"
                 />
+              </Demo>
+
+              {/* Record-detail building blocks (flat by default). */}
+              <Demo
+                name="Description list · metadata block"
+                span={2}
+                config={descCfg}
+                setConfig={setDescCfg}
+                enums={surfaceEnums}
+              >
+                <DescriptionList
+                  items={descriptionItems}
+                  config={descCfg as unknown as DescriptionListConfig}
+                  className="w-full"
+                />
+              </Demo>
+
+              <Demo
+                name="Activity feed · timeline"
+                span={2}
+                config={activityCfg}
+                setConfig={setActivityCfg}
+                enums={surfaceEnums}
+              >
+                <ActivityFeed
+                  items={activityItems}
+                  config={activityCfg as unknown as ActivityFeedConfig}
+                  className="w-full"
+                />
+              </Demo>
+
+              {/* The scaffold: a record header + a tab area composing the two
+                  blocks above — "a record detail screen" as one component. */}
+              <Demo
+                name="Record detail · scaffold"
+                span={3}
+                config={recordCfg}
+                setConfig={setRecordCfg}
+                enums={surfaceEnums}
+              >
+                <RecordDetail
+                  config={recordCfg as unknown as RecordDetailConfig}
+                  title="Ada Lovelace"
+                  subtitle="Staff Engineer · London"
+                  avatarFallback="AL"
+                  actions={
+                    <>
+                      <Button variant="outline" size="sm">
+                        Edit
+                      </Button>
+                      <Button size="sm">Message</Button>
+                    </>
+                  }
+                  className="w-full"
+                >
+                  <TabsView
+                    config={{
+                      ...defaultTabsConfig,
+                      variant: "line",
+                      fullWidth: true,
+                      tabs: [
+                        {
+                          value: "overview",
+                          label: "Overview",
+                          icon: "user",
+                          badge: "",
+                          badgeVariant: "",
+                        },
+                        {
+                          value: "activity",
+                          label: "Activity",
+                          icon: "history",
+                          badge: String(activityItems.length),
+                          badgeVariant: "",
+                        },
+                      ],
+                    }}
+                    renderPanel={(t) =>
+                      t.value === "overview" ? (
+                        <DescriptionList
+                          items={descriptionItems}
+                          config={descriptionListConfig}
+                        />
+                      ) : (
+                        <ActivityFeed
+                          items={activityItems}
+                          config={activityFeedConfig}
+                        />
+                      )
+                    }
+                  />
+                </RecordDetail>
               </Demo>
             </Section>
 
