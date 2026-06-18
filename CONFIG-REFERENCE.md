@@ -331,6 +331,55 @@ Tabs can be driven by data via `<TabsView config={…} />`: the tabs are an arra
 
 ---
 
+## The screen engine: `ScreenRecipe` + `ScreenRenderer`
+
+The config-driven runtime that renders a serializable **recipe** into a real
+screen by composing the existing collections. The LIBRARY owns the contract
+(`lib/recipe.ts`); the consuming app imports it. The engine renders recipes and
+speaks the URL grammar — it does **not** fetch data, call APIs, store recipes,
+or own the router (those are the host's job).
+
+### `ScreenRecipe` (a screen, as data)
+
+| Field          | Type                                                             | What it does                                                                                                                                                              |
+| -------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`         | `"list" \| "detail" \| "edit" \| "add" \| "confirm" \| "custom"` | Which library composition to render.                                                                                                                                      |
+| `presentation` | `"responsive" \| "overlay" \| "sheet" \| "fullscreen"`           | Default `"responsive"` = centered overlay on desktop / bottom sheet on mobile. The others force one mode. `edit`/`add`/`confirm` always render as a **layer** on top.     |
+| `binding`      | `{ module; source? }`                                            | The module the screen reads/writes.                                                                                                                                       |
+| `fields`       | `RecipeField[]`                                                  | Columns (list), inputs (edit/add), or rows (detail). Each wraps a `FieldConfig` + the bound `column` + a type (`text`/`number`/`choice`/`image`/`date`/`switch`/`notes`). |
+| `actions`      | `RecipeAction[]`                                                 | `{ id, label, action, variant?, confirm?, before?, after?, gate? }` — `action` is the named action the host dispatches.                                                   |
+| `gate`         | `ScreenGate`                                                     | Screen-level access gate (see below).                                                                                                                                     |
+| `header`       | `{ title; subtitle?; avatar? }`                                  | detail: which record columns feed the header.                                                                                                                             |
+| `tabs`         | `RecipeTab[]`                                                    | detail: named tabs, each a block (`description` / `fields` / `activity` / `list`).                                                                                        |
+| `display`      | `"table" \| "list" \| "cards"`                                   | list: how rows render (default `table`).                                                                                                                                  |
+| `collection`   | `CollectionConfig`                                               | list: the search/filter/sort/pagination config.                                                                                                                           |
+| `layout`       | `RecipeNode`                                                     | custom: a tree of `stack`/`row` containers + block leaves (`row` stacks on mobile).                                                                                       |
+| `confirm`      | `{ title; body; variant? }`                                      | confirm: the prompt.                                                                                                                                                      |
+
+### Gating — `ScreenGate { module; right; showWhenDenied? }`
+
+`right` is `"read"|"create"|"edit"|"delete"`. The engine reads the injected
+per-module `rights` and **hides** a gated screen/field/action by default;
+`showWhenDenied: "disabled"` renders it greyed instead. The app does NOT wire any
+of this per-button — it's automatic from the rights. **This is convenience only:
+the host MUST re-check on the server for every fetch + action.**
+
+### `ScreenRenderer` props
+
+`recipe` · `data` (`{ record?, rows?, options?, sets? }`, host-injected) ·
+`rights` (`Record<module, {read,create,edit,delete}>`) · `onAction(actionId, ctx)`
+· `presentation?` (override) · `onIntent(intent)` where intent is
+`{kind:"open",module,id}` / `{kind:"tab",tab}` / `{kind:"close"}` (the host maps
+these to URL changes). Forms (edit/add) submit through `onAction` with the values.
+
+### Deep-link URL grammar (`lib/recipe.ts` helpers)
+
+- **PATH = the record spine:** `/<module>/<id>/<childModule>/<childId>/…` (host prefixes a tenant segment). `parseScreenPath(segments)` ↔ `buildScreenPath(levels)`.
+- **QUERY = the transient layer:** `?panel=edit|add(&module=…)` · `?confirm=<action>&id=<id>` · `?tab=<key>`. `parseScreenQuery(searchParams)` ↔ `buildScreenQuery(state)`.
+- **Breadcrumbs:** `screenCrumbs(levels, labelFor, prefix?)` builds the trail; the **`Breadcrumbs`** primitive (`items`, `collapseAfter`, `onNavigate`) collapses the middle to a dropdown on small screens (first · … · last-two) so it never scrolls sideways.
+
+---
+
 ## Simple primitives (props, not a config object)
 
 Buttons, badges, spinners, etc. take plain props (usually `variant` and `size`)

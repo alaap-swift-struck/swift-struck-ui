@@ -71,6 +71,7 @@
       "layer": "primitives"
     },
     { "name": "filter-bar", "type": "registry:ui", "layer": "primitives" },
+    { "name": "breadcrumbs", "type": "registry:ui", "layer": "primitives" },
     { "name": "list", "type": "registry:ui", "layer": "collections" },
     { "name": "card-grid", "type": "registry:ui", "layer": "collections" },
     {
@@ -107,6 +108,11 @@
       "type": "registry:ui",
       "layer": "collections"
     },
-    { "name": "record-detail", "type": "registry:ui", "layer": "collections" }
+    { "name": "record-detail", "type": "registry:ui", "layer": "collections" },
+    {
+      "name": "screen-renderer",
+      "type": "registry:ui",
+      "layer": "collections"
+    }
   ]
 }

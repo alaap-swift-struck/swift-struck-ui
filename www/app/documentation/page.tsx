@@ -290,6 +290,12 @@ const CATALOG: CatalogItem[] = [
       "A record-detail scaffold: an avatar/title/subtitle header + actions over a tab area.",
   },
   {
+    name: "Screen Renderer",
+    category: "Collections",
+    blurb:
+      "The config-driven screen engine — renders a serializable recipe (list/detail/edit/add/confirm/custom) by composing collections, permission-aware.",
+  },
+  {
     name: "Collection Frame",
     category: "Collections",
     blurb:
@@ -341,6 +347,12 @@ const CATALOG: CatalogItem[] = [
   },
   // Navigation
   { name: "Breadcrumb", category: "Navigation", blurb: "Where-am-I trail." },
+  {
+    name: "Breadcrumbs",
+    category: "Navigation",
+    blurb:
+      "A data-driven trail that collapses its middle to a dropdown on small screens — never scrolls sideways.",
+  },
   {
     name: "Pagination",
     category: "Navigation",

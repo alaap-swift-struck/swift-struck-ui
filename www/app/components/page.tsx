@@ -65,7 +65,13 @@ import {
   descriptionItems,
   descriptionListConfig,
   filterableListConfig,
+  memberDetailRecipe,
+  memberEditRecipe,
+  memberListRecipe,
   recordDetailConfig,
+  roleOptions,
+  screenActivity,
+  screenMembers,
   stats,
   statGridConfig,
   statusVariant,
@@ -158,6 +164,12 @@ import {
   RecordDetail,
   type RecordDetailConfig,
 } from "@swift-struck/ui/registry/collections/record-detail/record-detail"
+import {
+  ScreenRenderer,
+  type ScreenIntent,
+} from "@swift-struck/ui/registry/collections/screen-renderer/screen-renderer"
+import { Breadcrumbs } from "@swift-struck/ui/registry/primitives/breadcrumbs/breadcrumbs"
+import { type ScreenRights } from "@swift-struck/ui/lib/recipe"
 import {
   CalendarView,
   type CalendarViewConfig,
@@ -537,6 +549,75 @@ function VariantGroup({
         </Demo>
       ))}
     </>
+  )
+}
+
+// ScreenEngineDemo — a tiny mini-app driven ENTIRELY by recipes (lib/recipe) +
+// the ScreenRenderer engine. A list recipe → click a row → a detail recipe →
+// "Edit" → an edit recipe as a responsive overlay. The demo plays the host:
+// it owns the (fake) router state, injects data + rights, and maps the engine's
+// intents to state. "delete" right is denied, so the Remove action is gated away.
+function ScreenEngineDemo() {
+  const [openId, setOpenId] = React.useState<string | null>(null)
+  const [editing, setEditing] = React.useState(false)
+
+  const rights: ScreenRights = {
+    members: { read: true, create: true, edit: true, delete: false },
+  }
+  const record = openId ? screenMembers.find((m) => m.id === openId) : undefined
+
+  const crumbs = openId
+    ? [
+        { label: "Members", href: "#members" },
+        { label: record?.name ?? openId, href: "#open" },
+      ]
+    : [{ label: "Members", href: "#members" }]
+
+  return (
+    <div className="flex w-full flex-col gap-3">
+      <Breadcrumbs
+        items={crumbs}
+        collapseAfter={3}
+        onNavigate={() => setOpenId(null)}
+      />
+
+      {openId ? (
+        <ScreenRenderer
+          recipe={memberDetailRecipe}
+          data={{ record, sets: { activity: screenActivity } }}
+          rights={rights}
+          onAction={(id, ctx) => {
+            if (id === "members.edit") setEditing(true)
+            else toast(`${id}`, { description: ctx.id })
+          }}
+        />
+      ) : (
+        <ScreenRenderer
+          recipe={memberListRecipe}
+          data={{ rows: screenMembers }}
+          rights={rights}
+          onAction={(id, ctx) => toast(`${id}`, { description: ctx.id })}
+          onIntent={(i: ScreenIntent) => {
+            if (i.kind === "open") setOpenId(i.id)
+          }}
+        />
+      )}
+
+      {editing && record && (
+        <ScreenRenderer
+          recipe={memberEditRecipe}
+          data={{ record, options: { roles: roleOptions } }}
+          rights={rights}
+          onAction={(id, ctx) => {
+            toast("Saved", { description: JSON.stringify(ctx.values) })
+            setEditing(false)
+          }}
+          onIntent={(i: ScreenIntent) => {
+            if (i.kind === "close") setEditing(false)
+          }}
+        />
+      )}
+    </div>
   )
 }
 
@@ -1175,6 +1256,13 @@ export default function ComponentsGallery() {
                     }
                   />
                 </RecordDetail>
+              </Demo>
+
+              {/* The config-driven SCREEN ENGINE: a whole mini-app (list → detail
+                  → edit overlay) rendered from serializable recipes, gated by
+                  rights (Remove is hidden — no delete right). */}
+              <Demo name="Screen engine · recipe-driven screens" span={3}>
+                <ScreenEngineDemo />
               </Demo>
             </Section>
 

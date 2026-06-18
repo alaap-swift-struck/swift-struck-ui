@@ -70,6 +70,7 @@ import {
   defaultRecordDetailConfig,
   type RecordDetailConfig,
 } from "@swift-struck/ui/registry/collections/record-detail/record-detail"
+import { type ScreenRecipe } from "@swift-struck/ui/lib/recipe"
 import { Badge } from "@swift-struck/ui/registry/primitives/badge/badge"
 
 export const invoices = [
@@ -592,6 +593,184 @@ export const activityFeedConfig: ActivityFeedConfig = {
 
 export const recordDetailConfig: RecordDetailConfig = {
   ...defaultRecordDetailConfig,
+}
+
+/* ----------------------- screen engine (recipes) ----------------------- */
+
+// Sample data the host would inject into the engine.
+export const screenMembers = [
+  {
+    id: "m1",
+    name: "Ada Lovelace",
+    role: "Owner",
+    email: "ada@swiftstruck.com",
+    status: "Active",
+  },
+  {
+    id: "m2",
+    name: "Grace Hopper",
+    role: "Admin",
+    email: "grace@swiftstruck.com",
+    status: "Active",
+  },
+  {
+    id: "m3",
+    name: "Alan Turing",
+    role: "Member",
+    email: "alan@swiftstruck.com",
+    status: "Away",
+  },
+  {
+    id: "m4",
+    name: "Katherine Johnson",
+    role: "Member",
+    email: "kj@swiftstruck.com",
+    status: "Active",
+  },
+]
+export const screenActivity = [
+  {
+    id: "a1",
+    description: "Joined the team",
+    actor: "Ada",
+    timestamp: "2024-06-01 09:00",
+  },
+  {
+    id: "a2",
+    description: "Promoted to Admin",
+    actor: "Grace",
+    timestamp: "2024-06-05 12:00",
+  },
+  {
+    id: "a3",
+    description: "Updated their email",
+    actor: "Ada",
+    timestamp: "2024-06-18 08:40",
+  },
+]
+export const roleOptions = [
+  { value: "Owner", label: "Owner" },
+  { value: "Admin", label: "Admin" },
+  { value: "Member", label: "Member" },
+]
+
+const recipeField = (label: string, required = false) => ({
+  ...defaultFieldConfig,
+  label,
+  required,
+})
+
+export const memberListRecipe: ScreenRecipe = {
+  type: "list",
+  binding: { module: "members" },
+  display: "table",
+  collection: {
+    ...defaultCollectionConfig,
+    title: "Members",
+    searchable: true,
+    searchPlaceholder: "Search members…",
+    userFilter: true,
+    filterFacets: [{ field: "status", label: "Status", control: "select" }],
+  },
+  fields: [
+    { column: "name", type: "text", field: recipeField("Name") },
+    { column: "role", type: "text", field: recipeField("Role") },
+    { column: "email", type: "text", field: recipeField("Email") },
+    { column: "status", type: "text", field: recipeField("Status") },
+  ],
+  actions: [
+    {
+      id: "members.remove",
+      label: "Remove",
+      action: "members.remove",
+      variant: "destructive",
+      gate: { module: "members", right: "delete" },
+    },
+  ],
+}
+
+export const memberDetailRecipe: ScreenRecipe = {
+  type: "detail",
+  binding: { module: "members" },
+  header: { title: "name", subtitle: "role" },
+  fields: [
+    { column: "email", type: "text", field: recipeField("Email") },
+    { column: "status", type: "text", field: recipeField("Status") },
+    { column: "role", type: "text", field: recipeField("Role") },
+  ],
+  tabs: [
+    {
+      key: "overview",
+      label: "Overview",
+      icon: "user",
+      block: {
+        kind: "description",
+        columns: 2,
+        rows: [
+          { label: "Email", column: "email" },
+          { label: "Role", column: "role" },
+          { label: "Status", column: "status" },
+        ],
+      },
+    },
+    {
+      key: "activity",
+      label: "Activity",
+      icon: "history",
+      block: { kind: "activity", source: "activity" },
+    },
+  ],
+  actions: [
+    {
+      id: "members.edit",
+      label: "Edit",
+      action: "members.edit",
+      variant: "outline",
+      gate: { module: "members", right: "edit" },
+    },
+    {
+      id: "members.remove",
+      label: "Remove",
+      action: "members.remove",
+      variant: "destructive",
+      confirm: {
+        title: "Remove member?",
+        body: "They lose access immediately.",
+        variant: "destructive",
+      },
+      gate: { module: "members", right: "delete" },
+    },
+  ],
+}
+
+export const memberEditRecipe: ScreenRecipe = {
+  type: "edit",
+  presentation: "responsive",
+  binding: { module: "members" },
+  fields: [
+    { column: "name", type: "text", field: recipeField("Name", true) },
+    {
+      column: "role",
+      type: "choice",
+      field: recipeField("Role"),
+      optionsFrom: "roles",
+    },
+    { column: "email", type: "text", field: recipeField("Email", true) },
+    {
+      column: "notify",
+      type: "switch",
+      field: recipeField("Email notifications"),
+    },
+  ],
+  actions: [
+    {
+      id: "members.save",
+      label: "Save changes",
+      action: "members.save",
+      variant: "default",
+      gate: { module: "members", right: "edit" },
+    },
+  ],
 }
 
 /* ----------------------- enum + initial knob configs ----------------------- */
