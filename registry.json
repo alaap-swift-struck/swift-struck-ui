@@ -72,6 +72,11 @@
     },
     { "name": "filter-bar", "type": "registry:ui", "layer": "primitives" },
     { "name": "breadcrumbs", "type": "registry:ui", "layer": "primitives" },
+    {
+      "name": "progress-toggle",
+      "type": "registry:ui",
+      "layer": "primitives"
+    },
     { "name": "list", "type": "registry:ui", "layer": "collections" },
     { "name": "card-grid", "type": "registry:ui", "layer": "collections" },
     {
@@ -113,6 +118,26 @@
       "name": "screen-renderer",
       "type": "registry:ui",
       "layer": "collections"
-    }
+    },
+    { "name": "agent-chat", "type": "registry:ui", "layer": "collections" },
+    {
+      "name": "copilot-overlay",
+      "type": "registry:ui",
+      "layer": "collections"
+    },
+    { "name": "run-steps", "type": "registry:ui", "layer": "collections" },
+    {
+      "name": "data-preview-table",
+      "type": "registry:ui",
+      "layer": "collections"
+    },
+    { "name": "import-wizard", "type": "registry:ui", "layer": "collections" },
+    { "name": "article-body", "type": "registry:ui", "layer": "collections" },
+    {
+      "name": "progress-dashboard",
+      "type": "registry:ui",
+      "layer": "collections"
+    },
+    { "name": "ticket-thread", "type": "registry:ui", "layer": "collections" }
   ]
 }

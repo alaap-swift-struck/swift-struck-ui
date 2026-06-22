@@ -62,9 +62,25 @@ import {
   spinnerEnums,
   activityFeedConfig,
   activityItems,
+  agentChatItems,
+  articleBodyMd,
+  copilotSteps,
   descriptionItems,
   descriptionListConfig,
   filterableListConfig,
+  importStageStatus,
+  importSuggestedMapping,
+  importTargetSchema,
+  previewColumns,
+  previewIssues,
+  previewRows,
+  progressDone,
+  progressItems,
+  progressMembers,
+  runStepsData,
+  ticketData,
+  ticketMembers,
+  ticketReplies,
   memberDetailRecipe,
   memberEditRecipe,
   memberListRecipe,
@@ -170,6 +186,18 @@ import {
 } from "@swift-struck/ui/registry/collections/screen-renderer/screen-renderer"
 import { Breadcrumbs } from "@swift-struck/ui/registry/primitives/breadcrumbs/breadcrumbs"
 import { type ScreenRights } from "@swift-struck/ui/lib/recipe"
+import {
+  AgentChat,
+  type AgentChatItem,
+} from "@swift-struck/ui/registry/collections/agent-chat/agent-chat"
+import { CopilotOverlay } from "@swift-struck/ui/registry/collections/copilot-overlay/copilot-overlay"
+import { RunSteps } from "@swift-struck/ui/registry/collections/run-steps/run-steps"
+import { DataPreviewTable } from "@swift-struck/ui/registry/collections/data-preview-table/data-preview-table"
+import { ImportWizard } from "@swift-struck/ui/registry/collections/import-wizard/import-wizard"
+import { ArticleBody } from "@swift-struck/ui/registry/collections/article-body/article-body"
+import { ProgressDashboard } from "@swift-struck/ui/registry/collections/progress-dashboard/progress-dashboard"
+import { TicketThread } from "@swift-struck/ui/registry/collections/ticket-thread/ticket-thread"
+import { ProgressToggle } from "@swift-struck/ui/registry/primitives/progress-toggle/progress-toggle"
 import {
   CalendarView,
   type CalendarViewConfig,
@@ -619,6 +647,76 @@ function ScreenEngineDemo() {
       )}
     </div>
   )
+}
+
+// AgentChat demo — echoes a canned assistant reply so the composer + scroll +
+// streaming indicator are all live.
+function AgentChatDemo() {
+  const [items, setItems] = React.useState<AgentChatItem[]>(agentChatItems)
+  const [streaming, setStreaming] = React.useState(false)
+  return (
+    <AgentChat
+      items={items}
+      streaming={streaming}
+      onSend={(text) => {
+        const userId = String(Date.now())
+        setItems((s) => [...s, { id: userId, role: "user", content: text }])
+        setStreaming(true)
+        const aId = userId + "-a"
+        setItems((s) => [...s, { id: aId, role: "assistant", content: "" }])
+        setTimeout(() => {
+          setItems((s) =>
+            s.map((m) =>
+              m.id === aId ? { ...m, content: "Got it — working on that." } : m
+            )
+          )
+          setStreaming(false)
+        }, 1200)
+      }}
+    />
+  )
+}
+
+// CopilotOverlay demo — a Play button activates the floating narration bar; it
+// advances steps on a timer; Stop ends it. (It floats over the viewport bottom.)
+function CopilotDemo() {
+  const [active, setActive] = React.useState(false)
+  const [idx, setIdx] = React.useState(0)
+  React.useEffect(() => {
+    if (!active) return
+    if (idx >= copilotSteps.length - 1) return
+    const t = setTimeout(() => setIdx((i) => i + 1), 1400)
+    return () => clearTimeout(t)
+  }, [active, idx])
+  return (
+    <div className="flex flex-col items-start gap-3">
+      <p className="text-sm text-muted-foreground">
+        A non-blocking bar narrates while an agent drives the screen. Press play
+        — the rest of the page stays usable; only Stop is interactive.
+      </p>
+      <Button
+        onClick={() => {
+          setIdx(0)
+          setActive(true)
+        }}
+        disabled={active}
+      >
+        Play the agent
+      </Button>
+      <CopilotOverlay
+        active={active}
+        steps={copilotSteps}
+        currentIndex={idx}
+        onStop={() => setActive(false)}
+        position="bottom"
+      />
+    </div>
+  )
+}
+
+function ProgressToggleDemo() {
+  const [done, setDone] = React.useState(false)
+  return <ProgressToggle done={done} onToggle={() => setDone((d) => !d)} />
 }
 
 /* ------------------------------- demo data -------------------------------- */
@@ -1263,6 +1361,84 @@ export default function ComponentsGallery() {
                   rights (Remove is hidden — no delete right). */}
               <Demo name="Screen engine · recipe-driven screens" span={3}>
                 <ScreenEngineDemo />
+              </Demo>
+            </Section>
+
+            {/* ============================ AGENT & APP =========================== */}
+            <Section
+              title="Agent & app — assistant-driven surfaces"
+              hint="The conversation, the 'it's driving the screen' overlay, bulk-job steps, import, learning, and support — all flat, token-driven, dark-mode."
+            >
+              <Demo name="Agent chat · conversation panel" span={2}>
+                <AgentChatDemo />
+              </Demo>
+
+              <Demo name="Copilot overlay · narrates while it drives" span={1}>
+                <CopilotDemo />
+              </Demo>
+
+              <Demo name="Run steps · multi-step job" span={1}>
+                <RunSteps
+                  steps={runStepsData}
+                  onStop={() => toast("Stopped the run")}
+                  className="max-w-md"
+                />
+              </Demo>
+
+              <Demo name="Data preview · before write" span={2}>
+                <DataPreviewTable
+                  columns={previewColumns}
+                  rows={previewRows}
+                  totalCount={248}
+                  issues={previewIssues}
+                />
+              </Demo>
+
+              <Demo name="Import wizard · validate → map → preview" span={2}>
+                <ImportWizard
+                  targetSchema={importTargetSchema}
+                  suggestedMapping={importSuggestedMapping}
+                  previewRows={previewRows}
+                  stageStatus={importStageStatus}
+                  onFile={() => {}}
+                  onMappingChange={() => {}}
+                  onConfirm={() =>
+                    toast("Import started", { description: "248 rows" })
+                  }
+                />
+              </Demo>
+
+              <Demo name="Article body · learning content" span={2}>
+                <ArticleBody
+                  title="Welcome to the team"
+                  contentType="Guide"
+                  body={articleBodyMd}
+                  externalUrl="https://example.com"
+                />
+              </Demo>
+
+              <Demo name="Progress toggle" span={1}>
+                <ProgressToggleDemo />
+              </Demo>
+
+              <Demo name="Progress dashboard · members × items" span={3}>
+                <ProgressDashboard
+                  members={progressMembers}
+                  items={progressItems}
+                  done={progressDone}
+                />
+              </Demo>
+
+              <Demo name="Ticket thread · support conversation" span={3}>
+                <TicketThread
+                  ticket={ticketData}
+                  replies={ticketReplies}
+                  members={ticketMembers}
+                  canResolve={true}
+                  onReply={(body) => toast("Reply sent", { description: body })}
+                  onStatusChange={(s) => toast(`Status → ${s}`)}
+                  onMention={(m) => toast(`Mentioned ${m.name}`)}
+                />
               </Demo>
             </Section>
 

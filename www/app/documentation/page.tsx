@@ -159,6 +159,11 @@ const CATALOG: CatalogItem[] = [
     blurb:
       "User-facing collection filters — facets as dropdowns or chips, with Clear all.",
   },
+  {
+    name: "Progress Toggle",
+    category: "Inputs",
+    blurb: 'A reversible "Mark as done" ⇄ "Done" control for a learning item.',
+  },
   // Display
   {
     name: "Typography",
@@ -294,6 +299,54 @@ const CATALOG: CatalogItem[] = [
     category: "Collections",
     blurb:
       "The config-driven screen engine — renders a serializable recipe (list/detail/edit/add/confirm/custom) by composing collections, permission-aware.",
+  },
+  {
+    name: "Agent Chat",
+    category: "Collections",
+    blurb:
+      "An agent conversation panel — user, assistant, and tool-action rows, a composer, and a streaming typing indicator.",
+  },
+  {
+    name: "Copilot Overlay",
+    category: "Collections",
+    blurb:
+      "A non-blocking bar that narrates while an agent drives the screen — step N of M, a Stop button, and an optional highlight ring.",
+  },
+  {
+    name: "Run Steps",
+    category: "Collections",
+    blurb:
+      "A vertical step list for a multi-step agent job — per-step status (pending/running/done/failed) and a Stop control.",
+  },
+  {
+    name: "Data Preview Table",
+    category: "Collections",
+    blurb:
+      "A bounded, scrollable preview of rows about to be written — headers, a row count, zebra rows, per-row issue markers.",
+  },
+  {
+    name: "Import Wizard",
+    category: "Collections",
+    blurb:
+      "A 3-stage import: validate a file, map columns to a target schema, then preview and confirm.",
+  },
+  {
+    name: "Article Body",
+    category: "Collections",
+    blurb:
+      "Renders a learning item's in-app body (safe markdown) plus its external link and a content-type chip.",
+  },
+  {
+    name: "Progress Dashboard",
+    category: "Collections",
+    blurb:
+      "A curator view — a members × items completion grid with per-item and per-member rollup counts.",
+  },
+  {
+    name: "Ticket Thread",
+    category: "Collections",
+    blurb:
+      "A support-ticket conversation — status, attachments, AI-drafted replies, an @mention composer, and a gated resolve.",
   },
   {
     name: "Collection Frame",

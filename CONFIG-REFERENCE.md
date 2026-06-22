@@ -380,6 +380,54 @@ these to URL changes). Forms (edit/add) submit through `onAction` with the value
 
 ---
 
+## Agent & app components (props)
+
+These are data-driven surfaces (like `Chat`/`Comments`): they take typed props +
+callbacks rather than a `config` object. All are flat, token-driven, dark-mode,
+and keep their scrolling INSIDE their own box (never the page).
+
+### `AgentChat` (agent conversation)
+
+| Prop         | Type              | What it does                                                                                                                                                         |
+| ------------ | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `items`      | `AgentChatItem[]` | Rows: `{ id, role:"user"\|"assistant"\|"tool", content }`; tool rows add `actionLabel`, `status:"pending"\|"done"\|"failed"`, `summary`, optional `onView`/`onUndo`. |
+| `streaming`  | `boolean`         | Show a typing indicator on the last assistant row.                                                                                                                   |
+| `disabled`   | `boolean`         | Disable the composer.                                                                                                                                                |
+| `emptyState` | `ReactNode`       | Shown when there are no rows.                                                                                                                                        |
+| `onSend`     | `(text) => void`  | Fired from the composer (Enter or Send; Shift+Enter = newline).                                                                                                      |
+
+### `CopilotOverlay` (the "it's driving the screen" affordance)
+
+| Prop            | Type                           | What it does                                                                        |
+| --------------- | ------------------------------ | ----------------------------------------------------------------------------------- |
+| `active`        | `boolean`                      | Render the overlay (renders nothing when false).                                    |
+| `steps`         | `{ label; status? }[]`         | The plan; the current step's `label` is shown.                                      |
+| `currentIndex`  | `number`                       | Drives "step N of M".                                                               |
+| `onStop`        | `() => void`                   | The only interactive control besides the bar — the rest of the screen stays usable. |
+| `position`      | `"top" \| "bottom"`            | Where the bar floats (default `bottom`).                                            |
+| `highlightRect` | `{ top; left; width; height }` | The host positions a ring over the element being acted on. Respects reduced-motion. |
+
+### `RunSteps` (multi-step job) & `DataPreviewTable` (preview before write)
+
+- **`RunSteps`** — `steps: { label, status:"pending"\|"running"\|"done"\|"failed", detail? }[]`, optional `onStop` (shown while a step is running).
+- **`DataPreviewTable`** — `columns: string[]`, `rows: ReactNode[][]`, `totalCount: number`, optional `issues: (string\|null)[]` (per-row marker with the message in a tooltip).
+
+### `ImportWizard` (3-stage import)
+
+`targetSchema: { fields: { key, label, required }[] }` · `suggestedMapping: Record<sourceCol, targetKey>` (pre-fills stage 2; its keys are the source columns) · `previewRows: ReactNode[][]` · `stageStatus: { valid, message? }` (stage-1 file feedback) · `onFile(file)` · `onMappingChange(map)` · `onConfirm()`. Stages: Validate file → Map columns → Preview & import (renders `DataPreviewTable`).
+
+### Learning: `ArticleBody`, `ProgressToggle`, `ProgressDashboard`
+
+- **`ArticleBody`** — `title?`, `contentType?` (a chip), `body?` (safe markdown subset: `#`/`##` headings, `-` lists, `**bold**`, `[links](url)`), `externalUrl?`.
+- **`ProgressToggle`** — `done: boolean`, `onToggle()` — a reversible "Mark as done" ⇄ "Done".
+- **`ProgressDashboard`** — `members: {id,name}[]`, `items: {id,label}[]`, `done: {memberId,itemId}[]` — a completion grid with per-member + per-item rollups (the math is the unit-tested `completionStats` in `lib/progress.ts`).
+
+### `TicketThread` (support conversation)
+
+`ticket: { description, type, status:"open"\|"in-progress"\|"resolved"\|"reopened", fromScreen?:{label,href?}, attachments? }` · `replies: { id, author, time, body, attachments?, aiDrafted? }[]` (an `aiDrafted` reply is labelled "Drafted by the assistant") · `members: {id,name}[]` (for @mention autocomplete) · `canResolve: boolean` (gates the Resolved status) · `onReply(body, attachments, mentions)` · `onStatusChange(status)` · `onMention(member)`. The My/All ticket tabs reuse the existing `Tabs` + `List`.
+
+---
+
 ## Simple primitives (props, not a config object)
 
 Buttons, badges, spinners, etc. take plain props (usually `variant` and `size`)

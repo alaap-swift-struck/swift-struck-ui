@@ -71,6 +71,23 @@ import {
   type RecordDetailConfig,
 } from "@swift-struck/ui/registry/collections/record-detail/record-detail"
 import { type ScreenRecipe } from "@swift-struck/ui/lib/recipe"
+import { type AgentChatItem } from "@swift-struck/ui/registry/collections/agent-chat/agent-chat"
+import { type CopilotStep } from "@swift-struck/ui/registry/collections/copilot-overlay/copilot-overlay"
+import { type RunStep } from "@swift-struck/ui/registry/collections/run-steps/run-steps"
+import {
+  type ImportTargetSchema,
+  type ImportStageStatus,
+} from "@swift-struck/ui/registry/collections/import-wizard/import-wizard"
+import {
+  type ProgressMember,
+  type ProgressItem,
+} from "@swift-struck/ui/registry/collections/progress-dashboard/progress-dashboard"
+import { type ProgressEntry } from "@swift-struck/ui/lib/progress"
+import {
+  type Ticket,
+  type TicketReply,
+  type TicketMember,
+} from "@swift-struck/ui/registry/collections/ticket-thread/ticket-thread"
 import { Badge } from "@swift-struck/ui/registry/primitives/badge/badge"
 
 export const invoices = [
@@ -1007,3 +1024,140 @@ export const initialKnobs: Record<string, Record<string, unknown>> = {
     description: "This action cannot be undone.",
   },
 }
+
+/* --------------------------- agent & app demos --------------------------- */
+
+export const agentChatItems: AgentChatItem[] = [
+  {
+    id: "1",
+    role: "user",
+    content: "Add Jordan to the Design team as an editor.",
+  },
+  {
+    id: "2",
+    role: "assistant",
+    content: "On it — I'll open the team and add them.",
+  },
+  {
+    id: "3",
+    role: "tool",
+    actionLabel: "Opened the Design team",
+    status: "done",
+    summary: "Members · 12",
+  },
+  {
+    id: "4",
+    role: "tool",
+    actionLabel: "Added Jordan Lee as Editor",
+    status: "done",
+    summary: "role: editor",
+  },
+  {
+    id: "5",
+    role: "assistant",
+    content: "Done. Jordan is now an editor on Design.",
+  },
+]
+
+export const copilotSteps: CopilotStep[] = [
+  { label: "Opening the Design team…", status: "done" },
+  { label: "Finding Jordan Lee…", status: "done" },
+  { label: "Setting role to Editor…", status: "active" },
+  { label: "Saving changes…", status: "pending" },
+]
+
+export const runStepsData: RunStep[] = [
+  { label: "Read the uploaded file", status: "done", detail: "248 rows" },
+  {
+    label: "Validate against the schema",
+    status: "done",
+    detail: "3 warnings",
+  },
+  { label: "Write new members", status: "running", detail: "120 / 248" },
+  { label: "Send welcome emails", status: "pending" },
+]
+
+export const previewColumns = ["Name", "Email", "Role"]
+export const previewRows: string[][] = [
+  ["Ada Lovelace", "ada@x.com", "Owner"],
+  ["Grace Hopper", "grace@x.com", "Admin"],
+  ["alan turing", "not-an-email", "Member"],
+  ["Katherine Johnson", "kj@x.com", "Member"],
+]
+export const previewIssues = [null, null, "Invalid email address", null]
+
+export const importTargetSchema: ImportTargetSchema = {
+  fields: [
+    { key: "name", label: "Full name", required: true },
+    { key: "email", label: "Email", required: true },
+    { key: "role", label: "Role", required: false },
+  ],
+}
+export const importSuggestedMapping: Record<string, string> = {
+  "Full Name": "name",
+  "Email Address": "email",
+  Department: "role",
+}
+export const importStageStatus: ImportStageStatus = {
+  valid: true,
+  message: "people.csv looks good — 248 rows, 3 columns.",
+}
+
+export const articleBodyMd = `# Welcome to the team
+
+This short guide covers the basics. Read it, then **mark it done**.
+
+## What you'll learn
+- How teams and roles work
+- Where to find your tasks
+- Who to ask for [help](https://example.com/help)
+
+You can always revisit this from the Learning tab.`
+
+export const progressMembers: ProgressMember[] = [
+  { id: "u1", name: "Ada Lovelace" },
+  { id: "u2", name: "Grace Hopper" },
+  { id: "u3", name: "Alan Turing" },
+]
+export const progressItems: ProgressItem[] = [
+  { id: "i1", label: "Welcome" },
+  { id: "i2", label: "Safety" },
+  { id: "i3", label: "Tools" },
+]
+export const progressDone: ProgressEntry[] = [
+  { memberId: "u1", itemId: "i1" },
+  { memberId: "u1", itemId: "i2" },
+  { memberId: "u1", itemId: "i3" },
+  { memberId: "u2", itemId: "i1" },
+  { memberId: "u3", itemId: "i1" },
+  { memberId: "u3", itemId: "i2" },
+]
+
+export const ticketData: Ticket = {
+  description:
+    "The export button on the Members screen does nothing when I click it on mobile.",
+  type: "Bug",
+  status: "in-progress",
+  fromScreen: { label: "Members", href: "#members" },
+  attachments: [{ id: "a1", name: "screenshot.png", url: "#" }],
+}
+export const ticketReplies: TicketReply[] = [
+  {
+    id: "r1",
+    author: "Assistant",
+    time: "5m ago",
+    aiDrafted: true,
+    body: "Thanks for flagging. This looks like the mobile export handler — I've routed it to the web team and added a workaround note.",
+  },
+  {
+    id: "r2",
+    author: "Grace Hopper",
+    time: "2m ago",
+    body: "Confirmed on iOS Safari too. Will pick this up today.",
+  },
+]
+export const ticketMembers: TicketMember[] = [
+  { id: "m1", name: "Ada Lovelace" },
+  { id: "m2", name: "Grace Hopper" },
+  { id: "m3", name: "Alan Turing" },
+]
