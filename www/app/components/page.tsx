@@ -724,6 +724,39 @@ function ProgressToggleDemo() {
 export default function ComponentsGallery() {
   const [query, setQuery] = React.useState("")
 
+  // Start at the top on load. This showcase renders an always-open Command
+  // palette below the fold; cmdk scrolls its selected item into view across its
+  // mount commits, which drags the whole page down — and it does so without a
+  // scroll event we can catch in time. So we HOLD the page at the top by polling
+  // the scroll position (catches the jump whenever it lands) until the visitor's
+  // first real gesture, then release and never interfere again.
+  React.useEffect(() => {
+    if ("scrollRestoration" in window.history)
+      window.history.scrollRestoration = "manual"
+
+    let released = false
+    const gestures = ["wheel", "touchstart", "keydown", "pointerdown"] as const
+
+    // A short interval (not rAF — rAF is paused in hidden tabs) keeps reading the
+    // real scroll position and snaps it back to the top until the visitor acts.
+    const hold = window.setInterval(() => {
+      if (window.scrollY !== 0) window.scrollTo(0, 0)
+    }, 50)
+    const release = () => {
+      if (released) return
+      released = true
+      window.clearInterval(hold)
+      gestures.forEach((g) => window.removeEventListener(g, release))
+    }
+
+    window.scrollTo(0, 0)
+    gestures.forEach((g) =>
+      window.addEventListener(g, release, { passive: true, once: true })
+    )
+
+    return release
+  }, [])
+
   // Per-demo Container config (background + stacking), defaulted lazily to a card.
   const [containers, setContainers] = React.useState<
     Record<string, Record<string, unknown>>
