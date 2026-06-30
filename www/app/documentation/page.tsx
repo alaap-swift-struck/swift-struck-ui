@@ -807,8 +807,8 @@ import { defaultCollectionConfig } from "@swift-struck/ui/lib/config"
               d: "Strict TypeScript; every config field is required, so no setting is ever hidden.",
             },
             {
-              t: "Unit tested",
-              d: "Validation, the rule engine, and the collection pipeline are covered and run in CI.",
+              t: "Tested in CI",
+              d: "100+ tests cover the rule engine, the collection pipeline, component rendering, interactions, and security regressions — on every push.",
             },
             {
               t: "Token-pure",
@@ -821,6 +821,10 @@ import { defaultCollectionConfig } from "@swift-struck/ui/lib/config"
             {
               t: "Accessible base",
               d: "Built on Radix primitives for keyboard and screen-reader support.",
+            },
+            {
+              t: "Hardened",
+              d: "Links are scheme-guarded and rich-text is sanitized — untrusted content can't smuggle in scripts (no raw HTML injection).",
             },
           ].map((x) => (
             <Card key={x.t}>

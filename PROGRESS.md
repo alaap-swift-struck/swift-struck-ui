@@ -3,9 +3,39 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 69** &nbsp;·&nbsp; **To build: ~1** &nbsp;·&nbsp; _Glide parity complete · gallery restructured to mirror Glide (Collections / Display / Inputs & Pickers / Actions / Layout / Navigation / Overlays) · every demo card is one configuration with its own ⚙ · collections wear a shared frame (title + live count + search + pagination + limit) · permission-matrix added (role access-rights grid)_
+> **Built: 88 components** (62 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 100+ across 15 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · library-wide XSS hardening · component + interaction + security test suite in CI._
+
+> The live counts are authoritative from `registry.json` (components) and
+> `npm run guardrails` ("N modules", which also counts logic + test files).
 
 > **Glide config reference:** see `GLIDE-CONFIG-RESEARCH.md` — every component's real Glide config options, the source of truth for parity.
+
+---
+
+## ✅ Built — agent/app surfaces, screen engine, hardening & tests (recent batches)
+
+- [x] **Agent & app surfaces** (prop-driven, flat, dark-mode): `agent-chat`,
+      `copilot-overlay`, `run-steps`, `data-preview-table`, `import-wizard`,
+      `ticket-thread` (with an optional in-thread status dropdown via
+      `showStatusControl`), plus learning: `article-body`, `progress-toggle`,
+      `progress-dashboard`.
+- [x] **Config-driven screen engine** — `lib/recipe.ts` → `screen-renderer`
+      composes serializable recipes (list/detail/edit/add/confirm/custom) from
+      collections, with permission gating and a deep-link URL grammar.
+- [x] **Record-detail building blocks** — `description-list`, `activity-feed`,
+      `record-detail`; plus `collection-frame`, `search-input`, `filter-bar`,
+      `breadcrumbs`.
+- [x] **`status-stepper`** (primitive) — left-to-right lifecycle stepper with a
+      colour tone per stage; clickable to change status. The host control that
+      pairs with `TicketThread`'s `showStatusControl={false}`.
+- [x] **Security hardening** — one shared `safeHref` guard (`lib/url.ts`,
+      http/https/mailto only) used by ArticleBody, TicketThread, Breadcrumbs, and
+      WebEmbed; the Notes editor sanitizes seeded HTML (allow-list, no
+      `dangerouslySetInnerHTML`); the WebEmbed iframe is sandboxed.
+- [x] **Test suite** — vitest + React Testing Library + jsdom: pure logic
+      (config engine, collection pipeline, screen recipe, progress math, the URL
+      guard, the Notes sanitizer), component rendering (breadth smoke), key
+      interactions (stepper click, ticket toggle), and XSS regressions; all in CI.
 
 ---
 
@@ -137,4 +167,8 @@ what's built and what's left.
   CollectionConfig filter execution still to wire
 - [ ] visual rule-builder UI in the playground (rules editable as JSON today)
 - [ ] workspace-package restructure (central propagation — chosen, next up)
-- [ ] per-component MDX docs (backfilled once the look is locked)
+- [x] automated tests — vitest + React Testing Library + jsdom: pure logic +
+      component rendering + interactions + security regressions, run in CI
+      (broaden per-component render coverage over time)
+- [x] docs are ONE searchable source of truth (central showcase + catalog +
+      CONFIG-REFERENCE); per-component `.mdx` was tried and dropped

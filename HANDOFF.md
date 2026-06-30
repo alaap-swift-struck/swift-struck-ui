@@ -34,7 +34,8 @@ device," kept **lean, clean, and exhaustively documented**.
 Next.js 15 (App Router) · React 19 · TypeScript · **Tailwind v4** (CSS-first
 `@theme` tokens in `www/app/globals.css`) · Radix UI · CVA · cmdk ·
 **tw-animate-css** · **recharts** (charts) · next-themes · lucide-react (v1) ·
-sonner (toasts) · dependency-cruiser (layering). No CSS-in-JS.
+sonner (toasts) · dependency-cruiser (layering) · **vitest + React Testing
+Library + jsdom** (tests). No CSS-in-JS.
 
 ## Repo map
 
@@ -103,7 +104,9 @@ Apps consume the library via `@swift-struck/ui/registry/*` + `@swift-struck/ui/l
   (dashboard) and `/components` (gallery). It **sleeps between sessions** — if
   the browser says "localhost refused to connect," just start it again.
 - **Verify (ALWAYS do this before committing):**
-  `npm run format && npx tsc --noEmit && npm run guardrails`
+  `npm run format && npx tsc --noEmit && npm run guardrails && npm test`
+  (`npm test` = vitest + React Testing Library + jsdom: pure logic + component
+  render + interaction + security-regression tests.)
 - **⚠️ Do NOT run `npm run build` (next build) while the dev server is running**
   — they share `.next` and it corrupts the dev server's CSS (page renders
   unstyled). Use `tsc --noEmit` + guardrails to verify instead.
@@ -112,9 +115,19 @@ Apps consume the library via `@swift-struck/ui/registry/*` + `@swift-struck/ui/l
 
 ## Current status
 
-- ~**69 components**, Glide-palette parity **complete** (only `Contact` and
-  intentionally-skipped niche items remain; see GLIDE-PARITY.md). Newest:
-  `permission-matrix` (a role access-rights grid — beyond Glide).
+- ~**88 components** (62 primitives + 26 collections), Glide-palette parity
+  **complete** (only `Contact` and intentionally-skipped niche items remain; see
+  GLIDE-PARITY.md). (Live counts: `registry.json` for components, `npm run
+guardrails` for the "N modules" figure which also counts logic + test files.)
+- **Beyond Glide — agent/app surfaces, a screen engine, hardening & tests
+  (recent batches):** agent/app components (`agent-chat`, `copilot-overlay`,
+  `run-steps`, `data-preview-table`, `import-wizard`, `ticket-thread` with an
+  optional `showStatusControl`, `article-body`, `progress-toggle`,
+  `progress-dashboard`); a config-driven **screen engine** (`lib/recipe.ts` →
+  `screen-renderer`); a **`status-stepper`** primitive; **library-wide XSS
+  hardening** (shared `safeHref` in `lib/url.ts`; Notes HTML sanitizer; sandboxed
+  WebEmbed); and a **test suite** (vitest + RTL + jsdom, 100+ tests in CI).
+- Earlier milestone: `permission-matrix` (role access-rights grid — beyond Glide).
 - **Inputs pass DONE:** `Field` wrapper (label + animated required-ring +
   helpText + `validateField`); Signature fixed (dot-on-tap, pointer capture,
   ring hugs just the canvas); `rich-text` renamed → `notes` (highlight / ordered

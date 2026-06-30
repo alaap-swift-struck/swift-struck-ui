@@ -119,10 +119,24 @@ CONFIG-REFERENCE.md.
 | --------------- | --------------- | ------------------------------------------------- |
 | Dynamic Content | ➖              | A conditional-render pattern, not a UI component. |
 
+## Beyond Glide (no Glide equivalent)
+
+These ship on top of palette parity — they have no Glide counterpart.
+
+| Swift Struck UI                                                                               | What it is                                                                                                                                                      |
+| --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| permission-matrix                                                                             | Role access-rights grid (modules × Read/Create/Edit/Delete).                                                                                                    |
+| status-stepper                                                                                | Left-to-right lifecycle stepper (open → in progress → resolved), clickable to change status.                                                                    |
+| agent-chat · copilot-overlay · run-steps · data-preview-table · import-wizard · ticket-thread | Agent/app surfaces — an assistant conversation, the "it's driving the screen" overlay, bulk-job steps, a write-preview, a 3-stage import, and a support thread. |
+| article-body · progress-toggle · progress-dashboard                                           | Learning surfaces — in-app article (safe markdown), a done toggle, and a members × items completion grid.                                                       |
+| screen-renderer (`lib/recipe.ts`)                                                             | A config-driven screen engine that composes recipes into full screens with permission gating + deep links.                                                      |
+
 ---
 
 **Summary:** Glide-palette parity is essentially complete — every component is
 built except **Contact** (a trivial composition of action-row + avatar, ⏳) and
 the intentionally-skipped (➖) niche items (AI Custom, Audio/Recorder, Scanner,
-Voice Transcription, Dynamic Content). Everything is token-backed, config-driven
-where it matters, and live-editable in the gallery playground.
+Voice Transcription, Dynamic Content). On top of parity, the library adds the
+**Beyond Glide** surfaces above. Everything is token-backed, config-driven where
+it matters, live-editable in the gallery playground, and covered by the CI test
+suite.

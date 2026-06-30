@@ -1,7 +1,7 @@
 # Layer 1 — Primitives
 
 The shadcn-style atoms: Button, Input, Label, Dialog, Select, Checkbox, and the
-~15–20 building blocks that 90% of every app is made of. Built on Radix UI for
+~60 building blocks that 90% of every app is made of. Built on Radix UI for
 behavior/accessibility and styled entirely with tokens via CVA.
 
 ## Rules
@@ -16,12 +16,16 @@ behavior/accessibility and styled entirely with tokens via CVA.
 
 ## Shape of a primitive
 
-Each primitive is one folder, co-located with its docs:
+Each primitive is one folder:
 
 ```
 registry/primitives/button/
   button.tsx        # the component + its CVA variants
-  button.mdx        # docs + live examples (definition of done)
+  logic.ts          # (optional) JSX-free pure logic, so it can be unit-tested
+  button.test.tsx   # (optional) unit / render tests for the component or its logic
 ```
 
-_Populated in Phase 2._
+Docs are **not** co-located `.mdx` files. A primitive is documented by its live
+demo in the gallery (`www/app/components`), its entry in the searchable catalog
+(`www/app/documentation`), and — if config-driven — a row in `CONFIG-REFERENCE.md`.
+See [CONTRIBUTING.md](../../CONTRIBUTING.md) for the full definition of done.

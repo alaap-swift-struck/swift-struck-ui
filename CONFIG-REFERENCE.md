@@ -448,6 +448,24 @@ file and are demonstrated live in the gallery (`/components`). For example:
 `<Button variant="outline" size="lg">` · `<Badge variant="success">` ·
 `<Spinner size="sm">`.
 
+---
+
+## Security model (XSS)
+
+The library renders host- and user-supplied content, so it defends against
+script injection at every sink. None of this needs configuring — it's on by
+default — but it's documented here so you know the guarantees.
+
+| Surface                                            | Guard                                                                                                                                                                                   |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Links** (ArticleBody, TicketThread, Breadcrumbs) | Every `href` runs through `safeHref` (`lib/url.ts`): only `http`/`https`/`mailto` and relative/fragment links survive; a dangerous scheme collapses to `"#"`.                           |
+| **Embeds** (WebEmbed)                              | The iframe `src` is `safeHref`-guarded and the frame is `sandbox`ed by default (no `allow-top-navigation`, so it can't redirect the tab). Override via `sandbox`.                       |
+| **Rich text** (Notes)                              | Seeded `defaultValue` is sanitized (`notes/logic.ts`): allow-list of formatting tags, **every attribute stripped**, executable/loadable elements dropped. No `dangerouslySetInnerHTML`. |
+| **Markdown** (ArticleBody)                         | Rendered as React nodes from a small safe subset — never injected HTML.                                                                                                                 |
+
+Each guard ships with a unit test that includes a hostile input (`javascript:`,
+`data:`, `<img onerror>`, …). The library never uses `dangerouslySetInnerHTML`.
+
 > Source of truth: the typed configs in `lib/config.ts` and each
 > component's own file. This document mirrors them in one place; if they ever
 > disagree, the code wins.

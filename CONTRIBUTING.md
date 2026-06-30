@@ -19,9 +19,14 @@ the single most important habit for keeping the codebase small.
 
 ```
 registry/primitives/<name>/
-  <name>.tsx     # component + CVA variants
-  <name>.mdx     # docs + at least one live example
+  <name>.tsx        # component + CVA variants
+  logic.ts          # (optional) JSX-free pure logic, so it can be unit-tested
+  <name>.test.tsx   # (optional) unit / render tests for the component or its logic
 ```
+
+> Docs are **not** co-located `.mdx` files — a component is documented by its live
+> demo in the gallery, its entry in the searchable catalog, and (if config-driven)
+> a row in `CONFIG-REFERENCE.md`. See "Definition of done" below.
 
 - Build behavior on Radix UI where one exists; style only with token-backed
   Tailwind utilities (`bg-primary`, `text-muted-foreground`, `rounded-md` …).
@@ -35,7 +40,8 @@ registry/primitives/<name>/
 ```
 registry/collections/<name>/
   <name>.tsx
-  <name>.mdx
+  logic.ts          # (optional) JSX-free pure logic, so it can be unit-tested
+  <name>.test.tsx   # (optional) unit / render tests
 ```
 
 - Compose it out of primitives. A collection should contain almost no raw markup
@@ -60,6 +66,13 @@ A change is done only when **all** of these hold:
         [`www/app/documentation/page.tsx`](www/app/documentation/page.tsx)) — **miss
         this and the component is invisible to search**;
   - [ ] if it's config-driven, a row in [`CONFIG-REFERENCE.md`](CONFIG-REFERENCE.md).
+- [ ] **Pure logic is extracted to `logic.ts` and unit-tested.** Anything with
+      real branching — a value transform, a parser, a URL/HTML guard — lives in a
+      JSX-free `logic.ts` with a `*.test.ts`. Security-sensitive code (a link
+      guard, a sanitizer) MUST ship with a test that includes a hostile input.
+- [ ] **User-facing behaviour has at least a render test.** A `*.test.tsx` using
+      React Testing Library that mounts the component and checks its key
+      interaction (it's how we catch UI regressions without a manual browser run).
 - [ ] `npm run check` is green (`guardrails` + `format:check`), `tsc --noEmit` and
       `npm test` pass.
 
@@ -72,7 +85,9 @@ A change is done only when **all** of these hold:
 
 ```bash
 npm run dev          # docs + showcase harness
+npm test             # unit + component tests (vitest + Testing Library + jsdom)
 npm run guardrails   # enforce the layering rules
 npm run format       # prettier write
-npm run check        # guardrails + format check (run before committing)
+npm run check        # guardrails + format check
+npx tsc --noEmit     # type-check the library (run all of these before committing)
 ```

@@ -90,6 +90,24 @@ ARCHITECTURE.md       This file
 CONTRIBUTING.md       How to add a component without breaking the rules
 ```
 
+## Testing
+
+Tests run with **vitest + React Testing Library + jsdom** (`npm test`), in CI on
+every push alongside `tsc`, `guardrails`, and `format:check`.
+
+- **Pure logic → `logic.ts` + `*.test.ts`.** Anything with real branching (a value
+  transform, a parser, the URL guard, the Notes sanitizer) is extracted JSX-free
+  so it can be tested in isolation — the same split as `lib/collection.ts`.
+- **Components → `*.test.tsx`.** Render + key-interaction tests catch UI
+  regressions without a manual browser run (e.g. the status stepper's
+  click-to-change, the ticket dropdown toggle).
+- **Security is regression-tested.** Every guard (`safeHref`, the Notes
+  sanitizer) ships with a test that feeds it a hostile input and asserts it's
+  neutralized — so a refactor can't silently re-open an XSS hole.
+
+This is layer-agnostic: tests sit beside the code they cover and never change the
+dependency graph the guardrails enforce.
+
 ## Configuration (the Glide-style meta-fields)
 
 Every configurable component (especially collections like Choice, DataTable,

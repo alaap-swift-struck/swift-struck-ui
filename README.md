@@ -10,12 +10,17 @@ data-bound, configurable collections inspired by [Glide](https://www.glideapps.c
 **Staging:** [staging.swift-struck-ui.pages.dev](https://staging.swift-struck-ui.pages.dev)
 (staging & live are the same build — only the URL differs).
 
-- **~70 components** — primitives (Button, Input, Dialog…) and collections
-  (List, Card, Table, Kanban, Calendar, Chart…).
+- **~88 components** (62 primitives + 26 collections) — primitives (Button,
+  Input, Dialog…), data-bound collections (List, Card, Table, Kanban, Calendar,
+  Chart…), agent/app surfaces (Agent Chat, Copilot Overlay, Import Wizard, Ticket
+  Thread…), and a config-driven screen engine.
 - **Token-driven** — every color/size resolves to one theme; re-skin in one file.
 - **Config-driven** — collections and inputs take one typed `config`; every field
   is required, so no setting is ever hidden.
 - **Strictly layered** — `tokens → primitives → collections`, enforced in CI.
+- **Tested & hardened** — pure logic, component rendering, interactions, and
+  security regressions covered by 100+ tests in CI; links are scheme-guarded and
+  rich-text is sanitized against XSS.
 - **Cross-platform** — one web build, wrapped natively with Tauri (desktop) and
   Capacitor (mobile) later. No rewrite.
 
@@ -60,7 +65,7 @@ npx tsc --noEmit   # type-check the library
 - **[GLIDE-CONFIG-RESEARCH.md](GLIDE-CONFIG-RESEARCH.md)** — how each maps to Glide.
 
 > Stack: Next.js 15 · React 19 · Tailwind CSS v4 · Radix UI · CVA · recharts ·
-> dependency-cruiser (layering) · vitest (tests).
+> dependency-cruiser (layering) · vitest + React Testing Library + jsdom (tests).
 
 ## License
 
