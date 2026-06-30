@@ -18,7 +18,6 @@ import {
   User,
 } from "lucide-react"
 
-import { ConfigEditor, JsonField } from "./_playground/config-editor"
 import {
   accordionEnums,
   actionEnums,
@@ -104,6 +103,22 @@ import {
   usernameCfg,
   videoEnums,
 } from "./_data"
+import {
+  AgentChatDemo,
+  CopilotDemo,
+  ProgressToggleDemo,
+  ScreenEngineDemo,
+  StatusStepperDemo,
+  TicketThreadDemo,
+} from "./_demos"
+import {
+  containerEnums,
+  ContainersCtx,
+  Demo,
+  Section,
+  SearchCtx,
+  VariantGroup,
+} from "./_shell"
 
 import {
   Accordion,
@@ -182,28 +197,11 @@ import {
   RecordDetail,
   type RecordDetailConfig,
 } from "@swift-struck/ui/registry/collections/record-detail/record-detail"
-import {
-  ScreenRenderer,
-  type ScreenIntent,
-} from "@swift-struck/ui/registry/collections/screen-renderer/screen-renderer"
-import { Breadcrumbs } from "@swift-struck/ui/registry/primitives/breadcrumbs/breadcrumbs"
-import { type ScreenRights } from "@swift-struck/ui/lib/recipe"
-import {
-  AgentChat,
-  type AgentChatItem,
-} from "@swift-struck/ui/registry/collections/agent-chat/agent-chat"
-import { CopilotOverlay } from "@swift-struck/ui/registry/collections/copilot-overlay/copilot-overlay"
 import { RunSteps } from "@swift-struck/ui/registry/collections/run-steps/run-steps"
 import { DataPreviewTable } from "@swift-struck/ui/registry/collections/data-preview-table/data-preview-table"
 import { ImportWizard } from "@swift-struck/ui/registry/collections/import-wizard/import-wizard"
 import { ArticleBody } from "@swift-struck/ui/registry/collections/article-body/article-body"
 import { ProgressDashboard } from "@swift-struck/ui/registry/collections/progress-dashboard/progress-dashboard"
-import {
-  TicketThread,
-  type TicketStatus,
-} from "@swift-struck/ui/registry/collections/ticket-thread/ticket-thread"
-import { ProgressToggle } from "@swift-struck/ui/registry/primitives/progress-toggle/progress-toggle"
-import { StatusStepper } from "@swift-struck/ui/registry/primitives/status-stepper/status-stepper"
 import {
   CalendarView,
   type CalendarViewConfig,
@@ -403,366 +401,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@swift-struck/ui/registry/primitives/tooltip/tooltip"
-
-// The current search text, shared so each Demo can hide itself when filtered.
-const SearchCtx = React.createContext("")
-
-// Per-demo Container config (background + stacking), keyed by demo name. Every
-// demo wraps its children in a <Container>, so its ⚙ can switch the background
-// (none/card/dark/light/image) and lay components horizontally vs vertically.
-const ContainersCtx = React.createContext<{
-  get: (key: string) => Record<string, unknown>
-  set: (key: string, next: Record<string, unknown>) => void
-}>({
-  get: () =>
-    ({ ...defaultContainerConfig }) as unknown as Record<string, unknown>,
-  set: () => {},
-})
-
-const containerEnums = {
-  background: ["none", "card", "dark", "light", "image"],
-  direction: ["vertical", "horizontal"],
-  padding: ["none", "sm", "md", "lg"],
-  gap: ["none", "sm", "md", "lg"],
-}
-
-function Demo({
-  name,
-  children,
-  config,
-  setConfig,
-  enums,
-  data,
-  setData,
-  span = 1,
-}: {
-  name: string
-  children: React.ReactNode
-  // When provided, a "Config" section is added to the ⚙ to live-edit it.
-  config?: Record<string, unknown>
-  setConfig?: (next: Record<string, unknown>) => void
-  enums?: Record<string, string[]>
-  // Optional: also expose the component's data (its content) as editable JSON.
-  data?: unknown
-  setData?: (next: unknown) => void
-  // How many grid columns this card spans (1–3). Big demos use 2–3.
-  span?: 1 | 2 | 3
-}) {
-  const query = React.useContext(SearchCtx)
-  const containers = React.useContext(ContainersCtx)
-  if (query && !name.toLowerCase().includes(query.toLowerCase())) return null
-
-  const container = containers.get(name)
-  const hasConfig = Boolean(config && setConfig)
-  const hasData = Boolean(data !== undefined && setData)
-  const spanClass =
-    span === 3
-      ? "sm:col-span-2 lg:col-span-3"
-      : span === 2
-        ? "sm:col-span-2"
-        : ""
-
-  return (
-    <div className={cn("flex min-w-0 flex-col gap-2", spanClass)}>
-      {/* the component's name sits OUTSIDE/above its container */}
-      <div className="flex items-center justify-between gap-2 px-1">
-        <span className="text-sm font-medium">{name}</span>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-7"
-              aria-label={`Edit ${name}`}
-            >
-              <Settings2 />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent align="end" className="w-80 p-0">
-            <div className="max-h-[55vh] overflow-y-auto p-3">
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-3">
-                  <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                    Container · background &amp; layout
-                  </p>
-                  <ConfigEditor
-                    config={container}
-                    onChange={(n) => containers.set(name, n)}
-                    enums={containerEnums}
-                  />
-                </div>
-                {hasConfig && (
-                  <div className="flex flex-col gap-3 border-t pt-4">
-                    <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                      Config · live
-                    </p>
-                    <ConfigEditor
-                      config={config!}
-                      onChange={setConfig!}
-                      enums={enums}
-                    />
-                  </div>
-                )}
-                {hasData && (
-                  <div className="flex flex-col gap-2 border-t pt-4">
-                    <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                      Data · live
-                    </p>
-                    <JsonField value={data} onCommit={(v) => setData!(v)} />
-                  </div>
-                )}
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-      </div>
-      <Container
-        config={container as unknown as ContainerConfig}
-        className="min-h-20"
-      >
-        {children}
-      </Container>
-    </div>
-  )
-}
-
-// A section header + a responsive grid of demo cards.
-function Section({
-  title,
-  hint,
-  children,
-}: {
-  title: string
-  hint?: string
-  children: React.ReactNode
-}) {
-  return (
-    <section className="animate-rise flex flex-col gap-5">
-      <div className="flex flex-col gap-1">
-        <h2 className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
-          {title}
-        </h2>
-        {hint && <p className="text-sm text-muted-foreground">{hint}</p>}
-      </div>
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {children}
-      </div>
-    </section>
-  )
-}
-
-// VariantGroup — renders one demo card PER preset, each with its own ⚙ gear,
-// all reading/writing a shared keyed config store. This is how we show "the top
-// few configurations of a component, side by side, each editable" without
-// hand-writing a state hook per card.
-function VariantGroup({
-  items,
-  configs,
-  onChange,
-  enums,
-  render,
-}: {
-  items: { id: string; name: string; span?: 1 | 2 | 3 }[]
-  configs: Record<string, Record<string, unknown>>
-  onChange: (id: string, next: Record<string, unknown>) => void
-  enums?: Record<string, string[]>
-  render: (cfg: Record<string, unknown>, id: string) => React.ReactNode
-}) {
-  return (
-    <>
-      {items.map(({ id, name, span }) => (
-        <Demo
-          key={id}
-          name={name}
-          span={span}
-          config={configs[id]}
-          setConfig={(next) => onChange(id, next)}
-          enums={enums}
-        >
-          {render(configs[id], id)}
-        </Demo>
-      ))}
-    </>
-  )
-}
-
-// ScreenEngineDemo — a tiny mini-app driven ENTIRELY by recipes (lib/recipe) +
-// the ScreenRenderer engine. A list recipe → click a row → a detail recipe →
-// "Edit" → an edit recipe as a responsive overlay. The demo plays the host:
-// it owns the (fake) router state, injects data + rights, and maps the engine's
-// intents to state. "delete" right is denied, so the Remove action is gated away.
-function ScreenEngineDemo() {
-  const [openId, setOpenId] = React.useState<string | null>(null)
-  const [editing, setEditing] = React.useState(false)
-
-  const rights: ScreenRights = {
-    members: { read: true, create: true, edit: true, delete: false },
-  }
-  const record = openId ? screenMembers.find((m) => m.id === openId) : undefined
-
-  const crumbs = openId
-    ? [
-        { label: "Members", href: "#members" },
-        { label: record?.name ?? openId, href: "#open" },
-      ]
-    : [{ label: "Members", href: "#members" }]
-
-  return (
-    <div className="flex w-full flex-col gap-3">
-      <Breadcrumbs
-        items={crumbs}
-        collapseAfter={3}
-        onNavigate={() => setOpenId(null)}
-      />
-
-      {openId ? (
-        <ScreenRenderer
-          recipe={memberDetailRecipe}
-          data={{ record, sets: { activity: screenActivity } }}
-          rights={rights}
-          onAction={(id, ctx) => {
-            if (id === "members.edit") setEditing(true)
-            else toast(`${id}`, { description: ctx.id })
-          }}
-        />
-      ) : (
-        <ScreenRenderer
-          recipe={memberListRecipe}
-          data={{ rows: screenMembers }}
-          rights={rights}
-          onAction={(id, ctx) => toast(`${id}`, { description: ctx.id })}
-          onIntent={(i: ScreenIntent) => {
-            if (i.kind === "open") setOpenId(i.id)
-          }}
-        />
-      )}
-
-      {editing && record && (
-        <ScreenRenderer
-          recipe={memberEditRecipe}
-          data={{ record, options: { roles: roleOptions } }}
-          rights={rights}
-          onAction={(id, ctx) => {
-            toast("Saved", { description: JSON.stringify(ctx.values) })
-            setEditing(false)
-          }}
-          onIntent={(i: ScreenIntent) => {
-            if (i.kind === "close") setEditing(false)
-          }}
-        />
-      )}
-    </div>
-  )
-}
-
-// AgentChat demo — echoes a canned assistant reply so the composer + scroll +
-// streaming indicator are all live.
-function AgentChatDemo() {
-  const [items, setItems] = React.useState<AgentChatItem[]>(agentChatItems)
-  const [streaming, setStreaming] = React.useState(false)
-  return (
-    <AgentChat
-      items={items}
-      streaming={streaming}
-      onSend={(text) => {
-        const userId = String(Date.now())
-        setItems((s) => [...s, { id: userId, role: "user", content: text }])
-        setStreaming(true)
-        const aId = userId + "-a"
-        setItems((s) => [...s, { id: aId, role: "assistant", content: "" }])
-        setTimeout(() => {
-          setItems((s) =>
-            s.map((m) =>
-              m.id === aId ? { ...m, content: "Got it — working on that." } : m
-            )
-          )
-          setStreaming(false)
-        }, 1200)
-      }}
-    />
-  )
-}
-
-// CopilotOverlay demo — a Play button activates the floating narration bar; it
-// advances steps on a timer; Stop ends it. (It floats over the viewport bottom.)
-function CopilotDemo() {
-  const [active, setActive] = React.useState(false)
-  const [idx, setIdx] = React.useState(0)
-  React.useEffect(() => {
-    if (!active) return
-    if (idx >= copilotSteps.length - 1) return
-    const t = setTimeout(() => setIdx((i) => i + 1), 1400)
-    return () => clearTimeout(t)
-  }, [active, idx])
-  return (
-    <div className="flex flex-col items-start gap-3">
-      <p className="text-sm text-muted-foreground">
-        A non-blocking bar narrates while an agent drives the screen. Press play
-        — the rest of the page stays usable; only Stop is interactive.
-      </p>
-      <Button
-        onClick={() => {
-          setIdx(0)
-          setActive(true)
-        }}
-        disabled={active}
-      >
-        Play the agent
-      </Button>
-      <CopilotOverlay
-        active={active}
-        steps={copilotSteps}
-        currentIndex={idx}
-        onStop={() => setActive(false)}
-        position="bottom"
-      />
-    </div>
-  )
-}
-
-function ProgressToggleDemo() {
-  const [done, setDone] = React.useState(false)
-  return <ProgressToggle done={done} onToggle={() => setDone((d) => !d)} />
-}
-
-function StatusStepperDemo() {
-  const [status, setStatus] = React.useState("in-progress")
-  return (
-    <StatusStepper
-      stages={statusStages}
-      value={status}
-      tones={statusTones}
-      onChange={setStatus}
-    />
-  )
-}
-
-// The intended pattern: the host drives status with its OWN control (a
-// StatusStepper) above the thread, so TicketThread's in-thread dropdown is off.
-function TicketThreadDemo() {
-  const [status, setStatus] = React.useState<TicketStatus>(ticketData.status)
-  return (
-    <div className="flex w-full flex-col gap-4">
-      <StatusStepper
-        stages={statusStages}
-        value={status}
-        tones={statusTones}
-        onChange={(v) => setStatus(v as TicketStatus)}
-      />
-      <TicketThread
-        ticket={{ ...ticketData, status }}
-        replies={ticketReplies}
-        members={ticketMembers}
-        canResolve={true}
-        showStatusControl={false}
-        onReply={(body) => toast("Reply sent", { description: body })}
-        onMention={(m) => toast(`Mentioned ${m.name}`)}
-      />
-    </div>
-  )
-}
-
-/* ------------------------------- demo data -------------------------------- */
 
 export default function ComponentsGallery() {
   const [query, setQuery] = React.useState("")
