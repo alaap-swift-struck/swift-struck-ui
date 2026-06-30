@@ -134,15 +134,15 @@ Two different axes — don't conflate them:
   primitive **and** category **Action**; a `DataTable` is a layer-2 collection
   **and** category **Collection**. Orthogonal.
 
-| Category   | What it is                                            | Examples                                                                                    |
-| ---------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| Input      | collects user input                                   | input, choice, checkbox, switch, slider, date-picker, file-upload, signature, notes, rating |
-| Content    | displays data, read-only                              | typography, image, video, map, stat-grid, progress, chart, detail-view, badge               |
-| Action     | interacting triggers a side-effect (api/workflow/nav) | button, action-row, link                                                                    |
-| Collection | data-bound view over a list/table                     | list, card-grid, data-table, kanban, calendar, checklist, comments, chat, permission-matrix |
-| Navigation | move between pages/views                              | tabs, breadcrumb, pagination, nav-menu                                                      |
-| Overlay    | floats above content                                  | dialog, sheet, popover, dropdown, tooltip, command, toast                                   |
-| Layout     | structure & space                                     | card, separator, spacer, scroll-area, accordion                                             |
+| Category   | What it is                                            | Examples                                                                                                    |
+| ---------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Input      | collects user input                                   | input, choice, checkbox, switch, slider, date-picker, file-upload, signature, notes, rating, status-stepper |
+| Content    | displays data, read-only                              | typography, image, video, map, stat-grid, progress, chart, detail-view, badge                               |
+| Action     | interacting triggers a side-effect (api/workflow/nav) | button, action-row, link                                                                                    |
+| Collection | data-bound view over a list/table                     | list, card-grid, data-table, kanban, calendar, checklist, comments, chat, permission-matrix                 |
+| Navigation | move between pages/views                              | tabs, breadcrumb, pagination, nav-menu                                                                      |
+| Overlay    | floats above content                                  | dialog, sheet, popover, dropdown, tooltip, command, toast                                                   |
+| Layout     | structure & space                                     | card, separator, spacer, scroll-area, accordion                                                             |
 
 ## Configuration model (layered)
 

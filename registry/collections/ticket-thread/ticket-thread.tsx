@@ -4,8 +4,10 @@
 // status badge, an optional "raised from <screen>" link, attachments) over
 // threaded replies (author, relative time, body, attachments — the AI-drafted
 // first reply clearly labelled). A composer with @mention autocomplete + an
-// attachment add, and a status control gated by `canResolve`. The My/All ticket
-// tabs themselves reuse the existing Tabs + List. Flat, token-driven, dark-mode.
+// attachment add, and an optional in-thread status dropdown (`showStatusControl`,
+// gated by `canResolve`) — turn it off when the host drives status with its own
+// control above the thread. The My/All ticket tabs themselves reuse the existing
+// Tabs + List. Flat, token-driven, dark-mode.
 
 import * as React from "react"
 import { ExternalLink, Paperclip, Send, Sparkles } from "lucide-react"
@@ -116,6 +118,7 @@ function TicketThread({
   replies,
   members,
   canResolve,
+  showStatusControl = true,
   onReply,
   onStatusChange,
   onMention,
@@ -126,6 +129,10 @@ function TicketThread({
   members: TicketMember[]
   /** Gates resolving the ticket. */
   canResolve: boolean
+  /** Show the in-thread status dropdown (default true). Set false when the host
+   *  drives status with its own control above the thread — the status Badge
+   *  still shows the current status either way. */
+  showStatusControl?: boolean
   onReply?: (
     body: string,
     attachments: File[],
@@ -203,30 +210,32 @@ function TicketThread({
               <ExternalLink className="size-3" aria-hidden />
             </a>
           )}
-          <div className="ml-auto">
-            <Select
-              value={ticket.status}
-              onValueChange={(v) => onStatusChange?.(v as TicketStatus)}
-            >
-              <SelectTrigger
-                aria-label="Ticket status"
-                className="h-8 w-auto gap-1"
+          {showStatusControl && (
+            <div className="ml-auto">
+              <Select
+                value={ticket.status}
+                onValueChange={(v) => onStatusChange?.(v as TicketStatus)}
               >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {STATUSES.map((s) => (
-                  <SelectItem
-                    key={s}
-                    value={s}
-                    disabled={s === "resolved" && !canResolve}
-                  >
-                    {statusLabel[s]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+                <SelectTrigger
+                  aria-label="Ticket status"
+                  className="h-8 w-auto gap-1"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUSES.map((s) => (
+                    <SelectItem
+                      key={s}
+                      value={s}
+                      disabled={s === "resolved" && !canResolve}
+                    >
+                      {statusLabel[s]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
         <div className="text-sm break-words">{ticket.description}</div>
         {ticket.attachments && <Attachments items={ticket.attachments} />}

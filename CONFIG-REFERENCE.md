@@ -418,13 +418,25 @@ and keep their scrolling INSIDE their own box (never the page).
 
 ### Learning: `ArticleBody`, `ProgressToggle`, `ProgressDashboard`
 
-- **`ArticleBody`** — `title?`, `contentType?` (a chip), `body?` (safe markdown subset: `#`/`##` headings, `-` lists, `**bold**`, `[links](url)`), `externalUrl?`.
+- **`ArticleBody`** — `title?`, `contentType?` (a chip), `body?` (safe markdown subset: `#`/`##` headings, `-` lists, `**bold**`, `[links](url)`), `externalUrl?`. **Every href it sets (inline links + `externalUrl`) is scheme-guarded:** only `http`/`https`/`mailto` survive — a dangerous scheme (`javascript:`, `data:`, `vbscript:`, …) collapses an inline link to an inert `#` and drops the external button entirely (see the unit-tested `safeHref` in `article-body/logic.ts`).
 - **`ProgressToggle`** — `done: boolean`, `onToggle()` — a reversible "Mark as done" ⇄ "Done".
 - **`ProgressDashboard`** — `members: {id,name}[]`, `items: {id,label}[]`, `done: {memberId,itemId}[]` — a completion grid with per-member + per-item rollups (the math is the unit-tested `completionStats` in `lib/progress.ts`).
 
 ### `TicketThread` (support conversation)
 
-`ticket: { description, type, status:"open"\|"in-progress"\|"resolved"\|"reopened", fromScreen?:{label,href?}, attachments? }` · `replies: { id, author, time, body, attachments?, aiDrafted? }[]` (an `aiDrafted` reply is labelled "Drafted by the assistant") · `members: {id,name}[]` (for @mention autocomplete) · `canResolve: boolean` (gates the Resolved status) · `onReply(body, attachments, mentions)` · `onStatusChange(status)` · `onMention(member)`. The My/All ticket tabs reuse the existing `Tabs` + `List`.
+`ticket: { description, type, status:"open"\|"in-progress"\|"resolved"\|"reopened", fromScreen?:{label,href?}, attachments? }` · `replies: { id, author, time, body, attachments?, aiDrafted? }[]` (an `aiDrafted` reply is labelled "Drafted by the assistant") · `members: {id,name}[]` (for @mention autocomplete) · `canResolve: boolean` (gates the Resolved status) · `showStatusControl?: boolean` (default `true`; set `false` to hide the in-thread status dropdown when the host drives status with its own control above the thread — the status Badge still shows the current status) · `onReply(body, attachments, mentions)` · `onStatusChange(status)` · `onMention(member)`. The My/All ticket tabs reuse the existing `Tabs` + `List`.
+
+### `StatusStepper` (lifecycle status control)
+
+A **primitive**: a left-to-right lifecycle stepper (e.g. Open → In progress → Resolved). Stages up to and including `value` read as "reached" (filled with their tone), the current one is ringed ("you are here"), and later stages are muted. With `onChange` set (and not `disabled`), clicking a stage changes the status. It scrolls inside itself on narrow screens rather than widening the page, and is keyboard-operable. This is the library version of the host-app control the Ticket Thread demo pairs with `showStatusControl={false}`.
+
+| Prop       | Type                                 | What it does                                                                                                                                                   |
+| ---------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `stages`   | `{ value; label }[]`                 | The lifecycle stages, in order, left to right.                                                                                                                 |
+| `value`    | `string`                             | The current stage's `value`.                                                                                                                                   |
+| `tones`    | `Record<string, StepperTone>` (opt.) | A colour tone per stage value — `"neutral" \| "info" \| "warning" \| "success" \| "danger"` (defaults to `"neutral"`). Maps to the same tokens the Badge uses. |
+| `onChange` | `(value) => void` (opt.)             | Fired with a stage's `value` when it's clicked. Omit for a read-only stepper.                                                                                  |
+| `disabled` | `boolean` (opt.)                     | Force a non-interactive, muted-interaction state.                                                                                                              |
 
 ---
 

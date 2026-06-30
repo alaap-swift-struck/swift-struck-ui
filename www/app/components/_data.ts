@@ -88,6 +88,10 @@ import {
   type TicketReply,
   type TicketMember,
 } from "@swift-struck/ui/registry/collections/ticket-thread/ticket-thread"
+import {
+  type StatusStage,
+  type StepperTone,
+} from "@swift-struck/ui/registry/primitives/status-stepper/status-stepper"
 import { Badge } from "@swift-struck/ui/registry/primitives/badge/badge"
 
 export const invoices = [
@@ -1161,3 +1165,17 @@ export const ticketMembers: TicketMember[] = [
   { id: "m2", name: "Grace Hopper" },
   { id: "m3", name: "Alan Turing" },
 ]
+
+// The forward lifecycle for the StatusStepper, with a colour tone per stage.
+// (The ticket's "reopened" status is a branch, not a forward step, so it's left
+// out of the linear stepper.)
+export const statusStages: StatusStage[] = [
+  { value: "open", label: "Open" },
+  { value: "in-progress", label: "In progress" },
+  { value: "resolved", label: "Resolved" },
+]
+export const statusTones: Record<string, StepperTone> = {
+  open: "neutral",
+  "in-progress": "warning",
+  resolved: "success",
+}

@@ -10,6 +10,7 @@ import { ExternalLink } from "lucide-react"
 
 import { cn } from "../../../lib/utils"
 import { Badge } from "../../primitives/badge/badge"
+import { safeHref } from "./logic"
 
 // Inline: **bold** and [text](url). Returns React nodes — no dangerous HTML.
 function inline(text: string): React.ReactNode[] {
@@ -23,11 +24,13 @@ function inline(text: string): React.ReactNode[] {
     if (m[1]) {
       nodes.push(<strong key={k++}>{m[1]}</strong>)
     } else {
+      // Guard every link href: a dangerous scheme collapses to an inert "#".
+      const href = safeHref(m[3])
       nodes.push(
         <a
           key={k++}
-          href={m[3]}
-          target="_blank"
+          href={href}
+          target={href === "#" ? undefined : "_blank"}
           rel="noreferrer"
           className="text-primary underline underline-offset-4"
         >
@@ -106,6 +109,8 @@ function ArticleBody({
   externalUrl?: string
   className?: string
 }) {
+  // Guard the external link: a dangerous scheme drops the button entirely.
+  const externalHref = externalUrl ? safeHref(externalUrl) : "#"
   return (
     <div className={cn("flex w-full flex-col gap-4", className)}>
       {(title || contentType) && (
@@ -115,9 +120,9 @@ function ArticleBody({
         </div>
       )}
       {body && renderBody(body)}
-      {externalUrl && (
+      {externalUrl && externalHref !== "#" && (
         <a
-          href={externalUrl}
+          href={externalHref}
           target="_blank"
           rel="noreferrer"
           className="inline-flex w-fit items-center gap-1.5 text-sm text-primary underline underline-offset-4"

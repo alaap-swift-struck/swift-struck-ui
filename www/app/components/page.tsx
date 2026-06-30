@@ -90,6 +90,8 @@ import {
   screenMembers,
   stats,
   statGridConfig,
+  statusStages,
+  statusTones,
   statusVariant,
   surfaceEnums,
   tableConfig,
@@ -196,8 +198,12 @@ import { DataPreviewTable } from "@swift-struck/ui/registry/collections/data-pre
 import { ImportWizard } from "@swift-struck/ui/registry/collections/import-wizard/import-wizard"
 import { ArticleBody } from "@swift-struck/ui/registry/collections/article-body/article-body"
 import { ProgressDashboard } from "@swift-struck/ui/registry/collections/progress-dashboard/progress-dashboard"
-import { TicketThread } from "@swift-struck/ui/registry/collections/ticket-thread/ticket-thread"
+import {
+  TicketThread,
+  type TicketStatus,
+} from "@swift-struck/ui/registry/collections/ticket-thread/ticket-thread"
 import { ProgressToggle } from "@swift-struck/ui/registry/primitives/progress-toggle/progress-toggle"
+import { StatusStepper } from "@swift-struck/ui/registry/primitives/status-stepper/status-stepper"
 import {
   CalendarView,
   type CalendarViewConfig,
@@ -717,6 +723,43 @@ function CopilotDemo() {
 function ProgressToggleDemo() {
   const [done, setDone] = React.useState(false)
   return <ProgressToggle done={done} onToggle={() => setDone((d) => !d)} />
+}
+
+function StatusStepperDemo() {
+  const [status, setStatus] = React.useState("in-progress")
+  return (
+    <StatusStepper
+      stages={statusStages}
+      value={status}
+      tones={statusTones}
+      onChange={setStatus}
+    />
+  )
+}
+
+// The intended pattern: the host drives status with its OWN control (a
+// StatusStepper) above the thread, so TicketThread's in-thread dropdown is off.
+function TicketThreadDemo() {
+  const [status, setStatus] = React.useState<TicketStatus>(ticketData.status)
+  return (
+    <div className="flex w-full flex-col gap-4">
+      <StatusStepper
+        stages={statusStages}
+        value={status}
+        tones={statusTones}
+        onChange={(v) => setStatus(v as TicketStatus)}
+      />
+      <TicketThread
+        ticket={{ ...ticketData, status }}
+        replies={ticketReplies}
+        members={ticketMembers}
+        canResolve={true}
+        showStatusControl={false}
+        onReply={(body) => toast("Reply sent", { description: body })}
+        onMention={(m) => toast(`Mentioned ${m.name}`)}
+      />
+    </div>
+  )
 }
 
 /* ------------------------------- demo data -------------------------------- */
@@ -1462,16 +1505,11 @@ export default function ComponentsGallery() {
                 />
               </Demo>
 
-              <Demo name="Ticket thread · support conversation" span={3}>
-                <TicketThread
-                  ticket={ticketData}
-                  replies={ticketReplies}
-                  members={ticketMembers}
-                  canResolve={true}
-                  onReply={(body) => toast("Reply sent", { description: body })}
-                  onStatusChange={(s) => toast(`Status → ${s}`)}
-                  onMention={(m) => toast(`Mentioned ${m.name}`)}
-                />
+              <Demo
+                name="Ticket thread · stepper drives status, in-thread dropdown off"
+                span={3}
+              >
+                <TicketThreadDemo />
               </Demo>
             </Section>
 
@@ -1940,6 +1978,13 @@ export default function ComponentsGallery() {
 
               <Demo name="Stopwatch">
                 <Stopwatch />
+              </Demo>
+
+              <Demo
+                name="Status stepper · click a stage to change status"
+                span={2}
+              >
+                <StatusStepperDemo />
               </Demo>
 
               <Demo

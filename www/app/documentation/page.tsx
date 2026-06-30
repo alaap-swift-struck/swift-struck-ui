@@ -164,6 +164,12 @@ const CATALOG: CatalogItem[] = [
     category: "Inputs",
     blurb: 'A reversible "Mark as done" ⇄ "Done" control for a learning item.',
   },
+  {
+    name: "Status Stepper",
+    category: "Inputs",
+    blurb:
+      "A left-to-right lifecycle stepper (open → in progress → resolved) with a colour tone per stage; click a step to change status.",
+  },
   // Display
   {
     name: "Typography",
@@ -334,7 +340,7 @@ const CATALOG: CatalogItem[] = [
     name: "Article Body",
     category: "Collections",
     blurb:
-      "Renders a learning item's in-app body (safe markdown) plus its external link and a content-type chip.",
+      "Renders a learning item's in-app body (safe markdown, scheme-guarded links) plus its external link and a content-type chip.",
   },
   {
     name: "Progress Dashboard",
@@ -346,7 +352,7 @@ const CATALOG: CatalogItem[] = [
     name: "Ticket Thread",
     category: "Collections",
     blurb:
-      "A support-ticket conversation — status, attachments, AI-drafted replies, an @mention composer, and a gated resolve.",
+      "A support-ticket conversation — status (with an optional in-thread dropdown), attachments, AI-drafted replies, an @mention composer, and a gated resolve.",
   },
   {
     name: "Collection Frame",
