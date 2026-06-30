@@ -1,6 +1,7 @@
-// ArticleBody - the pure, JSX-free URL guard, kept here so it can be unit tested
-// in isolation (same split as permission-matrix/logic.ts). The component imports
-// `safeHref` and runs EVERY href it sets through it.
+// URL safety — the shared, JSX-free href guard. Lives in lib/ so BOTH primitives
+// and collections can import it (a primitive may not import a collection, so the
+// guard can't live inside one). Every component that turns host/user-supplied
+// data into a link href runs it through `safeHref`.
 
 /** The only URL schemes we ever allow as a clickable link (compared without the
  * trailing colon). Everything else (javascript, data, vbscript, file, ...) is
@@ -31,11 +32,12 @@ function stripIgnored(value: string): string {
 /**
  * Return a safe href, or `"#"` when the URL is dangerous.
  *
- * Markdown bodies can carry hostile links like `[click](javascript:alert(1))`.
- * Browsers also ignore TAB / newline / leading control characters inside a
- * scheme, so `java\tscript:` and ` javascript:` are live too - we strip those
- * before inspecting the scheme. A relative/fragment link (`#x`, `/x`, `./x`)
- * has no scheme and can't carry a dangerous one, so it passes through.
+ * Untrusted content (markdown bodies, ticket links, deep-link crumbs) can carry
+ * hostile links like `[click](javascript:alert(1))`. Browsers also ignore TAB /
+ * newline / leading control characters inside a scheme, so `java\tscript:` and
+ * ` javascript:` are live too - we strip those before inspecting the scheme. A
+ * relative/fragment link (`#x`, `/x`, `./x`) has no scheme and can't carry a
+ * dangerous one, so it passes through.
  *
  * Note: React sets `href` as a DOM property (it does not HTML-entity-decode it),
  * so an entity-obfuscated scheme like `&#106;avascript:` reaches the browser as

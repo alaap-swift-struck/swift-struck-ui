@@ -8,9 +8,9 @@
 import * as React from "react"
 import { ExternalLink } from "lucide-react"
 
+import { safeHref } from "../../../lib/url"
 import { cn } from "../../../lib/utils"
 import { Badge } from "../../primitives/badge/badge"
-import { safeHref } from "./logic"
 
 // Inline: **bold** and [text](url). Returns React nodes — no dangerous HTML.
 function inline(text: string): React.ReactNode[] {

@@ -5,6 +5,9 @@
 // HTML via onChange. Good for notes & descriptions; swap in a full editor
 // (e.g. Tiptap) later if you need more. Highlight wraps the selection in a
 // <mark> styled from tokens, so it re-themes with everything else.
+// The seeded `defaultValue` is SANITIZED before it's placed in the editor
+// (allow-list of formatting tags, every attribute stripped) so stored content
+// can never smuggle in executable HTML — see ./logic.
 
 import * as React from "react"
 import {
@@ -18,6 +21,7 @@ import {
 
 import { cn } from "../../../lib/utils"
 import { Toggle } from "../toggle/toggle"
+import { sanitizeNotesHtml } from "./logic"
 
 function Notes({
   defaultValue = "",
@@ -31,6 +35,14 @@ function Notes({
   className?: string
 }) {
   const ref = React.useRef<HTMLDivElement>(null)
+
+  // Seed the editor with SANITIZED initial HTML on mount (client-only). This
+  // replaces a `dangerouslySetInnerHTML` that would have injected the raw
+  // `defaultValue` — the XSS sink. Runs once; the editor is uncontrolled after.
+  React.useEffect(() => {
+    if (ref.current) ref.current.innerHTML = sanitizeNotesHtml(defaultValue)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const emit = () => onChange?.(ref.current?.innerHTML ?? "")
   // execCommand is deprecated but still the lightest way to do inline rich text
@@ -99,7 +111,6 @@ function Notes({
         suppressContentEditableWarning
         data-placeholder={placeholder}
         onInput={emit}
-        dangerouslySetInnerHTML={{ __html: defaultValue }}
         className="min-h-24 rounded-xl border bg-transparent px-3 py-2 text-sm empty:before:text-muted-foreground empty:before:content-[attr(data-placeholder)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none [&_hr]:my-2 [&_hr]:border-border [&_mark]:rounded [&_mark]:bg-primary/20 [&_mark]:px-0.5 [&_mark]:text-foreground [&_ol]:list-decimal [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:pl-5"
       />
     </div>

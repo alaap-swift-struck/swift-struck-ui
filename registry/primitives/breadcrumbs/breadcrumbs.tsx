@@ -10,6 +10,7 @@ import * as React from "react"
 import { MoreHorizontal } from "lucide-react"
 
 import { collapseCrumbs } from "../../../lib/recipe"
+import { safeHref } from "../../../lib/url"
 import { cn } from "../../../lib/utils"
 import {
   Breadcrumb,
@@ -46,7 +47,7 @@ function CrumbLink({
   }
   return (
     <BreadcrumbLink
-      href={item.href}
+      href={safeHref(item.href)}
       onClick={(e) => {
         if (onNavigate) {
           e.preventDefault()
@@ -131,7 +132,7 @@ function Breadcrumbs({
               {c.middle.map((m, i) => (
                 <DropdownMenuItem key={i} asChild>
                   <a
-                    href={m.href ?? "#"}
+                    href={safeHref(m.href)}
                     onClick={(e) => {
                       if (onNavigate && m.href) {
                         e.preventDefault()

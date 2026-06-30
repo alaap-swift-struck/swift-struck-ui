@@ -418,7 +418,7 @@ and keep their scrolling INSIDE their own box (never the page).
 
 ### Learning: `ArticleBody`, `ProgressToggle`, `ProgressDashboard`
 
-- **`ArticleBody`** — `title?`, `contentType?` (a chip), `body?` (safe markdown subset: `#`/`##` headings, `-` lists, `**bold**`, `[links](url)`), `externalUrl?`. **Every href it sets (inline links + `externalUrl`) is scheme-guarded:** only `http`/`https`/`mailto` survive — a dangerous scheme (`javascript:`, `data:`, `vbscript:`, …) collapses an inline link to an inert `#` and drops the external button entirely (see the unit-tested `safeHref` in `article-body/logic.ts`).
+- **`ArticleBody`** — `title?`, `contentType?` (a chip), `body?` (safe markdown subset: `#`/`##` headings, `-` lists, `**bold**`, `[links](url)`), `externalUrl?`. **Every href it sets (inline links + `externalUrl`) is scheme-guarded:** only `http`/`https`/`mailto` survive — a dangerous scheme (`javascript:`, `data:`, `vbscript:`, …) collapses an inline link to an inert `#` and drops the external button entirely. The guard is the shared, unit-tested **`safeHref` in `lib/url.ts`**, used library-wide (also by `TicketThread`, `Breadcrumbs`, and `WebEmbed`).
 - **`ProgressToggle`** — `done: boolean`, `onToggle()` — a reversible "Mark as done" ⇄ "Done".
 - **`ProgressDashboard`** — `members: {id,name}[]`, `items: {id,label}[]`, `done: {memberId,itemId}[]` — a completion grid with per-member + per-item rollups (the math is the unit-tested `completionStats` in `lib/progress.ts`).
 

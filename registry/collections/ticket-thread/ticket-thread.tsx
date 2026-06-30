@@ -12,6 +12,7 @@
 import * as React from "react"
 import { ExternalLink, Paperclip, Send, Sparkles } from "lucide-react"
 
+import { safeHref } from "../../../lib/url"
 import { cn } from "../../../lib/utils"
 import { Avatar, AvatarFallback } from "../../primitives/avatar/avatar"
 import { Badge, type BadgeProps } from "../../primitives/badge/badge"
@@ -98,7 +99,7 @@ function Attachments({ items }: { items: TicketAttachment[] }) {
         return a.url ? (
           <a
             key={a.id}
-            href={a.url}
+            href={safeHref(a.url)}
             target="_blank"
             rel="noreferrer"
             className="outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -203,7 +204,7 @@ function TicketThread({
           </Badge>
           {ticket.fromScreen && (
             <a
-              href={ticket.fromScreen.href ?? "#"}
+              href={safeHref(ticket.fromScreen.href)}
               className="inline-flex items-center gap-1 text-xs text-muted-foreground underline-offset-4 transition-colors outline-none hover:text-foreground hover:underline focus-visible:ring-2 focus-visible:ring-ring"
             >
               raised from {ticket.fromScreen.label}

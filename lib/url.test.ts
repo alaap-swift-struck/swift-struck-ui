@@ -1,11 +1,11 @@
-// Unit tests for the ArticleBody URL guard. The component runs EVERY href it
-// sets (inline markdown links + the external link) through `safeHref`, so this
-// is the security boundary that stops `[click](javascript:alert(1))` from
-// becoming a clickable XSS. Run with `npm test` (vitest).
+// Unit tests for the shared URL guard. Every component that renders a
+// host/user-supplied link (ArticleBody, TicketThread, Breadcrumbs, WebEmbed)
+// runs its hrefs through `safeHref`, so this is the security boundary that stops
+// `[click](javascript:alert(1))` from becoming a clickable XSS. Run: `npm test`.
 
 import { describe, expect, it } from "vitest"
 
-import { safeHref } from "./logic"
+import { safeHref } from "./url"
 
 describe("safeHref - dangerous schemes collapse to #", () => {
   it("blocks javascript:", () => {
