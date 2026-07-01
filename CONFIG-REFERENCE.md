@@ -73,22 +73,23 @@ same explanations as comments) and you know the whole surface.
 Declared here, **executed** by `CollectionFrame` (`selectRows`): `limit → filter
 (builder + facets) → search → sort → paginate`.
 
-| Field               | Type              | What it does                                                                                         |
-| ------------------- | ----------------- | ---------------------------------------------------------------------------------------------------- |
-| `dataSource`        | `string`          | Name of the table/relation feeding the collection (used by the data layer).                          |
-| `title`             | `string`          | Header above the collection. `""` = no header.                                                       |
-| `filter`            | `Rule[]`          | **Builder-side** rules, always applied (per-row). User facets are ANDed on top (see `filterFacets`). |
-| `sortBy`            | `string`          | Field to sort by. `""` = original order.                                                             |
-| `sortDir`           | `"asc" \| "desc"` | Sort direction.                                                                                      |
-| `limit`             | `number \| null`  | Cap on the **total** rows ever shown. `null` = no cap.                                               |
-| `itemsPerPage`      | `number \| null`  | Rows per page (adds a Prev/Next pager). `null` = show everything, no pagination.                     |
-| `scrollToTop`       | `boolean`         | On page change, `true` scrolls the collection's top back into view; `false` stays put.               |
-| `searchable`        | `boolean`         | Show the debounced `SearchInput` that filters on the named keys.                                     |
-| `searchPlaceholder` | `string`          | Placeholder inside the search box. Default `"Search…"`.                                              |
-| `userFilter`        | `boolean`         | Show a runtime, USER-facing `FilterBar` of `filterFacets`. Separate from `searchable` and `filter`.  |
-| `filterFacets`      | `FilterFacet[]`   | The facets rendered when `userFilter` is on (each a dropdown or chips). See below.                   |
-| `showCount`         | `boolean`         | Show the live "Showing X of Y" count (updates with search **and** facets).                           |
-| `emptyText`         | `string`          | Message shown when no rows match.                                                                    |
+| Field               | Type                    | What it does                                                                                                                                                                |
+| ------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dataSource`        | `string`                | Name of the table/relation feeding the collection (used by the data layer).                                                                                                 |
+| `title`             | `string`                | Header above the collection. `""` = no header.                                                                                                                              |
+| `filter`            | `Rule[]`                | **Builder-side** rules, always applied (per-row). User facets are ANDed on top (see `filterFacets`).                                                                        |
+| `sortBy`            | `string`                | Field to sort by. `""` = original order.                                                                                                                                    |
+| `sortDir`           | `"asc" \| "desc"`       | Sort direction.                                                                                                                                                             |
+| `limit`             | `number \| null`        | Cap on the **total** rows ever shown. `null` = no cap.                                                                                                                      |
+| `itemsPerPage`      | `number \| null`        | Rows per page (adds a Prev/Next pager). `null` = show everything, no pagination.                                                                                            |
+| `scrollToTop`       | `boolean`               | On page change, `true` scrolls the collection's top back into view; `false` stays put.                                                                                      |
+| `searchable`        | `boolean`               | Show the debounced `SearchInput` that filters on the named keys.                                                                                                            |
+| `searchPlaceholder` | `string`                | Placeholder inside the search box. Default `"Search…"`.                                                                                                                     |
+| `userFilter`        | `boolean`               | Show a runtime, USER-facing `FilterBar` of `filterFacets`. Separate from `searchable` and `filter`.                                                                         |
+| `filterFacets`      | `FilterFacet[]`         | The facets rendered when `userFilter` is on (each a dropdown or chips). See below.                                                                                          |
+| `showCount`         | `boolean`               | Show the live "Showing X of Y" count (updates with search **and** facets).                                                                                                  |
+| `emptyText`         | `string`                | Message shown when no rows match.                                                                                                                                           |
+| `headerLayout`      | `"stacked" \| "inline"` | Header arrangement. `stacked` (default) = a title+search row with the filter bar on its own line below; `inline` = title, search, and filters together on one wrapping row. |
 
 ### `FilterFacet` (a user-facing filter control)
 
@@ -341,20 +342,21 @@ or own the router (those are the host's job).
 
 ### `ScreenRecipe` (a screen, as data)
 
-| Field          | Type                                                             | What it does                                                                                                                                                              |
-| -------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `type`         | `"list" \| "detail" \| "edit" \| "add" \| "confirm" \| "custom"` | Which library composition to render.                                                                                                                                      |
-| `presentation` | `"responsive" \| "overlay" \| "sheet" \| "fullscreen"`           | Default `"responsive"` = centered overlay on desktop / bottom sheet on mobile. The others force one mode. `edit`/`add`/`confirm` always render as a **layer** on top.     |
-| `binding`      | `{ module; source? }`                                            | The module the screen reads/writes.                                                                                                                                       |
-| `fields`       | `RecipeField[]`                                                  | Columns (list), inputs (edit/add), or rows (detail). Each wraps a `FieldConfig` + the bound `column` + a type (`text`/`number`/`choice`/`image`/`date`/`switch`/`notes`). |
-| `actions`      | `RecipeAction[]`                                                 | `{ id, label, action, variant?, confirm?, before?, after?, gate? }` — `action` is the named action the host dispatches.                                                   |
-| `gate`         | `ScreenGate`                                                     | Screen-level access gate (see below).                                                                                                                                     |
-| `header`       | `{ title; subtitle?; avatar? }`                                  | detail: which record columns feed the header.                                                                                                                             |
-| `tabs`         | `RecipeTab[]`                                                    | detail: named tabs, each a block (`description` / `fields` / `activity` / `list`).                                                                                        |
-| `display`      | `"table" \| "list" \| "cards"`                                   | list: how rows render (default `table`).                                                                                                                                  |
-| `collection`   | `CollectionConfig`                                               | list: the search/filter/sort/pagination config.                                                                                                                           |
-| `layout`       | `RecipeNode`                                                     | custom: a tree of `stack`/`row` containers + block leaves (`row` stacks on mobile).                                                                                       |
-| `confirm`      | `{ title; body; variant? }`                                      | confirm: the prompt.                                                                                                                                                      |
+| Field          | Type                                                             | What it does                                                                                                                                                                             |
+| -------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`         | `"list" \| "detail" \| "edit" \| "add" \| "confirm" \| "custom"` | Which library composition to render.                                                                                                                                                     |
+| `presentation` | `"responsive" \| "overlay" \| "sheet" \| "fullscreen"`           | Default `"responsive"` = centered overlay on desktop / bottom sheet on mobile. The others force one mode. `edit`/`add`/`confirm` always render as a **layer** on top.                    |
+| `binding`      | `{ module; source? }`                                            | The module the screen reads/writes.                                                                                                                                                      |
+| `fields`       | `RecipeField[]`                                                  | Columns (list), inputs (edit/add), or rows (detail). Each wraps a `FieldConfig` + the bound `column` + a type (`text`/`number`/`choice`/`image`/`date`/`switch`/`notes`).                |
+| `actions`      | `RecipeAction[]`                                                 | `{ id, label, action, variant?, confirm?, before?, after?, gate? }` — `action` is the named action the host dispatches.                                                                  |
+| `gate`         | `ScreenGate`                                                     | Screen-level access gate (see below).                                                                                                                                                    |
+| `header`       | `{ title; subtitle?; avatar? }`                                  | detail: which record columns feed the header.                                                                                                                                            |
+| `tabs`         | `RecipeTab[]`                                                    | detail: named tabs, each a block (`description` / `fields` / `activity` / `list`).                                                                                                       |
+| `display`      | `"table" \| "list" \| "cards"`                                   | list: how rows render (default `table`).                                                                                                                                                 |
+| `collection`   | `CollectionConfig`                                               | list: the search/filter/sort/pagination config.                                                                                                                                          |
+| `surface`      | `"card" \| "none"`                                               | list (`display: "list"`): the List surface. Omit / `card` = the default bordered surface; `none` = flat, for when the host wraps the collection in its own card (avoids a card-in-card). |
+| `layout`       | `RecipeNode`                                                     | custom: a tree of `stack`/`row` containers + block leaves (`row` stacks on mobile).                                                                                                      |
+| `confirm`      | `{ title; body; variant? }`                                      | confirm: the prompt.                                                                                                                                                                     |
 
 ### Gating — `ScreenGate { module; right; showWhenDenied? }`
 

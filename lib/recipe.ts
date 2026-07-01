@@ -148,6 +148,10 @@ export interface ScreenRecipe {
   /** list: how the rows render + the collection (search/filter/sort/pages). */
   display?: "table" | "list" | "cards"
   collection?: CollectionConfig
+  /** list (display: "list"): the List surface. Omit (or "card") for the default
+   * bordered surface; "none" = flat, for when the host wraps the collection in
+   * its own card and wants a single clean box, not a card-in-card. */
+  surface?: "card" | "none"
   /** custom: the composed tree. */
   layout?: RecipeNode
   /** confirm: the prompt. */

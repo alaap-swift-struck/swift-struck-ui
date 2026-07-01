@@ -224,6 +224,10 @@ export interface CollectionConfig extends BaseConfig {
   /** Show a live "Showing X of Y" count in the header. */
   showCount: boolean
   emptyText: string
+  /** Header arrangement. "stacked" (default) = a title+search row with the filter
+   * bar on its own line below; "inline" = title, search, and filters together on
+   * one wrapping row. */
+  headerLayout: "stacked" | "inline"
 }
 
 export const defaultCollectionConfig: CollectionConfig = {
@@ -242,6 +246,7 @@ export const defaultCollectionConfig: CollectionConfig = {
   filterFacets: [],
   showCount: true,
   emptyText: "Nothing here yet.",
+  headerLayout: "stacked",
 }
 
 /* ----------------------------- text overflow ----------------------------- */

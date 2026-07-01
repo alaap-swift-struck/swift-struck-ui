@@ -569,6 +569,7 @@ function renderList(
           />
         ) : (
           <List
+            surface={recipe.surface}
             items={page.map((row) => ({
               id: String(row.id ?? ""),
               title: String(row[fields[0]?.column ?? "id"] ?? ""),

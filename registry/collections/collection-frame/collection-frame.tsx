@@ -119,9 +119,9 @@ function CollectionFrame<T>({
 
   return (
     <div ref={rootRef} className={cn("flex w-full flex-col gap-3", className)}>
-      {showHeader && (
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+      {showHeader &&
+        (() => {
+          const titleBlock = (
             <div className="flex items-baseline gap-2">
               {config.title && (
                 <h3 className="text-sm font-semibold">{config.title}</h3>
@@ -132,16 +132,16 @@ function CollectionFrame<T>({
                 </span>
               )}
             </div>
-            {config.searchable && (
-              <SearchInput
-                value={query}
-                onChange={setQuery}
-                placeholder={config.searchPlaceholder}
-                className="w-44"
-              />
-            )}
-          </div>
-          {showFilterBar && (
+          )
+          const searchBox = config.searchable ? (
+            <SearchInput
+              value={query}
+              onChange={setQuery}
+              placeholder={config.searchPlaceholder}
+              className="w-44"
+            />
+          ) : null
+          const filterBar = showFilterBar ? (
             <FilterBar
               facets={config.filterFacets}
               values={facetValues}
@@ -151,9 +151,27 @@ function CollectionFrame<T>({
               canClear={canClear}
               resultCount={filtered.length}
             />
-          )}
-        </div>
-      )}
+          ) : null
+
+          // "inline": title + search + filters share one wrapping row. Default
+          // "stacked" (or any older config missing the field): title+search row
+          // with the filter bar on its own line below.
+          return config.headerLayout === "inline" ? (
+            <div className="flex flex-wrap items-center gap-2">
+              {titleBlock}
+              {searchBox}
+              {filterBar}
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                {titleBlock}
+                {searchBox}
+              </div>
+              {filterBar}
+            </div>
+          )
+        })()}
 
       {filtered.length === 0 ? (
         <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">

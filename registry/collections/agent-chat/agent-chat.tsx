@@ -122,6 +122,7 @@ function AgentChat({
 }) {
   const [draft, setDraft] = React.useState("")
   const listRef = React.useRef<HTMLDivElement>(null)
+  const inputRef = React.useRef<HTMLTextAreaElement>(null)
 
   // Keep the newest row in view as the conversation grows / streams.
   React.useEffect(() => {
@@ -137,6 +138,8 @@ function AgentChat({
     if (!draft.trim() || disabled) return
     onSend?.(draft.trim())
     setDraft("")
+    // Shrink the composer back to its one-row minimum after sending.
+    if (inputRef.current) inputRef.current.style.height = "auto"
   }
 
   return (
@@ -195,8 +198,15 @@ function AgentChat({
 
       <div className="flex items-end gap-2 border-t p-3">
         <Textarea
+          ref={inputRef}
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
+          onInput={(e) => {
+            // Auto-grow to fit typed lines up to the max-h-32 cap, then scroll.
+            const el = e.currentTarget
+            el.style.height = "auto"
+            el.style.height = `${el.scrollHeight}px`
+          }}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault()
@@ -206,7 +216,7 @@ function AgentChat({
           placeholder="Message the assistant…"
           disabled={disabled}
           rows={1}
-          className="max-h-32 min-h-9 flex-1 resize-none"
+          className="max-h-32 min-h-9 flex-1 resize-none overflow-y-auto"
           aria-label="Message"
         />
         <Button
