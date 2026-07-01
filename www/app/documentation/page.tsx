@@ -310,7 +310,7 @@ const CATALOG: CatalogItem[] = [
     name: "Agent Chat",
     category: "Collections",
     blurb:
-      "An agent conversation panel — user, assistant, and tool-action rows, a composer, and a streaming typing indicator.",
+      "An agent conversation panel — user, assistant, and tool-action rows, an auto-growing composer, and a streaming typing indicator.",
   },
   {
     name: "Copilot Overlay",
@@ -358,7 +358,7 @@ const CATALOG: CatalogItem[] = [
     name: "Collection Frame",
     category: "Collections",
     blurb:
-      "The shared chrome every collection wears: title, live count, search, filter, sort, pagination, limit.",
+      "The shared chrome every collection wears: title, live count, search, filter, sort, pagination, limit — with a stacked or one-row (inline) header layout.",
   },
   // Actions
   {

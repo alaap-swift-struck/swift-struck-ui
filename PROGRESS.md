@@ -12,6 +12,21 @@ what's built and what's left.
 
 ---
 
+## ✅ Built — host-app additive tweaks (v0.2.0)
+
+Three backward-compatible changes for a consuming app (package bumped 0.1.0 → 0.2.0):
+
+- [x] **AgentChat composer auto-grows** — expands to fit typed lines up to the
+      existing max-h cap (then scrolls), and resets to one row on send. No API change.
+- [x] **CollectionFrame `headerLayout: "stacked" | "inline"`** (default `"stacked"`,
+      so existing consumers are unchanged) — `"inline"` puts title + search + filters
+      on one wrapping row. Added to `CollectionConfig` + default + CONFIG-REFERENCE.
+- [x] **ScreenRecipe `surface?: "card" | "none"`** threaded to the list-recipe
+      `<List>` (omit → List's own `"card"` default, so nothing reflows) — lets a host
+      that wraps the collection in its own Card avoid a card-in-card.
+
+---
+
 ## ✅ Built — agent/app surfaces, screen engine, hardening & tests (recent batches)
 
 - [x] **Agent & app surfaces** (prop-driven, flat, dark-mode): `agent-chat`,

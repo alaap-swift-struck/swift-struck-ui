@@ -398,6 +398,8 @@ and keep their scrolling INSIDE their own box (never the page).
 | `emptyState` | `ReactNode`       | Shown when there are no rows.                                                                                                                                        |
 | `onSend`     | `(text) => void`  | Fired from the composer (Enter or Send; Shift+Enter = newline).                                                                                                      |
 
+The composer **auto-grows** as you type — it expands to fit the typed lines up to a max height, then scrolls, and snaps back to one row after sending. No prop; it's built-in.
+
 ### `CopilotOverlay` (the "it's driving the screen" affordance)
 
 | Prop            | Type                           | What it does                                                                        |
