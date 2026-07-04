@@ -358,7 +358,7 @@ const CATALOG: CatalogItem[] = [
     name: "Collection Frame",
     category: "Collections",
     blurb:
-      "The shared chrome every collection wears: title, live count, search, filter, sort, pagination, limit — with a stacked or one-row (inline) header layout.",
+      "The shared chrome every collection wears: title, live count, search, filter, sort, pagination, limit — a stacked or one-row (inline) header on desktop that collapses to a compact search + filter-popover row on phones.",
   },
   // Actions
   {
