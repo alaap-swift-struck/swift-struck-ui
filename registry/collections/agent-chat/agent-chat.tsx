@@ -61,15 +61,18 @@ function ToolRow({ item }: { item: AgentChatItem }) {
   const status = item.status ?? "done"
   return (
     <div className="flex flex-col gap-1 rounded-lg border bg-muted/40 px-3 py-2 text-sm">
-      <div className="flex items-center gap-2">
+      <div className="flex items-start gap-2">
         <span
-          className={cn("size-2 shrink-0 rounded-full", statusDot[status])}
+          className={cn(
+            "mt-1.5 size-2 shrink-0 rounded-full",
+            statusDot[status]
+          )}
           aria-hidden
         />
-        <span className="min-w-0 flex-1 truncate font-medium">
+        <span className="min-w-0 flex-1 font-medium break-words">
           {item.actionLabel}
         </span>
-        <span className="shrink-0 text-xs text-muted-foreground">
+        <span className="mt-px shrink-0 text-xs text-muted-foreground">
           {statusLabel[status]}
         </span>
       </div>

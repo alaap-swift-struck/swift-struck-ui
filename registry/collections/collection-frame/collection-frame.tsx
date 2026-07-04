@@ -18,13 +18,18 @@
 // whatever `data` it's handed, so an app can refetch (?q= / FTS5) later.
 
 import * as React from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, Filter } from "lucide-react"
 
 import { selectRows } from "../../../lib/collection"
 import { type CollectionConfig } from "../../../lib/config"
 import { cn } from "../../../lib/utils"
 import { Button } from "../../primitives/button/button"
 import { FilterBar } from "../../primitives/filter-bar/filter-bar"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../../primitives/popover/popover"
 import { SearchInput } from "../../primitives/search-input/search-input"
 import { useIsVisible } from "../../primitives/visibility/visibility"
 
@@ -153,23 +158,90 @@ function CollectionFrame<T>({
             />
           ) : null
 
-          // "inline": title + search + filters share one wrapping row. Default
-          // "stacked" (or any older config missing the field): title+search row
-          // with the filter bar on its own line below.
-          return config.headerLayout === "inline" ? (
-            <div className="flex flex-wrap items-center gap-2">
-              {titleBlock}
-              {searchBox}
-              {filterBar}
-            </div>
-          ) : (
-            <div className="flex flex-col gap-3">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                {titleBlock}
-                {searchBox}
+          // Mobile: fold the live count into the search placeholder (e.g.
+          // "Search 3 roles…") so the header can stay ONE row with no separate
+          // count line. (Only rewrites a placeholder that starts with "Search".)
+          const mobilePlaceholder = config.showCount
+            ? config.searchPlaceholder.replace(
+                /^Search\b/i,
+                (m) => `${m} ${filtered.length}`
+              )
+            : config.searchPlaceholder
+
+          return (
+            <>
+              {/* Mobile (< sm): ONE compact row — a stretching search field + a
+                  funnel that opens the same FilterBar in a popover. Left-to-right,
+                  never wrapping into 2–3 stacked rows. */}
+              <div className="flex items-center gap-2 sm:hidden">
+                {config.searchable ? (
+                  <SearchInput
+                    value={query}
+                    onChange={setQuery}
+                    placeholder={mobilePlaceholder}
+                    className="min-w-0 flex-1"
+                  />
+                ) : (
+                  <div className="min-w-0 flex-1">{titleBlock}</div>
+                )}
+                {showFilterBar && (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        aria-label="Filters"
+                        className="relative size-8 shrink-0"
+                      >
+                        <Filter />
+                        {canClear && (
+                          <span
+                            aria-hidden
+                            className="absolute top-1 right-1 size-1.5 rounded-full bg-primary"
+                          />
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      align="end"
+                      className="w-[min(20rem,calc(100vw-2rem))]"
+                    >
+                      <FilterBar
+                        facets={config.filterFacets}
+                        values={facetValues}
+                        data={data}
+                        onChange={setFacet}
+                        onClearAll={clearAll}
+                        canClear={canClear}
+                        resultCount={filtered.length}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                )}
               </div>
-              {filterBar}
-            </div>
+
+              {/* ≥ sm: the desktop/tablet layout — UNCHANGED. "inline" = title +
+                  search + filters on one wrapping row; "stacked" (default) =
+                  title+search row with the filter bar on its own line below. */}
+              <div className="hidden sm:block">
+                {config.headerLayout === "inline" ? (
+                  <div className="flex flex-wrap items-center gap-2">
+                    {titleBlock}
+                    {searchBox}
+                    {filterBar}
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      {titleBlock}
+                      {searchBox}
+                    </div>
+                    {filterBar}
+                  </div>
+                )}
+              </div>
+            </>
           )
         })()}
 

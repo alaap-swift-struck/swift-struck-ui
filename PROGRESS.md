@@ -12,6 +12,16 @@ what's built and what's left.
 
 ---
 
+## ✅ Built — mobile-header + wrap fixes (v0.3.0)
+
+- [x] **AgentChat ToolRow label wraps** instead of truncating — `items-start` +
+      `break-words` keep the status dot/word on the first line while the label wraps
+      (phone-friendly; the full step label is readable).
+- [x] **CollectionFrame header goes compact on phones** — below `sm` it's ONE row:
+      a stretching search field (with the live count folded into its placeholder) + a funnel button that opens the same FilterBar in a popover (with an active
+      dot when a filter/search is on). ≥`sm` is unchanged. Pure Tailwind `sm:`
+      breakpoints; covered by a mobile-branch test.
+
 ## ✅ Built — host-app additive tweaks (v0.2.0)
 
 Three backward-compatible changes for a consuming app (package bumped 0.1.0 → 0.2.0):

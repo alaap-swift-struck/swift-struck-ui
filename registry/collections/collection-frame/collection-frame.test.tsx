@@ -61,3 +61,20 @@ describe("CollectionFrame headerLayout", () => {
     expect(container.querySelector('[role="combobox"]')).toBeTruthy()
   })
 })
+
+describe("CollectionFrame mobile header (compact one row)", () => {
+  it("folds the count into the search placeholder and shows a filter popover trigger", () => {
+    // (jsdom renders both the mobile and desktop branches — CSS `sm:` classes
+    // don't apply — so we assert both are present.)
+    const { container } = renderFrame("stacked")
+    const placeholders = [...container.querySelectorAll("input")].map((i) =>
+      i.getAttribute("placeholder")
+    )
+    // Mobile: the live count (2 rows) is folded into the placeholder, e.g. "Search 2…".
+    expect(placeholders.some((p) => /Search\s+\d/.test(p || ""))).toBe(true)
+    // Desktop is unchanged: the plain "Search…" placeholder is still present.
+    expect(placeholders.some((p) => p === "Search…")).toBe(true)
+    // The funnel that opens the same filters in a popover.
+    expect(container.querySelector('button[aria-label="Filters"]')).toBeTruthy()
+  })
+})
