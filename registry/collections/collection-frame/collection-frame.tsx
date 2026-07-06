@@ -207,15 +207,9 @@ function CollectionFrame<T>({
                       align="end"
                       className="w-[min(20rem,calc(100vw-2rem))]"
                     >
-                      <FilterBar
-                        facets={config.filterFacets}
-                        values={facetValues}
-                        data={data}
-                        onChange={setFacet}
-                        onClearAll={clearAll}
-                        canClear={canClear}
-                        resultCount={filtered.length}
-                      />
+                      {/* The same FilterBar the desktop layout renders (built
+                          once as `filterBar` above) — just placed in a popover. */}
+                      {filterBar}
                     </PopoverContent>
                   </Popover>
                 )}
