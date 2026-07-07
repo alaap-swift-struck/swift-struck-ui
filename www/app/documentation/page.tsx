@@ -310,7 +310,7 @@ const CATALOG: CatalogItem[] = [
     name: "Agent Chat",
     category: "Collections",
     blurb:
-      "An agent conversation panel — user, assistant, and tool-action rows, an auto-growing composer, and a streaming typing indicator.",
+      "An agent conversation panel — user, assistant, and tool-action rows, an auto-growing composer with an opt-in attach-files slot, and a streaming typing indicator.",
   },
   {
     name: "Copilot Overlay",

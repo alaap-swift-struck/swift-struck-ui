@@ -25,7 +25,9 @@ export interface ListProps<T extends ListItem> {
   /** When provided, rows become buttons; clicking one fires this with the row. */
   onSelect?: (item: T) => void
   /** "card" = the frosted card surface (default); "none" = flat, no
-   *  background/border — for apps whose design language has no card surfaces. */
+   *  background/border — for hosts that provide their own surface. A flat list
+   *  still rounds + clips its rows so the hover/selected highlight follows the
+   *  host card's corners. */
   surface?: "card" | "none"
   /** Rendered when `items` is empty. */
   empty?: React.ReactNode
@@ -53,12 +55,18 @@ function List<T extends ListItem>({
   // "none" = a flat container (no card background/border); "card" = the frosted
   // Card. Either way rows keep their divider + hover/selected affordances.
   const Surface = surface === "card" ? Card : "div"
+  // A flat list rounds itself (the Card surface brings its own radius), so the
+  // full-bleed hover/selected row highlight follows rounded corners even when a
+  // host nests the list inside its own card. `overflow-hidden` on the row group
+  // does the clipping; a host-passed className can still override the radius.
+  const surfaceClass = surface === "none" ? "rounded-xl" : undefined
 
   if (items.length === 0) {
     return (
       <Surface
         className={cn(
           "p-8 text-center text-sm text-muted-foreground",
+          surfaceClass,
           className
         )}
       >
@@ -70,7 +78,9 @@ function List<T extends ListItem>({
   const interactive = Boolean(onItemClick || onSelect)
 
   return (
-    <Surface className={cn("divide-y overflow-hidden p-0", className)}>
+    <Surface
+      className={cn("divide-y overflow-hidden p-0", surfaceClass, className)}
+    >
       {items.map((item) => {
         const selected = selectedId != null && item.id === selectedId
         const content = (

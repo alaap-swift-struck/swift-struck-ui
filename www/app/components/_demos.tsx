@@ -114,14 +114,26 @@ export function ScreenEngineDemo() {
 }
 
 // AgentChat demo — echoes a canned assistant reply so the composer + scroll +
-// streaming indicator are all live.
+// streaming indicator are all live. Attachments are wired too: the paperclip
+// adds picked files as chips above the composer; a chip's remove button drops it.
 export function AgentChatDemo() {
   const [items, setItems] = React.useState<AgentChatItem[]>(agentChatItems)
   const [streaming, setStreaming] = React.useState(false)
+  const [attachments, setAttachments] = React.useState<{ name: string }[]>([])
   return (
     <AgentChat
       items={items}
       streaming={streaming}
+      attachments={attachments}
+      onAttachFiles={(files) =>
+        setAttachments((s) => [
+          ...s,
+          ...Array.from(files, (f) => ({ name: f.name })),
+        ])
+      }
+      onRemoveAttachment={(index) =>
+        setAttachments((s) => s.filter((_, i) => i !== index))
+      }
       onSend={(text) => {
         const userId = String(Date.now())
         setItems((s) => [...s, { id: userId, role: "user", content: text }])

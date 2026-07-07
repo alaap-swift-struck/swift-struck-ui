@@ -4,10 +4,12 @@
 // with three row types (user · assistant · tool-action) plus a composer. Tool
 // rows render as a compact "did X" line with a status dot and optional view/undo
 // links. Stream-friendly (content can grow; a typing indicator shows on the last
-// assistant row while `streaming`). Flat, token-driven, dark-mode.
+// assistant row while `streaming`). Attachments are opt-in: pass `onAttachFiles`
+// and the composer grows a paperclip; the host owns the picked files and echoes
+// them back as `attachments` chips. Flat, token-driven, dark-mode.
 
 import * as React from "react"
-import { Eye, RotateCcw, Send } from "lucide-react"
+import { Eye, Paperclip, RotateCcw, Send, X } from "lucide-react"
 
 import { cn } from "../../../lib/utils"
 import { Button } from "../../primitives/button/button"
@@ -113,6 +115,10 @@ function AgentChat({
   disabled = false,
   emptyState,
   onSend,
+  onAttachFiles,
+  attachAccept = "image/*,.pdf,.csv,.txt,.md,.doc,.docx,.xls,.xlsx",
+  attachments,
+  onRemoveAttachment,
   className,
 }: {
   items: AgentChatItem[]
@@ -121,11 +127,23 @@ function AgentChat({
   disabled?: boolean
   emptyState?: React.ReactNode
   onSend?: (text: string) => void
+  /** Opt-in attachments: when provided, a paperclip in the composer opens a
+   *  file picker (multiple) and fires this with the picked files. The host owns
+   *  the attachment state — echo it back via `attachments`. Absent = the
+   *  composer renders exactly as before. */
+  onAttachFiles?: (files: FileList) => void
+  /** The file picker's `accept` filter (defaults to images + common documents). */
+  attachAccept?: string
+  /** Pending attachments, shown as a slim chips row above the composer. */
+  attachments?: { name: string }[]
+  /** Fired by a chip's remove button with the chip's index in `attachments`. */
+  onRemoveAttachment?: (index: number) => void
   className?: string
 }) {
   const [draft, setDraft] = React.useState("")
   const listRef = React.useRef<HTMLDivElement>(null)
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
+  const fileRef = React.useRef<HTMLInputElement>(null)
 
   // Keep the newest row in view as the conversation grows / streams.
   React.useEffect(() => {
@@ -199,7 +217,69 @@ function AgentChat({
         )}
       </div>
 
-      <div className="flex items-end gap-2 border-t p-3">
+      {attachments != null && attachments.length > 0 && (
+        // Pending attachments — a slim chips row directly above the composer.
+        // It takes over the composer's top border so the strip reads as part of
+        // the composer, not a separate section.
+        <div className="flex flex-wrap items-center gap-1.5 border-t px-3 pt-2">
+          {attachments.map((att, index) => (
+            <span
+              key={`${att.name}-${index}`}
+              className="inline-flex max-w-48 items-center gap-1 rounded-md border bg-muted/40 py-0.5 pr-1 pl-2 text-xs"
+            >
+              <span className="truncate">{att.name}</span>
+              {onRemoveAttachment && (
+                <button
+                  type="button"
+                  onClick={() => onRemoveAttachment(index)}
+                  aria-label={`Remove ${att.name}`}
+                  className="shrink-0 rounded-sm p-0.5 text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <X className="size-3" aria-hidden />
+                </button>
+              )}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <div
+        className={cn(
+          "flex items-end gap-2 border-t p-3",
+          attachments != null && attachments.length > 0 && "border-t-0"
+        )}
+      >
+        {onAttachFiles && (
+          <>
+            {/* The real picker stays hidden; the paperclip proxies to it. Its
+                value resets after every pick so re-picking the same file fires
+                the change event again. */}
+            <input
+              ref={fileRef}
+              type="file"
+              multiple
+              accept={attachAccept}
+              className="hidden"
+              tabIndex={-1}
+              aria-hidden
+              onChange={(e) => {
+                const files = e.currentTarget.files
+                if (files && files.length > 0) onAttachFiles(files)
+                e.currentTarget.value = ""
+              }}
+            />
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              onClick={() => fileRef.current?.click()}
+              disabled={disabled}
+              aria-label="Attach files"
+            >
+              <Paperclip />
+            </Button>
+          </>
+        )}
         <Textarea
           ref={inputRef}
           value={draft}
