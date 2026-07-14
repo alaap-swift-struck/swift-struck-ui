@@ -93,14 +93,18 @@ Declared here, **executed** by `CollectionFrame` (`selectRows`): `limit → filt
 
 ### `FilterFacet` (a user-facing filter control)
 
-| Field     | Type                     | What it does                                                                 |
-| --------- | ------------------------ | ---------------------------------------------------------------------------- |
-| `field`   | `string`                 | The row field this facet filters on.                                         |
-| `label`   | `string`                 | Shown on the control (dropdown placeholder / chip group label).              |
-| `control` | `"select" \| "chips"`    | Presentation only — a dropdown or a set of removable chips.                  |
-| `options` | `{value;label}[]` (opt.) | The choices. **Omit** to derive the distinct values from the data at render. |
+| Field        | Type                                                       | What it does                                                                                                                                                                                                                                                       |
+| ------------ | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `field`      | `string`                                                   | The row field this facet filters on.                                                                                                                                                                                                                               |
+| `label`      | `string`                                                   | Shown on the control (dropdown placeholder / chip group label).                                                                                                                                                                                                    |
+| `control`    | `"select" \| "chips"`                                      | Presentation only — a dropdown or a set of removable chips.                                                                                                                                                                                                        |
+| `options`    | `{value;label;count?}[]` (opt.)                            | The choices. **Omit** to derive the distinct values from the data at render. `count` shows a muted trailing number.                                                                                                                                                |
+| `searchable` | `boolean` (opt.)                                           | Render a `control:"select"` facet as a **searchable combobox** instead of a plain dropdown. (No effect on `chips`.)                                                                                                                                                |
+| `onSearch`   | `(field, query) => Promise<{value;label;count?}[]>` (opt.) | Async option provider for a `searchable` select. Called (debounced) as the user types; the resolved rows **replace** the visible list — so a facet with thousands of values is searchable without ever loading them all. `options` is shown before the user types. |
 
 A chosen facet value becomes an `is` `Rule` on `field`, run through the **same** `evaluateRules` engine as `filter` (no new matching engine), ANDed with the builder filter and any other active facets.
+
+**Searchable / async facets:** set `searchable: true` to turn a `select` facet into a combobox. With no `onSearch` it filters `options` client-side. With `onSearch` it becomes async — a recipe opts in per facet by supplying the provider; the actual row filtering still flows through `facetValues` → `onQueryChange` (pair it with the server-side seam below). No app-wide change is needed; existing non-searchable facets are byte-for-byte unchanged.
 
 **Server-side seam (CollectionFrame props, not config):** pass `serverSide={true}` + `onQueryChange={({query, facetValues}) => …}` and the frame stops filtering in memory — it emits the (debounced) query + facets and renders whatever `data` you hand it, so the app can refetch (`?q=` / FTS5) later. `searchable`/`filter` defaults are unchanged, so existing consumers are unaffected.
 

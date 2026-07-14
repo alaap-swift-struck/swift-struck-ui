@@ -183,6 +183,14 @@ export const defaultActionConfig: ActionConfig = {
   showWhenDisabled: true,
 }
 
+/** One choice inside a facet. `count` (optional) is shown as a muted trailing
+ * number — handy for async facets that return "how many rows match". */
+export interface FacetOption {
+  value: string
+  label: string
+  count?: number
+}
+
 /** A user-facing filter control. A chosen value becomes an `is` Rule on `field`,
  * run through the SAME `evaluateRules` engine as the builder `filter` (no new
  * matching engine). `control` is just presentation: a dropdown or chips. When
@@ -192,7 +200,15 @@ export interface FilterFacet {
   field: string
   label: string
   control: "select" | "chips"
-  options?: { value: string; label: string }[]
+  options?: FacetOption[]
+  /** Render a `control:"select"` facet as a searchable combobox instead of a
+   * plain dropdown. (No effect on `control:"chips"`.) */
+  searchable?: boolean
+  /** Async option provider for a `searchable` select facet. Called (debounced)
+   * as the user types; the resolved rows REPLACE the visible option list — so a
+   * facet with thousands of values is searchable without ever loading them all.
+   * `options` is shown before the user types. Requires `searchable`. */
+  onSearch?: (field: string, query: string) => Promise<FacetOption[]>
 }
 
 /** Collection components — data-bound views. `filter`/`sort`/`limit` are

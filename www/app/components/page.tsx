@@ -31,6 +31,7 @@ import {
   chartViewConfig,
   checkEnums,
   choiceEnums,
+  CITIES,
   collectionEnums,
   dataTableEnums,
   detailViewConfig,
@@ -402,6 +403,45 @@ import {
   TooltipTrigger,
 } from "@swift-struck/ui/registry/primitives/tooltip/tooltip"
 
+// A searchable ASYNC facet: the `city` field has far too many values for a plain
+// dropdown, so the facet is a combobox whose options come from `onSearch` as the
+// user types. Here the "server" is a mock over CITIES with a small delay + match
+// counts; a real recipe would hit an FTS5 endpoint. `options` (seeded below) is
+// what shows before the first keystroke. Non-editable in the ⚙ because onSearch
+// is a function (JSON can't round-trip it).
+const searchableFacetCfg: CollectionConfig = {
+  ...defaultCollectionConfig,
+  title: "People",
+  itemsPerPage: 6,
+  showCount: true,
+  userFilter: true,
+  filterFacets: [
+    {
+      field: "city",
+      label: "City",
+      control: "select",
+      searchable: true,
+      // Seed shown before typing — a few "popular" cities, not all of them.
+      options: CITIES.slice(0, 4).map((c) => ({ value: c, label: c })),
+      onSearch: (_field, q) =>
+        new Promise((resolve) =>
+          setTimeout(() => {
+            const needle = q.toLowerCase()
+            resolve(
+              CITIES.filter((c) => c.toLowerCase().includes(needle))
+                .slice(0, 8)
+                .map((c) => ({
+                  value: c,
+                  label: c,
+                  count: peopleLarge.filter((p) => p.city === c).length,
+                }))
+            )
+          }, 300)
+        ),
+    },
+  ],
+}
+
 export default function ComponentsGallery() {
   const [query, setQuery] = React.useState("")
 
@@ -732,6 +772,39 @@ export default function ComponentsGallery() {
                         id: p.id,
                         title: p.name,
                         subtitle: p.role,
+                        leading: (
+                          <Avatar className="size-9">
+                            <AvatarFallback>
+                              {p.name.slice(0, 2)}
+                            </AvatarFallback>
+                          </Avatar>
+                        ),
+                        trailing: (
+                          <Badge variant={statusVariant(p.status)}>
+                            {p.status}
+                          </Badge>
+                        ),
+                      }))}
+                    />
+                  )}
+                />
+              </Demo>
+
+              {/* SEARCHABLE ASYNC FACET — the City facet is a combobox whose
+                  options load from onSearch as you type (a mock server here), so
+                  a field with hundreds of values never loads them all. Seeded
+                  with a few cities before the first keystroke. */}
+              <Demo name="List · searchable async facet" span={3}>
+                <CollectionFrame
+                  config={searchableFacetCfg}
+                  data={peopleData}
+                  searchKeys={["name", "role", "city"]}
+                  renderItems={(rows) => (
+                    <List
+                      items={rows.map((p) => ({
+                        id: p.id,
+                        title: p.name,
+                        subtitle: `${p.role} · ${p.city}`,
                         leading: (
                           <Avatar className="size-9">
                             <AvatarFallback>

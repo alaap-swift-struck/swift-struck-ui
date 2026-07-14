@@ -3,7 +3,7 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 88 components** (62 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 100+ across 15 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · library-wide XSS hardening · component + interaction + security test suite in CI._
+> **Built: 88 components** (62 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 137 across 24 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async filter facets · library-wide XSS hardening · component + interaction + security test suite in CI._
 
 > The live counts are authoritative from `registry.json` (components) and
 > `npm run guardrails` ("N modules", which also counts logic + test files).
@@ -11,6 +11,23 @@ what's built and what's left.
 > **Glide config reference:** see `GLIDE-CONFIG-RESEARCH.md` — every component's real Glide config options, the source of truth for parity.
 
 ---
+
+## ✅ Built — searchable / async filter facets (v0.5.0)
+
+Additive, backward-compatible (package bumped 0.4.0 → 0.5.0). Opt-in per facet; no app change required — a recipe supplies the provider.
+
+- [x] **`FilterFacet.searchable?: boolean`** — renders a `control:"select"` facet as
+      a searchable **combobox** (Command + Popover) instead of a plain dropdown. Off →
+      the existing `<Select>` renders unchanged.
+- [x] **`FilterFacet.onSearch?: (field, query) => Promise<{value,label,count?}[]>`** —
+      async option provider. Fires debounced (200ms) as the user types; the resolved
+      rows **replace** the visible list (with an optional muted `count`), so a facet
+      with thousands of values is searchable without ever loading them all. `options`
+      shows before the first keystroke. A request counter drops stale responses.
+- [x] **Free threading** — both `CollectionFrame` and `FilterBar` already pass the whole
+      `filterFacets` array, so the two fields ride along with zero new props.
+- [x] Covered by two new tests (client-filter + async paths); documented in
+      CONFIG-REFERENCE; live gallery demo "List · searchable async facet".
 
 ## ✅ Built — mobile-header + wrap fixes (v0.3.0)
 
