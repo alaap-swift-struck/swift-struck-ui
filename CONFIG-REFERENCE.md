@@ -108,7 +108,7 @@ A chosen facet value becomes an `is` `Rule` on `field`, run through the **same**
 
 **Server-side seam (CollectionFrame props, not config):** pass `serverSide={true}` + `onQueryChange={({query, facetValues}) => …}` and the frame stops filtering in memory — it emits the (debounced) query + facets and renders whatever `data` you hand it, so the app can refetch (`?q=` / FTS5) later. `searchable`/`filter` defaults are unchanged, so existing consumers are unaffected.
 
-**Primitives:** the search box is the **`SearchInput`** primitive (Input + lucide Search + a clear ✕, debounced via `debounceMs`); the facet row is the **`FilterBar`** primitive (Select or chips + "Clear all", keyboard-operable, polite live count). `List`/`CardGrid` get all of this by rendering inside `CollectionFrame` (the gallery shows the pattern).
+**Primitives:** the search box is the **`SearchInput`** primitive (Input + lucide Search + a clear ✕, debounced via `debounceMs`); the facet row is the **`FilterBar`** primitive (Select, searchable combobox, or chips + "Clear all", keyboard-operable, polite live count). Both debounce through the shared **`useDebouncedCallback`** hook (the `use-debounce` primitive) — one implementation, no repeat. `List`/`CardGrid` get all of this by rendering inside `CollectionFrame` (the gallery shows the pattern).
 
 ---
 

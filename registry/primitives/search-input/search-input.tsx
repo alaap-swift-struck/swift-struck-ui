@@ -11,6 +11,7 @@ import { Search, X } from "lucide-react"
 
 import { cn } from "../../../lib/utils"
 import { Input } from "../input/input"
+import { useDebouncedCallback } from "../use-debounce/use-debounce"
 
 function SearchInput({
   value,
@@ -28,27 +29,17 @@ function SearchInput({
   debounceMs?: number
   className?: string
 } & Omit<React.ComponentProps<"input">, "value" | "onChange">) {
-  // Local mirror so the input is responsive; the callback fires on a timer.
+  // Local mirror so the input is responsive; the callback fires on a timer
+  // (the shared debounce; `debounceMs <= 0` fires immediately).
   const [text, setText] = React.useState(value)
-  const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
+  const fire = useDebouncedCallback(onChange, debounceMs)
 
   // Stay in sync when the controlled value changes from outside (e.g. Clear all).
   React.useEffect(() => setText(value), [value])
-  React.useEffect(
-    () => () => {
-      if (timer.current) clearTimeout(timer.current)
-    },
-    []
-  )
 
   const set = (next: string) => {
     setText(next)
-    if (timer.current) clearTimeout(timer.current)
-    if (debounceMs <= 0) {
-      onChange(next)
-    } else {
-      timer.current = setTimeout(() => onChange(next), debounceMs)
-    }
+    fire(next)
   }
 
   return (

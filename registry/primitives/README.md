@@ -29,3 +29,12 @@ Docs are **not** co-located `.mdx` files. A primitive is documented by its live
 demo in the gallery (`www/app/components`), its entry in the searchable catalog
 (`www/app/documentation`), and — if config-driven — a row in `CONFIG-REFERENCE.md`.
 See [CONTRIBUTING.md](../../CONTRIBUTING.md) for the full definition of done.
+
+## Shared hooks
+
+A few primitives are hook-only utilities (no visual output), reused across the
+library so behavior isn't re-implemented:
+
+- **`visibility`** — `useIsVisible(config)` drives config-driven show/hide.
+- **`use-debounce`** — `useDebouncedCallback(fn, delay)` is the one debounce the
+  library shares (SearchInput's `onChange`, FilterBar's async `onSearch`).

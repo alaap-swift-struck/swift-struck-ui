@@ -3,7 +3,7 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 88 components** (62 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 137 across 24 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async filter facets · library-wide XSS hardening · component + interaction + security test suite in CI._
+> **Built: 89 components** (63 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 139 across 25 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async filter facets · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
 
 > The live counts are authoritative from `registry.json` (components) and
 > `npm run guardrails` ("N modules", which also counts logic + test files).
@@ -11,6 +11,17 @@ what's built and what's left.
 > **Glide config reference:** see `GLIDE-CONFIG-RESEARCH.md` — every component's real Glide config options, the source of truth for parity.
 
 ---
+
+## ✅ Built — shared debounce hook, DRY cleanup (v0.5.1)
+
+Internal refactor, no API change (package bumped 0.5.0 → 0.5.1).
+
+- [x] **New `use-debounce` primitive** — `useDebouncedCallback(fn, delay)` is now the
+      one debounce the library shares (`delay <= 0` fires immediately; latest `fn` kept
+      in a ref; cleared on unmount). Registered in `registry.json`.
+- [x] **SearchInput and FilterBar's async facet both route through it** — the two
+      hand-rolled `setTimeout` debounces are gone. Covered by a focused hook test; the
+      existing SearchInput + facet tests still pass unchanged.
 
 ## ✅ Built — searchable / async filter facets (v0.5.0)
 

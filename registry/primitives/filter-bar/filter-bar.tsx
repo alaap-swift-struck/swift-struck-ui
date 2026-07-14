@@ -31,6 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../select/select"
+import { useDebouncedCallback } from "../use-debounce/use-debounce"
 
 /** A `control:"select"` facet rendered as a searchable combobox. Shows `options`
  * up front; when `onSearch` is set it fires (debounced) as the user types and the
@@ -56,35 +57,41 @@ function SearchableFacet({
   const [loading, setLoading] = React.useState(false)
   const reqId = React.useRef(0)
 
-  // Debounced async search. Empty query reverts to `options`. A request counter
-  // guards against an earlier (slower) response clobbering a newer one.
-  const q = query.trim()
-  React.useEffect(() => {
+  // Debounced async search (via the shared debounce). A request counter guards
+  // against an earlier (slower) response clobbering a newer one.
+  const runSearch = useDebouncedCallback((raw: string) => {
     if (!onSearch) return
+    const id = ++reqId.current
+    Promise.resolve(onSearch(field, raw))
+      .then((rows) => {
+        if (id === reqId.current) {
+          setResults(rows)
+          setLoading(false)
+        }
+      })
+      .catch(() => {
+        if (id === reqId.current) {
+          setResults([])
+          setLoading(false)
+        }
+      })
+  }, 200)
+
+  // On each keystroke: mirror immediately, then debounce the fetch. Empty query
+  // reverts to `options` and invalidates any in-flight response.
+  const onQueryChange = (next: string) => {
+    setQuery(next)
+    if (!onSearch) return
+    const q = next.trim()
     if (q === "") {
+      reqId.current++
       setResults(null)
       setLoading(false)
       return
     }
-    const id = ++reqId.current
     setLoading(true)
-    const timer = setTimeout(() => {
-      Promise.resolve(onSearch(field, q))
-        .then((rows) => {
-          if (id === reqId.current) {
-            setResults(rows)
-            setLoading(false)
-          }
-        })
-        .catch(() => {
-          if (id === reqId.current) {
-            setResults([])
-            setLoading(false)
-          }
-        })
-    }, 200)
-    return () => clearTimeout(timer)
-  }, [q, onSearch, field])
+    runSearch(q)
+  }
 
   // Remember labels we've seen so the trigger can name a picked value even after
   // it drops out of the visible (async) list.
@@ -152,7 +159,7 @@ function SearchableFacet({
         <Command shouldFilter={shouldFilter}>
           <CommandInput
             value={query}
-            onValueChange={setQuery}
+            onValueChange={onQueryChange}
             placeholder={`Search ${label.toLowerCase()}…`}
           />
           <CommandList>
