@@ -24,25 +24,26 @@ intentionally skipped (niche / out of scope for now)
 Every collection that renders through `CollectionFrame` shares one engine
 (`selectRows`): builder **filter**, user-facing **search** (`searchable` +
 debounced `SearchInput`) and **filter facets** (`userFilter` + `filterFacets`,
-dropdown or chips via `FilterBar`), **sort**, **limit**, and **pagination** —
+dropdown / searchable combobox / chips / numeric range via `FilterBar`),
+**sort**, **limit**, and **pagination** —
 plus a `serverSide` + `onQueryChange` seam for server `?q=` / FTS5 later. See
 CONFIG-REFERENCE.md.
 
-| Glide      | Swift Struck UI      | Notes                                                                      |
-| ---------- | -------------------- | -------------------------------------------------------------------------- |
-| search     | ✅ searchable        | Debounced `SearchInput`, clear button, over the named keys.                |
-| userFilter | ✅ userFilter        | `filterFacets` → `FilterBar` (select / chips), ANDed via the rule engine.  |
-| Card       | ✅ card-grid         |                                                                            |
-| List       | ✅ list              |                                                                            |
-| Table      | ✅ data-table        | Renders through CollectionFrame — inherits search/filter/sort/limit/pages. |
-| Data Grid  | ✅ data-table        | Same component; spreadsheet-grid mode later.                               |
-| Checklist  | ✅ checklist         |                                                                            |
-| Calendar   | ✅ calendar-view     |                                                                            |
-| Kanban     | ✅ kanban            |                                                                            |
-| Comments   | ✅ comments          | Threaded comments collection.                                              |
-| Chat       | ✅ chat              | Message thread UI.                                                         |
-| —          | ✅ permission-matrix | Beyond Glide: role access-rights grid (modules × Read/Create/Edit/Delete). |
-| Custom     | ➖                   | App-specific.                                                              |
+| Glide      | Swift Struck UI      | Notes                                                                                                   |
+| ---------- | -------------------- | ------------------------------------------------------------------------------------------------------- |
+| search     | ✅ searchable        | Debounced `SearchInput`, clear button, over the named keys.                                             |
+| userFilter | ✅ userFilter        | `filterFacets` → `FilterBar` (select / searchable combobox / chips / range), ANDed via the rule engine. |
+| Card       | ✅ card-grid         |                                                                                                         |
+| List       | ✅ list              |                                                                                                         |
+| Table      | ✅ data-table        | Renders through CollectionFrame — inherits search/filter/sort/limit/pages.                              |
+| Data Grid  | ✅ data-table        | Same component; spreadsheet-grid mode later.                                                            |
+| Checklist  | ✅ checklist         |                                                                                                         |
+| Calendar   | ✅ calendar-view     |                                                                                                         |
+| Kanban     | ✅ kanban            |                                                                                                         |
+| Comments   | ✅ comments          | Threaded comments collection.                                                                           |
+| Chat       | ✅ chat              | Message thread UI.                                                                                      |
+| —          | ✅ permission-matrix | Beyond Glide: role access-rights grid (modules × Read/Create/Edit/Delete).                              |
+| Custom     | ➖                   | App-specific.                                                                                           |
 
 ## Layout
 
@@ -123,13 +124,14 @@ CONFIG-REFERENCE.md.
 
 These ship on top of palette parity — they have no Glide counterpart.
 
-| Swift Struck UI                                                                               | What it is                                                                                                                                                      |
-| --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| permission-matrix                                                                             | Role access-rights grid (modules × Read/Create/Edit/Delete).                                                                                                    |
-| status-stepper                                                                                | Left-to-right lifecycle stepper (open → in progress → resolved), clickable to change status.                                                                    |
-| agent-chat · copilot-overlay · run-steps · data-preview-table · import-wizard · ticket-thread | Agent/app surfaces — an assistant conversation, the "it's driving the screen" overlay, bulk-job steps, a write-preview, a 3-stage import, and a support thread. |
-| article-body · progress-toggle · progress-dashboard                                           | Learning surfaces — in-app article (safe markdown), a done toggle, and a members × items completion grid.                                                       |
-| screen-renderer (`lib/recipe.ts`)                                                             | A config-driven screen engine that composes recipes into full screens with permission gating + deep links.                                                      |
+| Swift Struck UI                                                                               | What it is                                                                                                                                                                       |
+| --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| permission-matrix                                                                             | Role access-rights grid (modules × Read/Create/Edit/Delete).                                                                                                                     |
+| status-stepper                                                                                | Left-to-right lifecycle stepper (open → in progress → resolved), clickable to change status.                                                                                     |
+| searchable / async / range filter facets                                                      | Beyond Glide's fixed facet list: a facet can search itself (`searchable`), fetch its options as you type (`onSearch`, for thousands of values), or be a numeric min/max `range`. |
+| agent-chat · copilot-overlay · run-steps · data-preview-table · import-wizard · ticket-thread | Agent/app surfaces — an assistant conversation, the "it's driving the screen" overlay, bulk-job steps, a write-preview, a 3-stage import, and a support thread.                  |
+| article-body · progress-toggle · progress-dashboard                                           | Learning surfaces — in-app article (safe markdown), a done toggle, and a members × items completion grid.                                                                        |
+| screen-renderer (`lib/recipe.ts`)                                                             | A config-driven screen engine that composes recipes into full screens with permission gating + deep links.                                                                       |
 
 ---
 

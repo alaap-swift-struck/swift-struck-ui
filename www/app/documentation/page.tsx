@@ -109,7 +109,8 @@ const CATALOG: CatalogItem[] = [
   {
     name: "Slider",
     category: "Inputs",
-    blurb: "Drag to choose a number in a range.",
+    blurb:
+      "Drag to choose a number — one thumb per value, so it covers a single value or a two-thumb range.",
   },
   {
     name: "Date Picker",
@@ -151,13 +152,13 @@ const CATALOG: CatalogItem[] = [
     name: "Search Input",
     category: "Inputs",
     blurb:
-      "A debounced search box with a clear button — the one collections use.",
+      "A debounced search box with a clear button — the one collections use. An overflowing placeholder ends in an ellipsis, never a hard clip.",
   },
   {
     name: "Filter Bar",
     category: "Inputs",
     blurb:
-      "User-facing collection filters — facets as dropdowns or chips, with Clear all.",
+      "User-facing collection filters — facets as dropdowns, searchable comboboxes (sync or async), chips, or a numeric min/max range, with Clear all.",
   },
   {
     name: "Progress Toggle",

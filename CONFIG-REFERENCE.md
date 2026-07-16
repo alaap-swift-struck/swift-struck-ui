@@ -39,12 +39,12 @@ same explanations as comments) and you know the whole surface.
 
 ### `Rule` (used by `visibilityRules` and collection `filter`)
 
-| Field    | Type                                                                         | What it does                                                                        |
-| -------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `source` | `"row" \| "user" \| "app"`                                                   | Where the value is read from: the current record, the signed-in user, or app state. |
-| `field`  | `string`                                                                     | Which field on that source to check.                                                |
-| `op`     | `"is" \| "isNot" \| "contains" \| "gt" \| "lt" \| "isEmpty" \| "isNotEmpty"` | The comparison. `gt`/`lt` compare as numbers; `contains` is case-insensitive.       |
-| `value`  | `string`                                                                     | The value to compare against.                                                       |
+| Field    | Type                                                                                           | What it does                                                                                                                                                 |
+| -------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `source` | `"row" \| "user" \| "app"`                                                                     | Where the value is read from: the current record, the signed-in user, or app state.                                                                          |
+| `field`  | `string`                                                                                       | Which field on that source to check.                                                                                                                         |
+| `op`     | `"is" \| "isNot" \| "contains" \| "gt" \| "lt" \| "gte" \| "lte" \| "isEmpty" \| "isNotEmpty"` | The comparison. `gt`/`lt`/`gte`/`lte` compare as numbers (`gte`/`lte` are **inclusive** — what a `range` facet compiles to); `contains` is case-insensitive. |
+| `value`  | `string`                                                                                       | The value to compare against.                                                                                                                                |
 
 ---
 
@@ -97,18 +97,42 @@ Declared here, **executed** by `CollectionFrame` (`selectRows`): `limit → filt
 | ------------ | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `field`      | `string`                                                   | The row field this facet filters on.                                                                                                                                                                                                                               |
 | `label`      | `string`                                                   | Shown on the control (dropdown placeholder / chip group label).                                                                                                                                                                                                    |
-| `control`    | `"select" \| "chips"`                                      | Presentation only — a dropdown or a set of removable chips.                                                                                                                                                                                                        |
+| `control`    | `"select" \| "chips" \| "range"`                           | Presentation — a dropdown, a set of removable chips, or a numeric min/max range.                                                                                                                                                                                   |
 | `options`    | `{value;label;count?}[]` (opt.)                            | The choices. **Omit** to derive the distinct values from the data at render. `count` shows a muted trailing number.                                                                                                                                                |
-| `searchable` | `boolean` (opt.)                                           | Render a `control:"select"` facet as a **searchable combobox** instead of a plain dropdown. (No effect on `chips`.)                                                                                                                                                |
+| `searchable` | `boolean` (opt.)                                           | Render a `control:"select"` facet as a **searchable combobox** instead of a plain dropdown. (No effect on `chips` / `range`.)                                                                                                                                      |
 | `onSearch`   | `(field, query) => Promise<{value;label;count?}[]>` (opt.) | Async option provider for a `searchable` select. Called (debounced) as the user types; the resolved rows **replace** the visible list — so a facet with thousands of values is searchable without ever loading them all. `options` is shown before the user types. |
+| `min` `max`  | `number` (opt.)                                            | `control:"range"` bounds. With **both** set the facet renders a two-thumb `Slider`; otherwise two number inputs.                                                                                                                                                   |
+| `step`       | `number` (opt.)                                            | `control:"range"` step. Defaults to `1`.                                                                                                                                                                                                                           |
 
-A chosen facet value becomes an `is` `Rule` on `field`, run through the **same** `evaluateRules` engine as `filter` (no new matching engine), ANDed with the builder filter and any other active facets.
+A chosen facet value becomes an `is` `Rule` on `field` (a `range` becomes inclusive `gte`/`lte` rules — see below), run through the **same** `evaluateRules` engine as `filter` (no new matching engine), ANDed with the builder filter and any other active facets.
 
 **Searchable / async facets:** set `searchable: true` to turn a `select` facet into a combobox. With no `onSearch` it filters `options` client-side. With `onSearch` it becomes async — a recipe opts in per facet by supplying the provider; the actual row filtering still flows through `facetValues` → `onQueryChange` (pair it with the server-side seam below). No app-wide change is needed; existing non-searchable facets are byte-for-byte unchanged.
 
+**Numeric range facets (`control: "range"`):** the facet reports a compact **`"min..max"`** string through the same `onChange`/`facetValues` every other facet uses — so it rides the existing `filterFacets` array with **no new plumbing** through `CollectionFrame`. Either side may be omitted (`"10.."` = min only, `"..20"` = max only, `""` = cleared), and the trigger summarises the state (`10 – 20`, `≥ 10`, `≤ 20`).
+
+`selectRows` compiles it to **inclusive** `gte`/`lte` rules — `"10..20"` keeps rows where `10 ≤ field ≤ 20`. The facet's `control` is **looked up** (never guessed from the value's shape), so a plain `select`/`chips` value that happens to contain `..` is still matched literally. Parse/format live in `lib/range.ts` (`parseRange` / `formatRange`) because both the FilterBar primitive and `selectRows` need them — a primitive may import `lib`, but `lib` may never import a primitive.
+
+```tsx
+// a recipe opts in per facet — no app change required
+filterFacets: [
+  { field: "role", label: "Role", control: "chips" },
+  {
+    field: "commits",
+    label: "Commits",
+    control: "range",
+    min: 40,
+    max: 300,
+    step: 10,
+  }, // slider
+  { field: "score", label: "Score", control: "range" }, // unbounded → two number inputs
+]
+```
+
 **Server-side seam (CollectionFrame props, not config):** pass `serverSide={true}` + `onQueryChange={({query, facetValues}) => …}` and the frame stops filtering in memory — it emits the (debounced) query + facets and renders whatever `data` you hand it, so the app can refetch (`?q=` / FTS5) later. `searchable`/`filter` defaults are unchanged, so existing consumers are unaffected.
 
-**Primitives:** the search box is the **`SearchInput`** primitive (Input + lucide Search + a clear ✕, debounced via `debounceMs`); the facet row is the **`FilterBar`** primitive (Select, searchable combobox, or chips + "Clear all", keyboard-operable, polite live count). Both debounce through the shared **`useDebouncedCallback`** hook (the `use-debounce` primitive) — one implementation, no repeat. `List`/`CardGrid` get all of this by rendering inside `CollectionFrame` (the gallery shows the pattern).
+**Primitives:** the search box is the **`SearchInput`** primitive (Input + lucide Search + a clear ✕, debounced via `debounceMs`); the facet row is the **`FilterBar`** primitive (Select, searchable combobox, chips, or a numeric range + "Clear all", keyboard-operable, polite live count). Both debounce through the shared **`useDebouncedCallback`** hook (the `use-debounce` primitive) — one implementation, no repeat. `List`/`CardGrid` get all of this by rendering inside `CollectionFrame` (the gallery shows the pattern).
+
+**Text overflow:** the **`Input`** primitive is `truncate` (overflow-hidden + text-ellipsis + whitespace-nowrap), so an overflowing value **or placeholder** ends in an ellipsis rather than a hard clip — at any width `"Search attributes…"` degrades to `"Search attr…"`, never `"Search attribut"`. Every shipped text input (including `SearchInput` and `Field`-wrapped inputs) inherits this.
 
 ---
 

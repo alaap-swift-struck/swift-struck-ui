@@ -182,6 +182,12 @@ app) + `field` + `op` + `value`, ANDed (or ORed) and evaluated against a
 collection **data filtering** — declared in config, executed at the future
 D1/SQL query layer (the component just receives rows).
 
+There is exactly **one matching engine** (`evaluateRules`), and new filter kinds
+extend it rather than fork it: a `control:"range"` filter facet doesn't get its
+own numeric filter path — it compiles to the engine's inclusive `gte`/`lte` ops
+(`"10..20"` → `gte 10` AND `lte 20`) inside `selectRows`. If a future facet needs
+a comparison the engine can't express, add the operator — never a second engine.
+
 ## Roadmap
 
 | Phase | Goal                                                         |

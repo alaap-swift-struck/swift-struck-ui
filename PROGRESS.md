@@ -3,7 +3,7 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 89 components** (63 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 139 across 25 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async filter facets · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
+> **Built: 89 components** (63 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 155 across 26 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async/range filter facets · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
 
 > The live counts are authoritative from `registry.json` (components) and
 > `npm run guardrails` ("N modules", which also counts logic + test files).
@@ -11,6 +11,30 @@ what's built and what's left.
 > **Glide config reference:** see `GLIDE-CONFIG-RESEARCH.md` — every component's real Glide config options, the source of truth for parity.
 
 ---
+
+## ✅ Built — numeric range facet + placeholder ellipsis (v0.6.0)
+
+Additive, backward-compatible (package bumped 0.5.1 → 0.6.0). Select/chips facets unchanged.
+
+- [x] **Placeholders never hard-truncate** — the `Input` primitive is now `truncate`, so an
+      overflowing value **or placeholder** ends in an ellipsis: "Search attributes…" degrades
+      to "Search attr…", never "Search attribut". Every shipped text input inherits it
+      (SearchInput, Field-wrapped inputs).
+- [x] **`FilterFacet.control: "range"`** — a numeric min/max facet with optional
+      `min`/`max`/`step`. With **both** bounds it renders a two-thumb `Slider`; otherwise two
+      number inputs (so an open-ended field still filters). Reports a compact `"min..max"`
+      through the EXISTING `onChange` (`"10.."` / `"..20"` one-sided, `""` = cleared), so it
+      rides the `filterFacets` array with no new CollectionFrame plumbing.
+- [x] **Rule engine gained inclusive `gte`/`lte`** — `selectRows` compiles a range facet to
+      them, so `"10..20"` keeps `10 ≤ field ≤ 20`. The facet's `control` is looked up, never
+      guessed from the value's shape, so a select value containing ".." still matches
+      literally. (One matching engine still — no parallel numeric filter.)
+- [x] **`Slider` renders one thumb per value** — the same primitive now covers a single value
+      and a two-thumb range.
+- [x] **`lib/range.ts`** — shared `parseRange`/`formatRange`, in `lib` because both the
+      FilterBar primitive and `selectRows` need them (a primitive may import lib; lib may
+      never import a primitive). Covered by 16 new tests; verified on staging at 375 / 768 /
+      1710 px with no horizontal overflow.
 
 ## ✅ Built — shared debounce hook, DRY cleanup (v0.5.1)
 
