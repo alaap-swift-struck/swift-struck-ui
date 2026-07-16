@@ -124,6 +124,22 @@ describe("evaluateRules", () => {
     ).toBe(false)
   })
 
+  it("gte / lte are INCLUSIVE at the bound (what a range facet needs)", () => {
+    // count is 5 — the bound itself must pass, unlike strict gt/lt
+    expect(
+      evaluateRules([rule({ field: "count", op: "gte", value: "5" })], ctx)
+    ).toBe(true)
+    expect(
+      evaluateRules([rule({ field: "count", op: "lte", value: "5" })], ctx)
+    ).toBe(true)
+    expect(
+      evaluateRules([rule({ field: "count", op: "gt", value: "5" })], ctx)
+    ).toBe(false)
+    expect(
+      evaluateRules([rule({ field: "count", op: "gte", value: "6" })], ctx)
+    ).toBe(false)
+  })
+
   it("isEmpty / isNotEmpty", () => {
     expect(
       evaluateRules([rule({ field: "note", op: "isEmpty", value: "" })], ctx)

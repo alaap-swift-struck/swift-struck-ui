@@ -54,6 +54,55 @@ describe("FilterBar", () => {
     expect(onClearAll).toHaveBeenCalled()
   })
 
+  it("range facet reports min/max as a compact 'min..max' string", () => {
+    const onChange = vi.fn()
+    // no min/max bounds → two number inputs
+    const range: FilterFacet[] = [
+      { field: "commits", label: "Commits", control: "range" },
+    ]
+    render(
+      <FilterBar
+        facets={range}
+        values={{}}
+        data={[]}
+        onChange={onChange}
+        onClearAll={() => {}}
+        canClear={false}
+      />
+    )
+    fireEvent.click(screen.getByRole("button", { name: "Commits" }))
+    fireEvent.change(screen.getByLabelText("Commits minimum"), {
+      target: { value: "10" },
+    })
+    expect(onChange).toHaveBeenLastCalledWith("commits", "10..")
+    fireEvent.change(screen.getByLabelText("Commits maximum"), {
+      target: { value: "20" },
+    })
+    expect(onChange).toHaveBeenLastCalledWith("commits", "10..20")
+  })
+
+  it("range facet summarises the active range and clears it", () => {
+    const onChange = vi.fn()
+    const range: FilterFacet[] = [
+      { field: "commits", label: "Commits", control: "range" },
+    ]
+    render(
+      <FilterBar
+        facets={range}
+        values={{ commits: "10..20" }}
+        data={[]}
+        onChange={onChange}
+        onClearAll={() => {}}
+        canClear
+      />
+    )
+    // the trigger reads as the range, not the bare label
+    const trigger = screen.getByRole("button", { name: "Commits" })
+    expect(trigger.textContent).toContain("10 – 20")
+    fireEvent.click(trigger.querySelector("svg")!)
+    expect(onChange).toHaveBeenCalledWith("commits", "")
+  })
+
   it("client-side searchable select filters its own options", async () => {
     const onChange = vi.fn()
     const searchable: FilterFacet[] = [

@@ -19,6 +19,9 @@ export type RuleOperator =
   | "contains"
   | "gt"
   | "lt"
+  /** Inclusive numeric bounds — what a `control:"range"` facet compiles to. */
+  | "gte"
+  | "lte"
   | "isEmpty"
   | "isNotEmpty"
 
@@ -53,6 +56,10 @@ function evalRule(rule: Rule, ctx: VisibilityContext): boolean {
       return Number(raw) > Number(rule.value)
     case "lt":
       return Number(raw) < Number(rule.value)
+    case "gte":
+      return Number(raw) >= Number(rule.value)
+    case "lte":
+      return Number(raw) <= Number(rule.value)
     case "isEmpty":
       return raw == null || s === ""
     case "isNotEmpty":
@@ -199,10 +206,18 @@ export interface FacetOption {
 export interface FilterFacet {
   field: string
   label: string
-  control: "select" | "chips"
+  /** `select` = dropdown · `chips` = removable chips · `range` = numeric min/max.
+   * A `range` facet reports `"min..max"` (either side may be empty, e.g. `"10.."`)
+   * and compiles to inclusive `gte`/`lte` rules — see `selectRows`. */
+  control: "select" | "chips" | "range"
   options?: FacetOption[]
+  /** `control:"range"` bounds. With BOTH `min` and `max` the facet renders a
+   * two-thumb slider; otherwise two number inputs. `step` defaults to 1. */
+  min?: number
+  max?: number
+  step?: number
   /** Render a `control:"select"` facet as a searchable combobox instead of a
-   * plain dropdown. (No effect on `control:"chips"`.) */
+   * plain dropdown. (No effect on `chips` / `range`.) */
   searchable?: boolean
   /** Async option provider for a `searchable` select facet. Called (debounced)
    * as the user types; the resolved rows REPLACE the visible option list — so a

@@ -5,6 +5,7 @@
 // inside a component) means it's deterministic and unit-tested.
 
 import { type CollectionConfig, evaluateRules, type Rule } from "./config"
+import { parseRange } from "./range"
 
 export interface CollectionSlice<T> {
   /** Rows for the current page (what you render). */
@@ -59,9 +60,24 @@ export function selectRows<T>(
   let rows = config.limit != null ? data.slice(0, config.limit) : data.slice()
 
   // 2) filter: builder rules + user-facet rules, ANDed, via the SAME engine.
+  // A `control:"range"` facet carries "min..max" and compiles to INCLUSIVE
+  // gte/lte rules; every other facet is a plain `is`. The facet's control is
+  // looked up (not guessed from the value's shape) so a string field that
+  // happens to contain ".." is still matched exactly.
   const facetRules: Rule[] = Object.entries(facetValues)
     .filter(([, v]) => v != null && v !== "")
-    .map(([field, value]) => ({ source: "row", field, op: "is", value }))
+    .flatMap(([field, value]): Rule[] => {
+      const facet = config.filterFacets?.find((f) => f.field === field)
+      if (facet?.control !== "range")
+        return [{ source: "row", field, op: "is", value }]
+      const { min, max } = parseRange(value)
+      const out: Rule[] = []
+      if (min != null)
+        out.push({ source: "row", field, op: "gte", value: String(min) })
+      if (max != null)
+        out.push({ source: "row", field, op: "lte", value: String(max) })
+      return out
+    })
   const allFilters: Rule[] = [...(config.filter ?? []), ...facetRules]
   if (allFilters.length > 0) {
     rows = rows.filter((row) =>

@@ -12,9 +12,11 @@ import { Check, ChevronsUpDown, Filter, X } from "lucide-react"
 
 import { facetOptions } from "../../../lib/collection"
 import { type FacetOption, type FilterFacet } from "../../../lib/config"
+import { formatRange, parseRange } from "../../../lib/range"
 import { cn } from "../../../lib/utils"
 import { Badge } from "../badge/badge"
 import { Button } from "../button/button"
+import { Input } from "../input/input"
 import {
   Command,
   CommandEmpty,
@@ -31,7 +33,151 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../select/select"
+import { Slider } from "../slider/slider"
 import { useDebouncedCallback } from "../use-debounce/use-debounce"
+
+/** A `control:"range"` facet: a compact trigger + a min/max editor in a popover.
+ * With BOTH `min` and `max` bounds it's a two-thumb Slider; otherwise two number
+ * inputs (so an unbounded field still works). Reports "min..max" through the
+ * SAME onChange every other facet uses — empty clears it. */
+function RangeFacet({
+  facet,
+  value,
+  onChange,
+}: {
+  facet: FilterFacet
+  value: string
+  onChange: (value: string) => void
+}) {
+  const { label, min: lo, max: hi, step = 1 } = facet
+  const [open, setOpen] = React.useState(false)
+  const { min, max } = parseRange(value)
+  const bounded = lo != null && hi != null
+
+  // Raw text mirrors, so a half-typed "-" or "1" isn't clobbered mid-keystroke.
+  // Re-synced from `value` each time the popover opens (which also picks up an
+  // outside "Clear all"), and the inputs own the text while it's open.
+  const [rawMin, setRawMin] = React.useState("")
+  const [rawMax, setRawMax] = React.useState("")
+  React.useEffect(() => {
+    if (!open) return
+    const p = parseRange(value)
+    setRawMin(p.min == null ? "" : String(p.min))
+    setRawMax(p.max == null ? "" : String(p.max))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open])
+
+  const toNum = (raw: string) => {
+    const t = raw.trim()
+    if (t === "") return null
+    const n = Number(t)
+    return Number.isFinite(n) ? n : null
+  }
+
+  const summary =
+    min != null && max != null
+      ? `${min} – ${max}`
+      : min != null
+        ? `≥ ${min}`
+        : max != null
+          ? `≤ ${max}`
+          : label
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          aria-label={label}
+          className="h-8 w-auto min-w-[8rem] justify-between gap-1 font-normal"
+        >
+          <span
+            className={cn("truncate", value === "" && "text-muted-foreground")}
+          >
+            {summary}
+          </span>
+          {value !== "" ? (
+            <X
+              className="size-3.5 shrink-0 opacity-60 hover:opacity-100"
+              aria-hidden
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                onChange("")
+              }}
+            />
+          ) : (
+            <ChevronsUpDown
+              className="size-3.5 shrink-0 opacity-50"
+              aria-hidden
+            />
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        className="w-[min(16rem,calc(100vw-2rem))] p-3"
+      >
+        {bounded ? (
+          <div className="flex flex-col gap-3">
+            <div className="flex items-baseline justify-between text-xs">
+              <span className="font-medium">{label}</span>
+              <span className="text-muted-foreground tabular-nums">
+                {min ?? lo} – {max ?? hi}
+              </span>
+            </div>
+            <Slider
+              aria-label={label}
+              min={lo}
+              max={hi}
+              step={step}
+              value={[min ?? lo, max ?? hi]}
+              onValueChange={([a, b]) => onChange(formatRange(a, b))}
+            />
+          </div>
+        ) : (
+          <div className="flex items-end gap-2">
+            <label className="flex-1 text-xs text-muted-foreground">
+              Min
+              <Input
+                type="number"
+                inputMode="numeric"
+                min={lo}
+                max={hi}
+                step={step}
+                value={rawMin}
+                aria-label={`${label} minimum`}
+                onChange={(e) => {
+                  setRawMin(e.target.value)
+                  onChange(formatRange(toNum(e.target.value), toNum(rawMax)))
+                }}
+                className="mt-1 h-8"
+              />
+            </label>
+            <label className="flex-1 text-xs text-muted-foreground">
+              Max
+              <Input
+                type="number"
+                inputMode="numeric"
+                min={lo}
+                max={hi}
+                step={step}
+                value={rawMax}
+                aria-label={`${label} maximum`}
+                onChange={(e) => {
+                  setRawMax(e.target.value)
+                  onChange(formatRange(toNum(rawMin), toNum(e.target.value)))
+                }}
+                className="mt-1 h-8"
+              />
+            </label>
+          </div>
+        )}
+      </PopoverContent>
+    </Popover>
+  )
+}
 
 /** A `control:"select"` facet rendered as a searchable combobox. Shows `options`
  * up front; when `onSearch` is set it fires (debounced) as the user types and the
@@ -240,8 +386,23 @@ function FilterBar<T>({
       <Filter className="size-4 shrink-0 text-muted-foreground" aria-hidden />
 
       {facets.map((f) => {
-        const opts = optionsFor(f)
         const val = values[f.field] ?? ""
+
+        // control: "range" → a numeric min/max control. Its value is "min..max",
+        // compiled to inclusive gte/lte rules by selectRows. Handled before the
+        // option list is derived — a range facet has no options to scan for.
+        if (f.control === "range") {
+          return (
+            <RangeFacet
+              key={f.field}
+              facet={f}
+              value={val}
+              onChange={(v) => onChange(f.field, v)}
+            />
+          )
+        }
+
+        const opts = optionsFor(f)
 
         if (f.control === "chips") {
           return (

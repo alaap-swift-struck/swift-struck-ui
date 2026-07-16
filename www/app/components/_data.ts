@@ -258,7 +258,9 @@ export const tableConfig: DataTableConfig = {
 }
 
 // A collection with the full user-facing search + filter facets, rendered
-// through CollectionFrame (the List/Card pattern). Role = chips, Status = select.
+// through CollectionFrame (the List/Card pattern). Role = chips, Status =
+// select, Commits = range. The range declares min/max bounds, so it renders a
+// two-thumb slider and reports "min..max" (e.g. "40..300").
 export const filterableListConfig: CollectionConfig = {
   ...defaultCollectionConfig,
   title: "People",
@@ -269,6 +271,14 @@ export const filterableListConfig: CollectionConfig = {
   filterFacets: [
     { field: "role", label: "Role", control: "chips" },
     { field: "status", label: "Status", control: "select" },
+    {
+      field: "commits",
+      label: "Commits",
+      control: "range",
+      min: 40,
+      max: 300,
+      step: 10,
+    },
   ],
 }
 

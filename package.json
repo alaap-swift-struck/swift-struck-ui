@@ -1,6 +1,6 @@
 {
   "name": "@swift-struck/ui",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "Swift Struck UI — a web-first, cross-platform component & collection library you build apps on top of. Inspired by shadcn/ui (primitives) + Glide (data-bound collections). Install straight from GitHub.",
   "license": "MIT",
   "sideEffects": [

@@ -439,6 +439,9 @@ const searchableFacetCfg: CollectionConfig = {
           }, 300)
         ),
     },
+    // A range with NO bounds declared → two number inputs instead of a slider,
+    // so an open-ended numeric field still filters.
+    { field: "commits", label: "Commits", control: "range" },
   ],
 }
 
