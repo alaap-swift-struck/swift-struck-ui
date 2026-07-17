@@ -12,6 +12,29 @@ what's built and what's left.
 
 ---
 
+## ✅ Built — release hygiene: tags, clean package, honest install docs (v0.7.1)
+
+Packaging + docs only, no component changes. Fixes how consumers **get** the library.
+
+- [x] **Every release is now a git tag** (`v0.1.0` … `v0.7.1`), each verified against the
+      `package.json` at that commit. Before this, version numbers were labels only —
+      nothing was pinnable and `#v0.7.0` would have failed. Apps can now pin:
+      `npm install github:alaap-swift-struck/swift-struck-ui#v0.7.1`.
+- [x] **Tests no longer ship to consumers** — the tarball carried **27 `*.test.tsx`**
+      files importing `vitest`/`@testing-library` (devDeps a consumer doesn't have),
+      against our own "devDeps never ship" rule. `files` now excludes `**/*.test.*`:
+      136 → 109 files, 126 kB → 108 kB. All 90 components still ship.
+- [x] **`publishConfig.access: "public"`** — a scoped package is private by default on
+      npm, so `npm publish` would have failed without it.
+- [x] **README tells the truth about updating** — a bare `npm install` reuses the commit
+      SHA locked in `package-lock.json`, so an app can sit on stale code while looking
+      current. Documented `npm update` / `#vX.Y.Z` and `npm ls` to check what you have.
+- [x] **Documented `transpilePackages`** — the library ships `.tsx` source and Next.js
+      doesn't compile `node_modules` by default, so a fresh install failed on the first
+      import with no explanation. (The docs site never caught this: `www` compiles the
+      library from the repo root via `externalDir`, so it never exercises the real
+      `node_modules` install path.)
+
 ## ✅ Built — in-header sort control + scannable list rows (v0.7.0)
 
 Additive, backward-compatible (package bumped 0.6.0 → 0.7.0). Driven by a host that

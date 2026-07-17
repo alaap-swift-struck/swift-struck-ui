@@ -26,17 +26,67 @@ data-bound, configurable collections inspired by [Glide](https://www.glideapps.c
 
 ## Install (in another app)
 
-The library **is** this repo — install it straight from GitHub, no npm account needed:
+The library **is** this repo — install it straight from GitHub:
 
 ```bash
+# latest (tracks main)
 npm install github:alaap-swift-struck/swift-struck-ui react react-dom
+
+# or pin to a release (recommended for production apps)
+npm install github:alaap-swift-struck/swift-struck-ui#v0.7.0 react react-dom
 ```
 
 ```tsx
 import { Button } from "@swift-struck/ui/registry/primitives/button/button"
 ```
 
-To pull in later updates, re-run the install (it re-fetches the latest from GitHub).
+Every release is a git tag (`v0.7.0`, `v0.6.0`, …) — see [PROGRESS.md](PROGRESS.md)
+for what changed in each.
+
+### Required setup — the library ships TypeScript source
+
+This is a source library (shadcn-style): you install real `.tsx` files, not compiled
+JS, so the components stay readable and your app's own Tailwind theme applies. That
+means **your bundler has to compile it**. In Next.js, `node_modules` isn't transpiled
+by default, so add:
+
+```ts
+// next.config.ts
+const nextConfig = {
+  transpilePackages: ["@swift-struck/ui"],
+}
+export default nextConfig
+```
+
+Without this you'll get a syntax error on the first import — that's the missing step,
+not a broken package. Then import the theme once (it carries every design token):
+
+```tsx
+// app/layout.tsx
+import "@swift-struck/ui/styles.css"
+```
+
+### Updating — read this, it's the one that catches people
+
+**A plain `npm install` will NOT pull in new library code.** npm resolves a GitHub
+dependency to a **commit SHA** and locks it in your `package-lock.json`; every later
+`npm install` faithfully reinstalls that same commit. An app can sit on months-old code
+while its `package.json` looks current. To actually move:
+
+```bash
+# untracked/pinned → jump to a specific release
+npm install github:alaap-swift-struck/swift-struck-ui#v0.7.0
+
+# tracking main → re-resolve to the newest commit
+npm update @swift-struck/ui
+```
+
+Then check what you really have — the SHA in the lockfile is the truth, not the version
+field:
+
+```bash
+npm ls @swift-struck/ui
+```
 
 ## Repo layout
 
