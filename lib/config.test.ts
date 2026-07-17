@@ -124,6 +124,39 @@ describe("evaluateRules", () => {
     ).toBe(false)
   })
 
+  it("numeric ops never match a blank or non-numeric field", () => {
+    // Regression: Number("") is 0, so a blank field used to satisfy `lte 5` and
+    // `gte -1` — a product with no price appeared in a "price ≤ 5" filter, while
+    // a MISSING price did not. Blank, missing and non-numeric now all fail, which
+    // is also what SQL returns for the same rule (NULL comparisons are never true).
+    const blank = { row: { price: "" }, user: {}, app: {} }
+    const missing = { row: {}, user: {}, app: {} }
+    const words = { row: { price: "n/a" }, user: {}, app: {} }
+    for (const ctx of [blank, missing, words]) {
+      for (const op of ["gt", "lt", "gte", "lte"] as const) {
+        expect(
+          evaluateRules([rule({ field: "price", op, value: "5" })], ctx)
+        ).toBe(false)
+        expect(
+          evaluateRules([rule({ field: "price", op, value: "-1" })], ctx)
+        ).toBe(false)
+      }
+    }
+    // a real 0 still compares as 0 — only blank/non-numeric is excluded
+    const zero = { row: { price: 0 }, user: {}, app: {} }
+    expect(
+      evaluateRules([rule({ field: "price", op: "lte", value: "5" })], zero)
+    ).toBe(true)
+    // a garbage rule value matches nothing rather than everything
+    expect(
+      evaluateRules([rule({ field: "count", op: "gte", value: "abc" })], {
+        row: { count: 5 },
+        user: {},
+        app: {},
+      })
+    ).toBe(false)
+  })
+
   it("gte / lte are INCLUSIVE at the bound (what a range facet needs)", () => {
     // count is 5 — the bound itself must pass, unlike strict gt/lt
     expect(

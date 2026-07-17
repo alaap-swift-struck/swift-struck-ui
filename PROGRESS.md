@@ -3,7 +3,7 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 89 components** (63 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 155 across 26 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async/range filter facets · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
+> **Built: 90 components** (64 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 166 across 27 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async/range filter facets · in-header sort control · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
 
 > The live counts are authoritative from `registry.json` (components) and
 > `npm run guardrails` ("N modules", which also counts logic + test files).
@@ -11,6 +11,42 @@ what's built and what's left.
 > **Glide config reference:** see `GLIDE-CONFIG-RESEARCH.md` — every component's real Glide config options, the source of truth for parity.
 
 ---
+
+## ✅ Built — in-header sort control + scannable list rows (v0.7.0)
+
+Additive, backward-compatible (package bumped 0.6.0 → 0.7.0). Driven by a host that
+hand-built each of these first and hit the wall — so each one encodes a real bug.
+
+- [x] **New `sort-control` primitive** — a field picker + an asc/desc toggle, rendered
+      **inside** the CollectionFrame header on the same row as search and the filters
+      (and folded into the mobile popover, whose trigger becomes "Filters and sort").
+      The picker is composed from `Choice`, so past 8 options it searches itself for
+      free — no second combobox implementation.
+- [x] **Three rules baked into `SortOption`**: per-option **`defaultDir`** (picking a
+      date field gives newest-first, not oldest-first) · **`directionless`** (best-match
+      relevance **disables** the toggle instead of silently ignoring it) · and no
+      selection = no axis to flip, so the toggle is disabled there too.
+- [x] **`sortable` + `sortOptions` on `CollectionConfig`**; `sortBy`/`sortDir` stay the
+      **declared initial** sort while the user's live pick is runtime state — the same
+      split as builder `filter` vs user `facetValues`, so config stays declarative.
+- [x] **One seam, not two** — sort is emitted through the EXISTING `onQueryChange`
+      (`{query, facetValues, sortBy, sortDir}`), which is exactly the payload a
+      server-side host turns into its next request. `serverSide` still never sorts in
+      memory; it only emits.
+- [x] **Select facets auto-upgrade to the combobox** past `SEARCHABLE_THRESHOLD` (8)
+      unless `searchable:false` — opt-**out**, so a host can't accidentally ship an
+      unsearchable 200-item dropdown.
+- [x] **`ListItem.fields`** — label/value pairs under the subtitle, for rows you scan
+      (code · price · height). Without it a row shows two fields, so sorting by a field
+      the row doesn't display looks broken.
+- [x] **FIX (found by the rule-engine sweep): numeric ops no longer match a blank field.**
+      `Number("")` is `0`, so `gt`/`lt`/`gte`/`lte` treated an EMPTY field as zero — a
+      product with no price appeared in a "price ≤ 5" filter, while a _missing_ price
+      (NaN) correctly didn't. Blank, missing, non-numeric, and a non-numeric rule
+      `value` now all fail, matching SQL's NULL semantics so the in-memory result
+      agrees with the D1/SQL layer. A real `0` still compares as `0`. Predates v0.6.0
+      (`gt`/`lt` had it); the range facet is what made it reachable from the UI.
+- [x] Verified on staging at 375 / 768 / 1710 px, no horizontal overflow.
 
 ## ✅ Built — numeric range facet + placeholder ellipsis (v0.6.0)
 

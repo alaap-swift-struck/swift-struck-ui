@@ -46,6 +46,8 @@ same explanations as comments) and you know the whole surface.
 | `op`     | `"is" \| "isNot" \| "contains" \| "gt" \| "lt" \| "gte" \| "lte" \| "isEmpty" \| "isNotEmpty"` | The comparison. `gt`/`lt`/`gte`/`lte` compare as numbers (`gte`/`lte` are **inclusive** — what a `range` facet compiles to); `contains` is case-insensitive. |
 | `value`  | `string`                                                                                       | The value to compare against.                                                                                                                                |
 
+**Numeric comparison semantics (`gt`/`lt`/`gte`/`lte`):** a blank, missing or non-numeric field **never matches**, and neither does a non-numeric rule `value`. This mirrors SQL — where comparing `NULL` is never true — so the in-memory result agrees with what the D1/SQL layer returns for the same rule. (Without this, `Number("")` is `0`, and a product with no price would appear in a "price ≤ 5" filter while a product with a _missing_ price would not.) A real `0` still compares as `0`.
+
 ---
 
 ## Inputs: `FieldConfig` (Input, Textarea, Field-wrapped inputs)
@@ -99,7 +101,7 @@ Declared here, **executed** by `CollectionFrame` (`selectRows`): `limit → filt
 | `label`      | `string`                                                   | Shown on the control (dropdown placeholder / chip group label).                                                                                                                                                                                                    |
 | `control`    | `"select" \| "chips" \| "range"`                           | Presentation — a dropdown, a set of removable chips, or a numeric min/max range.                                                                                                                                                                                   |
 | `options`    | `{value;label;count?}[]` (opt.)                            | The choices. **Omit** to derive the distinct values from the data at render. `count` shows a muted trailing number.                                                                                                                                                |
-| `searchable` | `boolean` (opt.)                                           | Render a `control:"select"` facet as a **searchable combobox** instead of a plain dropdown. (No effect on `chips` / `range`.)                                                                                                                                      |
+| `searchable` | `boolean` (opt.)                                           | Render a `control:"select"` facet as a **searchable combobox** instead of a plain dropdown. **Omit and it's automatic** past 8 options (`SEARCHABLE_THRESHOLD`) — set `false` to force a plain dropdown. (No effect on `chips` / `range`.)                         |
 | `onSearch`   | `(field, query) => Promise<{value;label;count?}[]>` (opt.) | Async option provider for a `searchable` select. Called (debounced) as the user types; the resolved rows **replace** the visible list — so a facet with thousands of values is searchable without ever loading them all. `options` is shown before the user types. |
 | `min` `max`  | `number` (opt.)                                            | `control:"range"` bounds. With **both** set the facet renders a two-thumb `Slider`; otherwise two number inputs.                                                                                                                                                   |
 | `step`       | `number` (opt.)                                            | `control:"range"` step. Defaults to `1`.                                                                                                                                                                                                                           |
@@ -128,11 +130,60 @@ filterFacets: [
 ]
 ```
 
-**Server-side seam (CollectionFrame props, not config):** pass `serverSide={true}` + `onQueryChange={({query, facetValues}) => …}` and the frame stops filtering in memory — it emits the (debounced) query + facets and renders whatever `data` you hand it, so the app can refetch (`?q=` / FTS5) later. `searchable`/`filter` defaults are unchanged, so existing consumers are unaffected.
+**Server-side seam (CollectionFrame props, not config):** pass `serverSide={true}` + `onQueryChange={({query, facetValues, sortBy, sortDir}) => …}` and the frame stops filtering/sorting in memory — it emits everything the user is asking for and renders whatever `data` you hand it, so the app can refetch (`?q=` / FTS5 / `ORDER BY`) later. **One seam, not three:** query, facets and sort all arrive in the same callback, which is exactly the payload a server-side host turns into its next request. `searchable`/`filter` defaults are unchanged, so existing consumers are unaffected.
+
+### Sort — `sortable` + `sortOptions`
+
+The sort control lives **inside** the header, on the same row as search and the filters — not a separate strip above the frame.
+
+| Field                | Type                         | What it does                                                                                               |
+| -------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `sortable`           | `boolean`                    | Show the sort control. Off (default) → the header is exactly as before.                                    |
+| `sortOptions`        | `SortOption[]`               | The fields the user may sort by. Empty → no control even if `sortable`. Past 8 the picker searches itself. |
+| `sortBy` / `sortDir` | `string` / `"asc" \| "desc"` | The **initial** sort only — see below.                                                                     |
+
+#### `SortOption`
+
+| Field           | Type                     | What it does                                                                                                       |
+| --------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `value`         | `string`                 | The row field to sort by.                                                                                          |
+| `label`         | `string`                 | Shown in the picker.                                                                                               |
+| `defaultDir`    | `"asc" \| "desc"` (opt.) | The direction applied when this option is **picked**. Defaults to `"asc"`. Dates want `"desc"`.                    |
+| `directionless` | `boolean` (opt.)         | This option has no meaningful direction (best-match relevance) → the asc/desc toggle is **disabled**, not ignored. |
+
+**`sortBy`/`sortDir` are the DECLARED sort, not the live one.** They seed the control; the user's choice from then on is runtime state held by `CollectionFrame` — the same split as builder `filter` vs user `filterFacets`/`facetValues`. Config stays declarative. Read the live value off `onQueryChange`.
+
+Three rules the shape enforces, each one a bug before it was a rule:
+
+- **Per-option default direction.** Picking "Date added" applies its `defaultDir: "desc"` → newest first. Landing on oldest-first reads as broken.
+- **Relevance has no direction.** Mark it `directionless: true` and the toggle disables rather than silently ignoring the click.
+- **Don't make a directionless option the default `sortBy`.** The user then lands on a greyed-out toggle, which is a poor answer to "am I A→Z or Z→A?". (Your call — the library can't police your config, but don't.)
+
+```tsx
+sortable: true,
+sortBy: "name", sortDir: "asc",           // where it starts, not where it stays
+sortOptions: [
+  { value: "name", label: "Name" },                            // → asc
+  { value: "added", label: "Date added", defaultDir: "desc" }, // → newest first
+  { value: "relevance", label: "Best match", directionless: true },
+]
+```
 
 **Primitives:** the search box is the **`SearchInput`** primitive (Input + lucide Search + a clear ✕, debounced via `debounceMs`); the facet row is the **`FilterBar`** primitive (Select, searchable combobox, chips, or a numeric range + "Clear all", keyboard-operable, polite live count). Both debounce through the shared **`useDebouncedCallback`** hook (the `use-debounce` primitive) — one implementation, no repeat. `List`/`CardGrid` get all of this by rendering inside `CollectionFrame` (the gallery shows the pattern).
 
-**Text overflow:** the **`Input`** primitive is `truncate` (overflow-hidden + text-ellipsis + whitespace-nowrap), so an overflowing value **or placeholder** ends in an ellipsis rather than a hard clip — at any width `"Search attributes…"` degrades to `"Search attr…"`, never `"Search attribut"`. Every shipped text input (including `SearchInput` and `Field`-wrapped inputs) inherits this.
+**Text overflow:** the **`Input`** primitive is `truncate` (overflow-hidden + text-ellipsis + whitespace-nowrap), so an overflowing value **or placeholder** ends in an ellipsis rather than a hard clip — at any width `"Search attributes…"` degrades to `"Search attr…"`, never `"Search attribut"`. Every shipped text input (including `SearchInput` and `Field`-wrapped inputs) inherits this. `ListItem`'s title, subtitle and `fields` truncate too, as do facet labels and the `Select` trigger.
+
+**Where ellipsis is deliberately NOT applied:** `DataTable` cells. The `Table` primitive already wraps itself in `overflow-x-auto`, so a wide table scrolls **inside its own container** and the value stays readable — the page never scrolls horizontally either way. Truncating a cell would hide data that is currently reachable. A fixed-width control (an input, a title in a flex row) ellipsises; a table scrolls. Different control, different correct answer.
+
+### Pick-a-value: which control?
+
+| You have                                   | Use                                                                                       |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------- |
+| A collection facet                         | `filterFacets` → `FilterBar`. Auto-searches past 8 options; you don't choose.             |
+| An options-driven picker in your own UI    | **`Choice`** (`display:"dropdown"`, `searchable` defaults to **true**) — single or multi. |
+| A small, fixed, static set in your own JSX | `Select` — the low-level Radix compound primitive `Choice` and `FilterBar` are built on.  |
+
+`Select` cannot gain a search box: Radix Select owns keyboard typeahead and focus management, which is exactly why a searchable picker is Popover + Command instead. **If a bare `Select` looks unfinished next to a combobox, you want `Choice`** — it's the same combobox, options-driven, searchable by default.
 
 ---
 

@@ -33,6 +33,7 @@ CONFIG-REFERENCE.md.
 | ---------- | -------------------- | ------------------------------------------------------------------------------------------------------- |
 | search     | ✅ searchable        | Debounced `SearchInput`, clear button, over the named keys.                                             |
 | userFilter | ✅ userFilter        | `filterFacets` → `FilterBar` (select / searchable combobox / chips / range), ANDed via the rule engine. |
+| sort       | ✅ sortable          | `sortOptions` → `SortControl` in the header; `sortBy`/`sortDir` declare the initial sort.               |
 | Card       | ✅ card-grid         |                                                                                                         |
 | List       | ✅ list              |                                                                                                         |
 | Table      | ✅ data-table        | Renders through CollectionFrame — inherits search/filter/sort/limit/pages.                              |
@@ -124,14 +125,15 @@ CONFIG-REFERENCE.md.
 
 These ship on top of palette parity — they have no Glide counterpart.
 
-| Swift Struck UI                                                                               | What it is                                                                                                                                                                       |
-| --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| permission-matrix                                                                             | Role access-rights grid (modules × Read/Create/Edit/Delete).                                                                                                                     |
-| status-stepper                                                                                | Left-to-right lifecycle stepper (open → in progress → resolved), clickable to change status.                                                                                     |
-| searchable / async / range filter facets                                                      | Beyond Glide's fixed facet list: a facet can search itself (`searchable`), fetch its options as you type (`onSearch`, for thousands of values), or be a numeric min/max `range`. |
-| agent-chat · copilot-overlay · run-steps · data-preview-table · import-wizard · ticket-thread | Agent/app surfaces — an assistant conversation, the "it's driving the screen" overlay, bulk-job steps, a write-preview, a 3-stage import, and a support thread.                  |
-| article-body · progress-toggle · progress-dashboard                                           | Learning surfaces — in-app article (safe markdown), a done toggle, and a members × items completion grid.                                                                        |
-| screen-renderer (`lib/recipe.ts`)                                                             | A config-driven screen engine that composes recipes into full screens with permission gating + deep links.                                                                       |
+| Swift Struck UI                                                                               | What it is                                                                                                                                                                                                             |
+| --------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| permission-matrix                                                                             | Role access-rights grid (modules × Read/Create/Edit/Delete).                                                                                                                                                           |
+| status-stepper                                                                                | Left-to-right lifecycle stepper (open → in progress → resolved), clickable to change status.                                                                                                                           |
+| searchable / async / range filter facets                                                      | Beyond Glide's fixed facet list: a facet can search itself (`searchable`), fetch its options as you type (`onSearch`, for thousands of values), or be a numeric min/max `range`.                                       |
+| sort-control                                                                                  | A user-facing sort picker + A→Z/Z→A toggle **inside** the collection header, with per-field default directions and directionless (relevance) fields. Emitted through the same `onQueryChange` seam as search + facets. |
+| agent-chat · copilot-overlay · run-steps · data-preview-table · import-wizard · ticket-thread | Agent/app surfaces — an assistant conversation, the "it's driving the screen" overlay, bulk-job steps, a write-preview, a 3-stage import, and a support thread.                                                        |
+| article-body · progress-toggle · progress-dashboard                                           | Learning surfaces — in-app article (safe markdown), a done toggle, and a members × items completion grid.                                                                                                              |
+| screen-renderer (`lib/recipe.ts`)                                                             | A config-driven screen engine that composes recipes into full screens with permission gating + deep links.                                                                                                             |
 
 ---
 

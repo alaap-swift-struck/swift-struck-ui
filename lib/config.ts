@@ -53,13 +53,23 @@ function evalRule(rule: Rule, ctx: VisibilityContext): boolean {
     case "contains":
       return s.toLowerCase().includes(rule.value.toLowerCase())
     case "gt":
-      return Number(raw) > Number(rule.value)
     case "lt":
-      return Number(raw) < Number(rule.value)
     case "gte":
-      return Number(raw) >= Number(rule.value)
-    case "lte":
-      return Number(raw) <= Number(rule.value)
+    case "lte": {
+      // A numeric comparison needs a real number on BOTH sides, and a blank or
+      // non-numeric field never matches. Without the `s === ""` guard, Number("")
+      // is 0 — so a product with no price would sneak into a "price ≤ 5" filter,
+      // while a MISSING price (NaN) correctly wouldn't. This also mirrors SQL,
+      // where comparing NULL is never true, so the in-memory result agrees with
+      // what the D1/SQL layer returns for the same rule.
+      const a = Number(s)
+      const b = Number(rule.value)
+      if (s === "" || !Number.isFinite(a) || !Number.isFinite(b)) return false
+      if (rule.op === "gt") return a > b
+      if (rule.op === "lt") return a < b
+      if (rule.op === "gte") return a >= b
+      return a <= b
+    }
     case "isEmpty":
       return raw == null || s === ""
     case "isNotEmpty":

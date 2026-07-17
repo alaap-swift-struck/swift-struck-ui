@@ -158,7 +158,13 @@ const CATALOG: CatalogItem[] = [
     name: "Filter Bar",
     category: "Inputs",
     blurb:
-      "User-facing collection filters — facets as dropdowns, searchable comboboxes (sync or async), chips, or a numeric min/max range, with Clear all.",
+      "User-facing collection filters — facets as dropdowns, searchable comboboxes (sync or async), chips, or a numeric min/max range, with Clear all. Dropdowns start searching themselves past 8 options.",
+  },
+  {
+    name: "Sort Control",
+    category: "Inputs",
+    blurb:
+      "Sort a collection from inside its header — a field picker plus an A→Z / Z→A toggle. Each field carries its own default direction (dates open newest-first), and a directionless field like Best match disables the toggle.",
   },
   {
     name: "Progress Toggle",
