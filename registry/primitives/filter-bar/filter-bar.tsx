@@ -11,7 +11,11 @@ import * as React from "react"
 import { Check, ChevronsUpDown, Filter, X } from "lucide-react"
 
 import { facetOptions } from "../../../lib/collection"
-import { type FacetOption, type FilterFacet } from "../../../lib/config"
+import {
+  SEARCHABLE_THRESHOLD,
+  type FacetOption,
+  type FilterFacet,
+} from "../../../lib/config"
 import { formatRange, parseRange } from "../../../lib/range"
 import { cn } from "../../../lib/utils"
 import { Badge } from "../badge/badge"
@@ -437,9 +441,13 @@ function FilterBar<T>({
           )
         }
 
-        // control: "select", searchable → a combobox (client-filtered, or async
-        // via onSearch). The plain-dropdown path below stays untouched.
-        if (f.searchable) {
+        // control: "select" → a combobox when it searches itself, else the plain
+        // dropdown. `searchable` is OPT-OUT past SEARCHABLE_THRESHOLD options:
+        // a host can't accidentally ship an unsearchable 200-item dropdown, and
+        // small facets stay plain (a search box over 3 options is noise). The
+        // triggers are near-identical either way — only the popover adapts.
+        const searchable = f.searchable ?? opts.length > SEARCHABLE_THRESHOLD
+        if (searchable) {
           return (
             <SearchableFacet
               key={f.field}

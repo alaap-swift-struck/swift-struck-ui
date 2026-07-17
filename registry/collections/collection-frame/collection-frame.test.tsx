@@ -2,8 +2,8 @@
 // title, search, and filter bar on one row; "stacked" (default) keeps search on
 // the title row with the filter bar below. Run: `npm test`.
 
-import { render } from "@testing-library/react"
-import { describe, expect, it } from "vitest"
+import { fireEvent, render, screen } from "@testing-library/react"
+import { describe, expect, it, vi } from "vitest"
 
 import { defaultCollectionConfig } from "../../../lib/config"
 import { CollectionFrame } from "./collection-frame"
@@ -59,6 +59,96 @@ describe("CollectionFrame headerLayout", () => {
     // The header still renders the search box and the filter control.
     expect(container.querySelector("input")).toBeTruthy()
     expect(container.querySelector('[role="combobox"]')).toBeTruthy()
+  })
+})
+
+describe("CollectionFrame sort", () => {
+  const sortCfg = {
+    ...defaultCollectionConfig,
+    title: "Team",
+    sortable: true,
+    sortOptions: [
+      { value: "name", label: "Name" },
+      { value: "status", label: "Status", defaultDir: "desc" as const },
+    ],
+    sortBy: "name",
+    sortDir: "asc" as const,
+  }
+  const rows = (r: Row[]) => (
+    <ul>
+      {r.map((x) => (
+        <li key={x.id}>{x.name}</li>
+      ))}
+    </ul>
+  )
+
+  it("sorts in memory from the declared config sort", () => {
+    const { container } = render(
+      <CollectionFrame<Row>
+        config={{ ...sortCfg, sortDir: "desc" }}
+        data={data}
+        searchKeys={["name"]}
+        renderItems={rows}
+      />
+    )
+    const names = [...container.querySelectorAll("li")].map(
+      (li) => li.textContent
+    )
+    expect(names).toEqual(["Beta", "Alpha"])
+  })
+
+  it("emits sortBy/sortDir through the SAME onQueryChange seam", () => {
+    const onQueryChange = vi.fn()
+    render(
+      <CollectionFrame<Row>
+        config={sortCfg}
+        data={data}
+        searchKeys={["name"]}
+        renderItems={rows}
+        onQueryChange={onQueryChange}
+      />
+    )
+    // flipping direction reports through the one seam, not a second callback
+    fireEvent.click(
+      screen.getByRole("button", { name: /switch to descending/i })
+    )
+    expect(onQueryChange).toHaveBeenCalledWith({
+      query: "",
+      facetValues: {},
+      sortBy: "name",
+      sortDir: "desc",
+    })
+  })
+
+  it("serverSide: does NOT sort in memory, only emits", () => {
+    const onQueryChange = vi.fn()
+    const { container } = render(
+      <CollectionFrame<Row>
+        config={{ ...sortCfg, sortDir: "desc" }}
+        data={data}
+        serverSide
+        searchKeys={["name"]}
+        renderItems={rows}
+        onQueryChange={onQueryChange}
+      />
+    )
+    // config says desc, but serverSide must render `data` in the given order
+    const names = [...container.querySelectorAll("li")].map(
+      (li) => li.textContent
+    )
+    expect(names).toEqual(["Alpha", "Beta"])
+  })
+
+  it("no sort control when sortable is off or there are no options", () => {
+    const { container } = render(
+      <CollectionFrame<Row>
+        config={{ ...sortCfg, sortable: false }}
+        data={data}
+        searchKeys={["name"]}
+        renderItems={rows}
+      />
+    )
+    expect(container.querySelector('[role="combobox"]')).toBeNull()
   })
 })
 

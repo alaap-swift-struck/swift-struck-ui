@@ -280,6 +280,18 @@ export const filterableListConfig: CollectionConfig = {
       step: 10,
     },
   ],
+  // The sort control sits IN the header, on the same row as the filters.
+  // `sortBy`/`sortDir` above only declare where it STARTS — the user's live
+  // choice is runtime state. Note Commits declares defaultDir "desc": picking
+  // it gives you the most-committed first, not the least.
+  sortable: true,
+  sortBy: "name",
+  sortDir: "asc",
+  sortOptions: [
+    { value: "name", label: "Name" },
+    { value: "role", label: "Role" },
+    { value: "commits", label: "Commits", defaultDir: "desc" },
+  ],
 }
 
 export const initialTasks = [

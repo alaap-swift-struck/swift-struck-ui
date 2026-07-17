@@ -9,6 +9,12 @@ export interface ListItem {
   id: string
   title: React.ReactNode
   subtitle?: React.ReactNode
+  /** Extra label/value pairs under the subtitle, for rows you SCAN rather than
+   *  read (code · price · height · material). Without these a row shows two
+   *  fields, so sorting by a field the row doesn't display looks broken.
+   *  They wrap and truncate; keep them short. Many columns of uniform data are
+   *  still a `DataTable` — this is for a list row that needs more than two. */
+  fields?: { label: string; value: React.ReactNode }[]
   /** Leading slot — an avatar, icon, or thumbnail. */
   leading?: React.ReactNode
   /** Trailing slot — a badge, timestamp, or action. */
@@ -93,6 +99,21 @@ function List<T extends ListItem>({
               {item.subtitle != null && (
                 <div className="truncate text-sm text-muted-foreground">
                   {item.subtitle}
+                </div>
+              )}
+              {item.fields != null && item.fields.length > 0 && (
+                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5">
+                  {item.fields.map((f) => (
+                    <span
+                      key={f.label}
+                      className="min-w-0 truncate text-xs text-muted-foreground"
+                    >
+                      <span className="opacity-70">{f.label}</span>{" "}
+                      <span className="text-foreground tabular-nums">
+                        {f.value}
+                      </span>
+                    </span>
+                  ))}
                 </div>
               )}
             </div>

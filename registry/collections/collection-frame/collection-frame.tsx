@@ -18,13 +18,14 @@
 // whatever `data` it's handed, so an app can refetch (?q= / FTS5) later.
 
 import * as React from "react"
-import { ChevronLeft, ChevronRight, Filter } from "lucide-react"
+import { ArrowUpDown, ChevronLeft, ChevronRight, Filter } from "lucide-react"
 
 import { selectRows } from "../../../lib/collection"
 import { type CollectionConfig } from "../../../lib/config"
 import { cn } from "../../../lib/utils"
 import { Button } from "../../primitives/button/button"
 import { FilterBar } from "../../primitives/filter-bar/filter-bar"
+import { SortControl } from "../../primitives/sort-control/sort-control"
 import {
   Popover,
   PopoverContent,
@@ -48,14 +49,18 @@ function CollectionFrame<T>({
   searchKeys: (keyof T)[]
   /** Render one page of rows (the frame slices them for you). */
   renderItems: (rows: T[]) => React.ReactNode
-  /** When true, the frame does NOT filter/search/paginate in memory — it renders
-   * `data` as given and emits query/facets via `onQueryChange` (the app refetches). */
+  /** When true, the frame does NOT filter/search/sort/paginate in memory — it
+   * renders `data` as given and emits the query state via `onQueryChange` (the
+   * app refetches). */
   serverSide?: boolean
-  /** Notified (query already debounced by SearchInput) whenever the user's
-   * query or facet selection changes — the seam for server-side `?q=` / FTS5. */
+  /** Notified (query already debounced by SearchInput) whenever the user changes
+   * WHAT THEY'RE ASKING FOR — query, facets, or sort. One seam, not three: this
+   * is everything a server-side host needs to build its next request. */
   onQueryChange?: (state: {
     query: string
     facetValues: Record<string, string>
+    sortBy: string
+    sortDir: "asc" | "desc"
   }) => void
   className?: string
 }) {
@@ -63,28 +68,36 @@ function CollectionFrame<T>({
   const [facetValues, setFacetValues] = React.useState<Record<string, string>>(
     {}
   )
+  // The user's LIVE sort, seeded from the declared config sort. Config stays
+  // declarative (it says where sorting starts); this is the runtime choice —
+  // exactly the split between builder `filter` and user `facetValues`.
+  const [sortBy, setSortBy] = React.useState(config.sortBy)
+  const [sortDir, setSortDir] = React.useState<"asc" | "desc">(config.sortDir)
   const [page, setPage] = React.useState(0)
   const rootRef = React.useRef<HTMLDivElement>(null)
 
-  // A new search/facet resets to the first page so results are never off-screen.
-  React.useEffect(() => setPage(0), [query, facetValues])
+  // A new search/facet/sort resets to the first page so results are never
+  // off-screen.
+  React.useEffect(() => setPage(0), [query, facetValues, sortBy, sortDir])
 
-  // Emit query/facets to the app (skip the initial mount). The query is already
-  // debounced upstream by SearchInput; facet changes are immediate.
+  // Emit the query state to the app (skip the initial mount). The query is
+  // already debounced upstream by SearchInput; facet + sort changes are immediate.
   const mounted = React.useRef(false)
   React.useEffect(() => {
     if (!mounted.current) {
       mounted.current = true
       return
     }
-    onQueryChange?.({ query, facetValues })
-  }, [query, facetValues, onQueryChange])
+    onQueryChange?.({ query, facetValues, sortBy, sortDir })
+  }, [query, facetValues, sortBy, sortDir, onQueryChange])
 
   const visibleConfig = useIsVisible(config)
   if (!visibleConfig) return null
 
   // limit → (builder filter + facets) → search → sort → paginate (see selectRows).
-  // serverSide: skip the in-memory pipeline — render whatever `data` we're given.
+  // The user's live sort overrides the declared one; everything else is config.
+  // serverSide: skip the in-memory pipeline entirely — render whatever `data`
+  // we're given and let the app sort at the source (we only emit).
   const slice = serverSide
     ? {
         visible: data,
@@ -93,12 +106,21 @@ function CollectionFrame<T>({
         pageCount: 1,
         page: 0,
       }
-    : selectRows(data, config, { query, searchKeys, page, facetValues })
+    : selectRows(
+        data,
+        { ...config, sortBy, sortDir },
+        { query, searchKeys, page, facetValues }
+      )
   const { visible, filtered, pageCount, page: current } = slice
 
   const showFilterBar = config.userFilter && config.filterFacets.length > 0
+  const showSort = config.sortable && config.sortOptions.length > 0
   const showHeader =
-    config.title || config.showCount || config.searchable || showFilterBar
+    config.title ||
+    config.showCount ||
+    config.searchable ||
+    showFilterBar ||
+    showSort
   const canClear =
     query !== "" || Object.values(facetValues).some((v) => v !== "")
 
@@ -157,6 +179,17 @@ function CollectionFrame<T>({
               resultCount={filtered.length}
             />
           ) : null
+          const sortControl = showSort ? (
+            <SortControl
+              options={config.sortOptions}
+              sortBy={sortBy}
+              sortDir={sortDir}
+              onChange={(by, dir) => {
+                setSortBy(by)
+                setSortDir(dir)
+              }}
+            />
+          ) : null
 
           // Mobile: fold the live count into the search placeholder (e.g.
           // "Search 3 roles…") so the header can stay ONE row with no separate
@@ -184,17 +217,23 @@ function CollectionFrame<T>({
                 ) : (
                   <div className="min-w-0 flex-1">{titleBlock}</div>
                 )}
-                {showFilterBar && (
+                {(showFilterBar || showSort) && (
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
                         type="button"
                         variant="outline"
                         size="icon"
-                        aria-label="Filters"
+                        aria-label={
+                          showFilterBar && showSort
+                            ? "Filters and sort"
+                            : showSort
+                              ? "Sort"
+                              : "Filters"
+                        }
                         className="relative size-8 shrink-0"
                       >
-                        <Filter />
+                        {showFilterBar ? <Filter /> : <ArrowUpDown />}
                         {canClear && (
                           <span
                             aria-hidden
@@ -205,10 +244,12 @@ function CollectionFrame<T>({
                     </PopoverTrigger>
                     <PopoverContent
                       align="end"
-                      className="w-[min(20rem,calc(100vw-2rem))]"
+                      className="flex w-[min(20rem,calc(100vw-2rem))] flex-col gap-3"
                     >
-                      {/* The same FilterBar the desktop layout renders (built
-                          once as `filterBar` above) — just placed in a popover. */}
+                      {/* The same controls the desktop layout renders (built
+                          once above) — just stacked into a popover, since the
+                          phone header is ONE row: search + this trigger. */}
+                      {sortControl}
                       {filterBar}
                     </PopoverContent>
                   </Popover>
@@ -218,12 +259,17 @@ function CollectionFrame<T>({
               {/* ≥ sm: the desktop/tablet layout — UNCHANGED. "inline" = title +
                   search + filters on one wrapping row; "stacked" (default) =
                   title+search row with the filter bar on its own line below. */}
+              {/* ≥ sm: "inline" = title + search + filters + sort on one
+                  wrapping row; "stacked" (default) = title+search row with the
+                  filters and sort together on the row below — sort is IN the
+                  header, aligned with the filters, never a bolted-on strip. */}
               <div className="hidden sm:block">
                 {config.headerLayout === "inline" ? (
                   <div className="flex flex-wrap items-center gap-2">
                     {titleBlock}
                     {searchBox}
                     {filterBar}
+                    {sortControl}
                   </div>
                 ) : (
                   <div className="flex flex-col gap-3">
@@ -231,7 +277,12 @@ function CollectionFrame<T>({
                       {titleBlock}
                       {searchBox}
                     </div>
-                    {filterBar}
+                    {(filterBar || sortControl) && (
+                      <div className="flex flex-wrap items-center gap-2">
+                        {filterBar}
+                        {sortControl}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

@@ -443,6 +443,18 @@ const searchableFacetCfg: CollectionConfig = {
     // so an open-ended numeric field still filters.
     { field: "commits", label: "Commits", control: "range" },
   ],
+  // "Best match" is directionless — picking it DISABLES the asc/desc toggle
+  // rather than silently ignoring it. It's deliberately not the default sort:
+  // landing on a greyed-out toggle is a poor answer to "am I A→Z or Z→A?".
+  sortable: true,
+  sortBy: "name",
+  sortDir: "asc",
+  sortOptions: [
+    { value: "name", label: "Name" },
+    { value: "city", label: "City" },
+    { value: "commits", label: "Commits", defaultDir: "desc" },
+    { value: "relevance", label: "Best match", directionless: true },
+  ],
 }
 
 export default function ComponentsGallery() {
@@ -793,11 +805,14 @@ export default function ComponentsGallery() {
                 />
               </Demo>
 
-              {/* SEARCHABLE ASYNC FACET — the City facet is a combobox whose
-                  options load from onSearch as you type (a mock server here), so
-                  a field with hundreds of values never loads them all. Seeded
-                  with a few cities before the first keystroke. */}
-              <Demo name="List · searchable async facet" span={3}>
+              {/* SEARCHABLE ASYNC FACET + SORT + MULTI-FIELD ROWS — the City
+                  facet is a combobox whose options load from onSearch as you
+                  type (a mock server here), so a field with hundreds of values
+                  never loads them all. The header also carries the sort control
+                  (note "Best match" disables the direction toggle), and each row
+                  uses `fields` to show more than title+subtitle — so sorting by
+                  Commits is visible on the row you're sorting. */}
+              <Demo name="List · searchable async facet + sort" span={3}>
                 <CollectionFrame
                   config={searchableFacetCfg}
                   data={peopleData}
@@ -807,7 +822,11 @@ export default function ComponentsGallery() {
                       items={rows.map((p) => ({
                         id: p.id,
                         title: p.name,
-                        subtitle: `${p.role} · ${p.city}`,
+                        subtitle: p.role,
+                        fields: [
+                          { label: "City", value: p.city },
+                          { label: "Commits", value: p.commits },
+                        ],
                         leading: (
                           <Avatar className="size-9">
                             <AvatarFallback>

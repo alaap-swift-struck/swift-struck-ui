@@ -198,6 +198,27 @@ export interface FacetOption {
   count?: number
 }
 
+/** Past this many options a pick-a-value control searches itself, so a host
+ * can't accidentally ship an unsearchable 200-item dropdown. Below it, a search
+ * box is noise. One constant so every control agrees (FilterBar, SortControl). */
+export const SEARCHABLE_THRESHOLD = 8
+
+/** One field the user may sort by. `value` is the row field. */
+export interface SortOption {
+  value: string
+  label: string
+  /** The direction applied when this option is PICKED. Dates want `"desc"`
+   * (newest first), names want `"asc"` — landing on oldest-first reads as
+   * broken. Defaults to `"asc"`. The user can still flip it afterwards. */
+  defaultDir?: "asc" | "desc"
+  /** This option has no meaningful direction (e.g. best-match relevance). The
+   * asc/desc toggle is DISABLED while it's active rather than silently ignored.
+   * Don't make a directionless option the default `sortBy` — the user then
+   * lands on a greyed-out toggle, which answers "am I A→Z or Z→A?" with
+   * nothing. */
+  directionless?: boolean
+}
+
 /** A user-facing filter control. A chosen value becomes an `is` Rule on `field`,
  * run through the SAME `evaluateRules` engine as the builder `filter` (no new
  * matching engine). `control` is just presentation: a dropdown or chips. When
@@ -236,8 +257,19 @@ export interface CollectionConfig extends BaseConfig {
   /** Builder-side conditions (always applied). User-facing facets live in
    * `filterFacets` and are ANDed with these. */
   filter: Rule[]
+  /** The INITIAL sort. When `sortable` is on this seeds the header control and
+   * the user's live choice takes over from there (state, not config — the same
+   * split as `filter` vs `filterFacets`). Read the live value off
+   * CollectionFrame's `onQueryChange`. */
   sortBy: string
   sortDir: "asc" | "desc"
+  /** Show a USER-facing sort control in the header (the `sortOptions` below),
+   * on the same row as search and the filters. Separate from `sortBy`/`sortDir`,
+   * which only declare where it starts. */
+  sortable: boolean
+  /** The fields offered when `sortable` is on. Past SEARCHABLE_THRESHOLD the
+   * picker searches itself. Empty = no control even if `sortable` is true. */
+  sortOptions: SortOption[]
   /** Cap the TOTAL rows shown (null = no cap). Separate from itemsPerPage. */
   limit: number | null
   /** Rows per page (null = no pagination, show everything). */
@@ -268,6 +300,8 @@ export const defaultCollectionConfig: CollectionConfig = {
   filter: [],
   sortBy: "",
   sortDir: "asc",
+  sortable: false,
+  sortOptions: [],
   limit: null,
   itemsPerPage: null,
   scrollToTop: true,
