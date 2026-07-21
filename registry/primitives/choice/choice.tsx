@@ -205,11 +205,10 @@ function Choice({
         />
       )}
       <CommandList>
-        <CommandEmpty>{config.emptyText}</CommandEmpty>
         {showCreate && (
-          // forceMount so cmdk's own text filter can't drop this row — we've
-          // already decided it should show (the query matches no option), and
-          // its label is escaped React text, never HTML.
+          // The create row sits at the TOP. forceMount so cmdk's own text filter
+          // can't drop it — we've already decided it should show (the query
+          // matches no option); its label is escaped React text, never HTML.
           <CommandGroup forceMount>
             <CommandItem
               forceMount
@@ -222,6 +221,9 @@ function Choice({
             </CommandItem>
           </CommandGroup>
         )}
+        {/* Suppress "no options" when a create row is offered — otherwise the
+            list reads "No options found." right above an "Add …" action. */}
+        {!showCreate && <CommandEmpty>{config.emptyText}</CommandEmpty>}
         <CommandGroup>
           {ordered.map((o) => {
             const active = isSelected(o.value)
