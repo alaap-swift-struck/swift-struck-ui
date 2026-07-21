@@ -3,7 +3,7 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 90 components** (64 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 166 across 27 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async/range filter facets · in-header sort control · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
+> **Built: 90 components** (64 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 172 across 27 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async/range filter facets · creatable Choice · in-header sort control · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
 
 > The live counts are authoritative from `registry.json` (components) and
 > `npm run guardrails` ("N modules", which also counts logic + test files).
@@ -11,6 +11,29 @@ what's built and what's left.
 > **Glide config reference:** see `GLIDE-CONFIG-RESEARCH.md` — every component's real Glide config options, the source of truth for parity.
 
 ---
+
+## ✅ Built — creatable Choice (type a value that isn't in the list) (v0.8.0)
+
+Additive, backward-compatible (package bumped 0.7.1 → 0.8.0). Opt-in; every existing
+options-only `Choice` is byte-for-byte unchanged.
+
+- [x] **`ChoiceConfig.creatable`** — when the trimmed search matches no option, a
+      "create" row appears at the top of the list (`dropdown` + `chips`; `pills` has
+      no input). Selecting it uses the typed value through the normal
+      `onChange(value: string[])` — no new required callback.
+- [x] **`ChoiceConfig.createLabel`** — the row's label; `{query}` → the trimmed search
+      text. Default `Add "{query}"`. Rendered as escaped React text.
+- [x] **`onCreate?(value)` prop** — fires alongside `onChange` so a host can persist the
+      new value as a real option (e.g. write to a table). Opt-in; a host that reconciles
+      from `value` alone ignores it. Never fired for a value matching an existing option.
+- [x] **Trim + dedupe** — a typed value that (case-insensitively, after trim) equals an
+      existing option selects that option instead of a near-duplicate.
+- [x] **XSS-safe** — the created value renders as escaped text, never HTML (hostile-input
+      test included). The create row survives cmdk's own text filter via `forceMount`, so
+      it shows whenever we've decided it should, regardless of query whitespace.
+- [x] Six new tests (create / template / dedupe / off-by-default / XSS / multi-accumulate);
+      live gallery demo "Choice · creatable (type a new value)" whose `onCreate` persists
+      the value as a new option. Verified on staging at 375 / 768 / 1710 px.
 
 ## ✅ Built — release hygiene: tags, clean package, honest install docs (v0.7.1)
 

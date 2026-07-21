@@ -94,14 +94,14 @@ CONFIG-REFERENCE.md.
 
 ## Form elements
 
-| Glide                               | Swift Struck UI | Notes                        |
-| ----------------------------------- | --------------- | ---------------------------- |
-| Text / Email / Phone / Number Entry | ✅ input        | Typed variants of one Input. |
-| Switch                              | ✅ switch       |                              |
-| Choice                              | ✅ choice       |                              |
-| Checkbox                            | ✅ checkbox     |                              |
-| Date / Date Time                    | ✅ date-picker  | Calendar-input batch.        |
-| Image Picker / File Picker          | ✅ file-upload  | Upload batch.                |
+| Glide                               | Swift Struck UI | Notes                                                                                |
+| ----------------------------------- | --------------- | ------------------------------------------------------------------------------------ |
+| Text / Email / Phone / Number Entry | ✅ input        | Typed variants of one Input.                                                         |
+| Switch                              | ✅ switch       |                                                                                      |
+| Choice                              | ✅ choice       | single/multi · dropdown/chips/pills · searchable · **creatable** (type a new value). |
+| Checkbox                            | ✅ checkbox     |                                                                                      |
+| Date / Date Time                    | ✅ date-picker  | Calendar-input batch.                                                                |
+| Image Picker / File Picker          | ✅ file-upload  | Upload batch.                                                                        |
 
 ## Advanced
 

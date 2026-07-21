@@ -97,7 +97,8 @@ const CATALOG: CatalogItem[] = [
   {
     name: "Choice",
     category: "Inputs",
-    blurb: "Pick one or many — as a searchable dropdown, chips, or pills.",
+    blurb:
+      "Pick one or many — as a searchable dropdown, chips, or pills. Set creatable to let a user type a value that isn't in the list and use it.",
   },
   { name: "Checkbox", category: "Inputs", blurb: "A single on/off tick box." },
   { name: "Switch", category: "Inputs", blurb: "A toggle switch (on/off)." },

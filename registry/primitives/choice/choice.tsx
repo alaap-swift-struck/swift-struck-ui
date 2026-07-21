@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Check, ChevronsUpDown, X } from "lucide-react"
+import { Check, ChevronsUpDown, Plus, X } from "lucide-react"
 
 import { type BaseConfig, defaultBaseConfig } from "../../../lib/config"
 import { cn } from "../../../lib/utils"
@@ -41,6 +41,14 @@ export interface ChoiceConfig extends BaseConfig {
   searchPlaceholder: string
   /** Text shown when no options match the search. */
   emptyText: string
+  /** Allow using a typed value that isn't in `options` — a "create" row appears
+   *  at the top of the list when the search text matches no existing option.
+   *  Applies to `dropdown` and `chips` (the searchable displays); `pills` has no
+   *  text input so it's unaffected. Forces the search box on when true. */
+  creatable: boolean
+  /** The create row's label. `{query}` is replaced with the trimmed search text
+   *  (rendered as escaped text, never HTML). E.g. `Add "{query}"`. */
+  createLabel: string
 }
 
 export const defaultChoiceConfig: ChoiceConfig = {
@@ -53,6 +61,8 @@ export const defaultChoiceConfig: ChoiceConfig = {
   placeholder: "Select…",
   searchPlaceholder: "Search…",
   emptyText: "No options found.",
+  creatable: false,
+  createLabel: 'Add "{query}"',
 }
 
 /* ------------------------------ component ------------------------------ */
@@ -68,11 +78,26 @@ export interface ChoiceProps {
   value: string[]
   onChange: (value: string[]) => void
   config: ChoiceConfig
+  /** Fired (in addition to `onChange`) when a `creatable` value that isn't in
+   *  `options` is used — the host can persist it as a new option. The value is
+   *  also in the next `onChange`, so a host that reconciles from `value` alone
+   *  can ignore this. Never fired for a value that matches an existing option. */
+  onCreate?: (value: string) => void
   className?: string
 }
 
-function Choice({ options, value, onChange, config, className }: ChoiceProps) {
+function Choice({
+  options,
+  value,
+  onChange,
+  config,
+  onCreate,
+  className,
+}: ChoiceProps) {
   const [open, setOpen] = React.useState(false)
+  // Controlled search text — needed so the creatable "create" row can read the
+  // query, decide whether it matches an existing option, and label itself.
+  const [query, setQuery] = React.useState("")
   const labelOf = (v: string) => options.find((o) => o.value === v)?.label ?? v
   const isSelected = (v: string) => value.includes(v)
   const atMax =
@@ -100,6 +125,47 @@ function Choice({ options, value, onChange, config, className }: ChoiceProps) {
       ),
     [options, value] // eslint-disable-line react-hooks/exhaustive-deps
   )
+
+  // Reopening should start clean — clear the search on every close path (picking
+  // an option, Escape, clicking outside), not just the popover's onOpenChange.
+  React.useEffect(() => {
+    if (!open) setQuery("")
+  }, [open])
+
+  const trimmedQuery = query.trim()
+  const matchesExisting = (v: string) =>
+    options.some(
+      (o) =>
+        o.value.toLowerCase() === v.toLowerCase() ||
+        o.label.toLowerCase() === v.toLowerCase()
+    )
+  // Show the create row only when the host opted in, there IS a query, it
+  // matches no existing option (case-insensitive), and we're not at the max.
+  const showCreate =
+    config.creatable &&
+    trimmedQuery !== "" &&
+    !matchesExisting(trimmedQuery) &&
+    !atMax
+
+  function create() {
+    const v = trimmedQuery
+    if (!v) return
+    // Trim + dedupe: a typed value that equals an existing option (any case)
+    // selects that option instead of making a near-duplicate — and never fires
+    // onCreate, since nothing new was created.
+    const existing = options.find(
+      (o) =>
+        o.value.toLowerCase() === v.toLowerCase() ||
+        o.label.toLowerCase() === v.toLowerCase()
+    )
+    if (existing) {
+      toggle(existing.value)
+    } else {
+      onCreate?.(v)
+      toggle(v)
+    }
+    setQuery("")
+  }
 
   const visible = useIsVisible(config)
   if (!visible) return null
@@ -131,11 +197,31 @@ function Choice({ options, value, onChange, config, className }: ChoiceProps) {
 
   const list = (
     <Command>
-      {config.searchable && (
-        <CommandInput placeholder={config.searchPlaceholder} />
+      {(config.searchable || config.creatable) && (
+        <CommandInput
+          value={query}
+          onValueChange={setQuery}
+          placeholder={config.searchPlaceholder}
+        />
       )}
       <CommandList>
         <CommandEmpty>{config.emptyText}</CommandEmpty>
+        {showCreate && (
+          // forceMount so cmdk's own text filter can't drop this row — we've
+          // already decided it should show (the query matches no option), and
+          // its label is escaped React text, never HTML.
+          <CommandGroup forceMount>
+            <CommandItem
+              forceMount
+              value={`__create__${trimmedQuery}`}
+              onSelect={create}
+              className="text-primary"
+            >
+              <Plus />
+              {config.createLabel.replace("{query}", trimmedQuery)}
+            </CommandItem>
+          </CommandGroup>
+        )}
         <CommandGroup>
           {ordered.map((o) => {
             const active = isSelected(o.value)

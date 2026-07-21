@@ -562,6 +562,25 @@ export default function ComponentsGallery() {
     display: "chips",
     max: 3,
   })
+  // Creatable: a product-attribute picker. Typing a value the group lacks (e.g.
+  // "Brass") offers an "Add" row; onCreate appends it as a real option so it
+  // persists, and onChange selects it — all without leaving the field.
+  const [materials, setMaterials] = React.useState([
+    { value: "steel", label: "Steel" },
+    { value: "aluminium", label: "Aluminium" },
+    { value: "copper", label: "Copper" },
+  ])
+  const [material, setMaterial] = React.useState<string[]>([])
+  const [materialCfg, setMaterialCfg] = React.useState<Record<string, unknown>>(
+    {
+      ...defaultChoiceConfig,
+      mode: "single",
+      display: "dropdown",
+      creatable: true,
+      placeholder: "Set material…",
+      searchPlaceholder: "Search or type a new material…",
+    }
+  )
 
   // Data-driven collection/content demos.
   const [tableCfg, setTableCfg] = React.useState<Record<string, unknown>>(
@@ -1540,6 +1559,29 @@ export default function ComponentsGallery() {
                   onChange={setChips}
                   config={chipsCfg as unknown as ChoiceConfig}
                 />
+              </Demo>
+              <Demo
+                name="Choice · creatable (type a new value)"
+                config={materialCfg}
+                setConfig={setMaterialCfg}
+                enums={choiceEnums}
+              >
+                <div className="w-full">
+                  <Choice
+                    options={materials}
+                    value={material}
+                    onChange={setMaterial}
+                    // Persist a typed-new value as a real option so it sticks.
+                    onCreate={(v) =>
+                      setMaterials((m) =>
+                        m.some((o) => o.value.toLowerCase() === v.toLowerCase())
+                          ? m
+                          : [...m, { value: v, label: v }]
+                      )
+                    }
+                    config={materialCfg as unknown as ChoiceConfig}
+                  />
+                </div>
               </Demo>
 
               <VariantGroup

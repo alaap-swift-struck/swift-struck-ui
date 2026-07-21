@@ -271,14 +271,35 @@ How any displayed text handles being too long. Never grows width left-to-right.
 
 ### `ChoiceConfig` (Choice)
 
-| Field                                             | Type                               | What it does                                                                                        |
-| ------------------------------------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `mode`                                            | `"single" \| "multi"`              | Pick one value, or many.                                                                            |
-| `display`                                         | `"dropdown" \| "chips" \| "pills"` | `dropdown` = trigger + searchable list · `chips` = removable tags + add · `pills` = inline toggles. |
-| `searchable`                                      | `boolean`                          | Show a search box inside the dropdown list.                                                         |
-| `clearable`                                       | `boolean`                          | Allow clearing the whole selection.                                                                 |
-| `max`                                             | `number \| null`                   | Max selections in multi mode (`null` = unlimited).                                                  |
-| `placeholder` / `searchPlaceholder` / `emptyText` | `string`                           | Empty-state, search-box, and no-matches text.                                                       |
+| Field                                             | Type                               | What it does                                                                                                                                                                |
+| ------------------------------------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mode`                                            | `"single" \| "multi"`              | Pick one value, or many.                                                                                                                                                    |
+| `display`                                         | `"dropdown" \| "chips" \| "pills"` | `dropdown` = trigger + searchable list · `chips` = removable tags + add · `pills` = inline toggles.                                                                         |
+| `searchable`                                      | `boolean`                          | Show a search box inside the dropdown list.                                                                                                                                 |
+| `clearable`                                       | `boolean`                          | Allow clearing the whole selection.                                                                                                                                         |
+| `max`                                             | `number \| null`                   | Max selections in multi mode (`null` = unlimited).                                                                                                                          |
+| `placeholder` / `searchPlaceholder` / `emptyText` | `string`                           | Empty-state, search-box, and no-matches text.                                                                                                                               |
+| `creatable`                                       | `boolean`                          | Allow using a **typed value not in `options`** — a "create" row appears when the search matches no option. Default `false`. `dropdown`/`chips` only (`pills` has no input). |
+| `createLabel`                                     | `string`                           | The create row's label; `{query}` → the trimmed search text (escaped, never HTML). Default `Add "{query}"`.                                                                 |
+
+**Creatable Choice (`creatable: true`)** — the classic "type a value that isn't in the list" combobox, for flows like setting a product attribute ("Material") to a value the group doesn't have yet, without breaking off to a separate screen.
+
+- A **create row** shows at the top of the list when the trimmed search text matches **no** existing option (case-insensitive against both `value` and `label`).
+- Selecting it emits the typed value through the normal **`onChange(value: string[])`** — the created value simply becomes a selected value (added in `multi`, replaces in `single`).
+- Optional prop **`onCreate?(value): void`** fires _alongside_ `onChange` so the host can persist the new value as a real option (e.g. write it to a table). It's opt-in — a host that reconciles from `value` alone can ignore it. **Never fired for a value that matches an existing option.**
+- **Trim + dedupe:** a typed value that (case-insensitively, after trim) equals an existing option **selects that option** instead of making a near-duplicate — and does not fire `onCreate`.
+- **XSS-safe:** the created value renders as escaped React text, never HTML — the same guarantee as every other Choice value.
+- Backward compatible: `creatable` defaults to `false`; every existing options-only `Choice` is unchanged.
+
+```tsx
+<Choice
+  options={materials}
+  value={material}
+  onChange={setMaterial}
+  onCreate={(v) => persistNewMaterial(v)} // optional — value is also in onChange
+  config={{ ...defaultChoiceConfig, creatable: true }}
+/>
+```
 
 ### `DataTableConfig` (Data Table)
 
