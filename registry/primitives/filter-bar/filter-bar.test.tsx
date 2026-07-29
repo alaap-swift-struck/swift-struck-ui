@@ -133,6 +133,13 @@ describe("FilterBar", () => {
     expect(onClearAll).not.toHaveBeenCalled()
   })
 
+  // NOT UNIT-TESTABLE HERE: a cleared select facet used to keep displaying its
+  // old value, because `value={val || undefined}` hands Radix `undefined` and
+  // switches the Select to UNCONTROLLED. jsdom does NOT reproduce it — it shows
+  // the placeholder either way (probed both branches) — so a test here would
+  // pass whether or not the bug is present. Fixed in filter-bar.tsx by passing
+  // `value={val}`, and verified in a real browser on staging instead.
+
   it("shows no per-facet clear when that facet is inactive", () => {
     const selects: FilterFacet[] = [
       { field: "status", label: "Status", control: "select" },

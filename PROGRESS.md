@@ -51,6 +51,16 @@ breaks by upgrading; two items need host opt-in to take effect (marked ⚙).
 - [x] **Per-facet clear in FilterBar.** Clearing ONE active facet meant "Clear all" and
       rebuilding the rest. Searchable/range facets already had a ✕; the plain `select`
       facet now gets one too (Radix Select has no native clear). "Clear all" is unchanged.
+- [x] **FIX found while verifying the above (pre-existing, also hit "Clear all"):** a
+      cleared select facet kept _displaying_ its old value. Two causes: the Select was
+      handed `undefined` when empty, which switches it to UNCONTROLLED; and even
+      controlled with an empty string, Radix's `SelectValue` caches the chosen item's
+      text node, so clearing never restores the placeholder. Fixed by passing the value
+      through as-is plus remounting on the set↔empty transition. **jsdom does not
+      reproduce this** (it shows the placeholder either way — both branches probed), so
+      there is no unit test: it is verified in a real browser on staging instead, and the
+      reasoning is recorded in the code and the test file so nobody "adds the missing
+      test" and gets false confidence.
 
 ## ✅ Built — creatable Choice (type a value that isn't in the list) (v0.8.0)
 

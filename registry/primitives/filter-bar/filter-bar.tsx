@@ -477,8 +477,18 @@ function FilterBar<T>({
         // mean "Clear all" and rebuilding the rest of the selection.
         return (
           <div key={f.field} className="flex items-center gap-1">
+            {/* Two separate things were wrong here. `val || undefined` handed
+                Radix `undefined`, which switches the Select to UNCONTROLLED;
+                and even controlled with "", Radix's SelectValue caches the
+                chosen item's text node, so clearing does NOT restore the
+                placeholder — the trigger kept reading "Active" after the facet
+                was cleared (this bit "Clear all" too, not just the per-facet
+                ✕). Remounting on the set↔empty transition is the reliable
+                reset: the key changes only on that transition, not per pick.
+                NB jsdom does not reproduce this — verify in a real browser. */}
             <Select
-              value={val || undefined}
+              key={val === "" ? "empty" : "set"}
+              value={val}
               onValueChange={(v) => onChange(f.field, v)}
             >
               <SelectTrigger
