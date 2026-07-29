@@ -397,9 +397,23 @@
 }
 
 @layer components {
+  /* Never shear letters: an overflowing placeholder ends in an ellipsis rather
+     than a hard clip, at any width. The value side is handled by the Input
+     primitive's `truncate`; this covers the placeholder, which `truncate`
+     cannot reach (it's a pseudo-element). */
+  input::placeholder,
+  textarea::placeholder {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
   .required-ring {
     position: relative;
-    border-radius: var(--radius-md);
+    /* Inheritable: a wrapped control can publish its own corner radius via
+       --ss-ring-radius so the ring hugs a pill/rounded trigger instead of
+       drawing a rectangle around it. Defaults to the input radius. */
+    border-radius: var(--ss-ring-radius, var(--radius-md));
   }
   .required-ring::before {
     content: "";

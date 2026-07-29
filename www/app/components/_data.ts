@@ -159,6 +159,32 @@ export const ROLES = [
   "Sales",
 ]
 export const STATUSES = ["Active", "Away", "Offline"]
+// Currencies — a long list whose labels are far wider than the control. Each
+// carries a `triggerLabel` so the CLOSED trigger shows the compact code ("INR")
+// while the menu shows the full name, instead of shearing "INR — Indian F…".
+export const currencyOptions = [
+  { value: "INR", label: "INR — Indian Rupee", triggerLabel: "INR" },
+  { value: "USD", label: "USD — United States Dollar", triggerLabel: "USD" },
+  { value: "EUR", label: "EUR — Euro", triggerLabel: "EUR" },
+  { value: "GBP", label: "GBP — Pound Sterling", triggerLabel: "GBP" },
+  { value: "JPY", label: "JPY — Japanese Yen", triggerLabel: "JPY" },
+  { value: "AUD", label: "AUD — Australian Dollar", triggerLabel: "AUD" },
+  { value: "CAD", label: "CAD — Canadian Dollar", triggerLabel: "CAD" },
+  { value: "CHF", label: "CHF — Swiss Franc", triggerLabel: "CHF" },
+  { value: "CNY", label: "CNY — Chinese Yuan Renminbi", triggerLabel: "CNY" },
+  { value: "SGD", label: "SGD — Singapore Dollar", triggerLabel: "SGD" },
+  { value: "AED", label: "AED — UAE Dirham", triggerLabel: "AED" },
+  { value: "ZAR", label: "ZAR — South African Rand", triggerLabel: "ZAR" },
+  { value: "BRL", label: "BRL — Brazilian Real", triggerLabel: "BRL" },
+  { value: "MXN", label: "MXN — Mexican Peso", triggerLabel: "MXN" },
+  { value: "SEK", label: "SEK — Swedish Krona", triggerLabel: "SEK" },
+  { value: "NOK", label: "NOK — Norwegian Krone", triggerLabel: "NOK" },
+  { value: "NZD", label: "NZD — New Zealand Dollar", triggerLabel: "NZD" },
+  { value: "KRW", label: "KRW — South Korean Won", triggerLabel: "KRW" },
+  { value: "THB", label: "THB — Thai Baht", triggerLabel: "THB" },
+  { value: "PLN", label: "PLN — Polish Zloty", triggerLabel: "PLN" },
+]
+
 // A long value list — the kind you'd never load into a plain dropdown. Used by
 // the "searchable async facet" demo to stand in for a server-backed field.
 export const CITIES = [

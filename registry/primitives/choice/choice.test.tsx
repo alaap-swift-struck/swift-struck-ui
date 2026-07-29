@@ -26,6 +26,62 @@ describe("Choice (pills)", () => {
   })
 })
 
+describe("Choice trigger label + truncation floor", () => {
+  const currencies = [
+    { value: "inr", label: "INR — Indian Rupee", triggerLabel: "INR" },
+    { value: "usd", label: "USD — US Dollar", triggerLabel: "USD" },
+  ]
+
+  it("shows the compact triggerLabel in the closed control", () => {
+    render(
+      <Choice
+        options={currencies}
+        value={["inr"]}
+        onChange={() => {}}
+        config={{ ...defaultChoiceConfig }}
+      />
+    )
+    const trigger = screen.getByRole("combobox")
+    expect(trigger.textContent).toContain("INR")
+    // the long form is NOT crammed into the trigger…
+    expect(trigger.textContent).not.toContain("Indian Rupee")
+    // …but stays reachable as the hover title
+    expect(trigger.querySelector('[title="INR — Indian Rupee"]')).toBeTruthy()
+  })
+
+  it("shows the FULL label in the open menu", () => {
+    render(
+      <Choice
+        options={currencies}
+        value={["inr"]}
+        onChange={() => {}}
+        config={{ ...defaultChoiceConfig }}
+      />
+    )
+    fireEvent.click(screen.getByRole("combobox"))
+    expect(screen.getByText("INR — Indian Rupee")).toBeTruthy()
+  })
+
+  it("falls back to label, and can shrink so text ellipsises instead of shearing", () => {
+    const plain = [{ value: "a", label: "A very long option label indeed" }]
+    render(
+      <Choice
+        options={plain}
+        value={["a"]}
+        onChange={() => {}}
+        config={{ ...defaultChoiceConfig }}
+      />
+    )
+    const trigger = screen.getByRole("combobox")
+    expect(trigger.textContent).toContain("A very long option label indeed")
+    // min-w-0 is what lets the flex child shrink; without it the label is
+    // hard-clipped mid-letter instead of ellipsising.
+    const span = trigger.querySelector("span")
+    expect(span?.className).toMatch(/min-w-0/)
+    expect(trigger.querySelector(".truncate")).toBeTruthy()
+  })
+})
+
 describe("Choice (creatable)", () => {
   const creatable = (over = {}) => ({
     ...defaultChoiceConfig,

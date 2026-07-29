@@ -103,7 +103,12 @@ function Form({
               {f.label}
               {f.required && <span className="text-destructive"> *</span>}
             </Label>
-            {/* required text-like fields get the animated teal ring */}
+            {/* Required text-like fields get the animated teal ring. Mirrors
+                Field's `shape` rule (primitives/field/field.tsx): only a single
+                rectangular control is ringed — a switch is not box-shaped, so
+                its asterisk carries "required" instead. Any future non-input
+                field type (a pill/chip group) belongs on this exclusion list
+                too, or it gets a gold rectangle drawn around the whole group. */}
             <div
               className={cn(
                 f.required && f.type !== "switch" && "required-ring"

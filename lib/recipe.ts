@@ -121,6 +121,19 @@ export interface RecipeTab {
   label: string
   /** lucide icon name (kebab-case), optional. */
   icon?: string
+  /** Count/status shown as a pill after the label (e.g. `"12"`, `"3 new"`).
+   *  Pre-formatted by the host — the renderer never computes it. Omit for none. */
+  badge?: string
+  /** Badge tone, passed through to the Tabs primitive. Omit for the default.
+   *  Kept in step with the Badge primitive's variants on purpose — a recipe is
+   *  data, so an unknown tone must fail at the type level, not render wrong. */
+  badgeVariant?:
+    | "default"
+    | "secondary"
+    | "outline"
+    | "destructive"
+    | "success"
+    | "warning"
   block: RecipeBlock
 }
 

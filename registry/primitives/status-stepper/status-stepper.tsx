@@ -53,11 +53,17 @@ function StatusStepper({
   const interactive = !disabled && typeof onChange === "function"
 
   return (
-    <div className={cn("w-full", className)}>
+    // The horizontal scroll lives on the WRAPPER, not the <ol>. Per CSS, an
+    // element with `overflow-x: auto` and a visible `overflow-y` computes the
+    // y-axis to `auto` too — so a scrolling <ol> was a scroll box in BOTH axes
+    // and clipped the active pill's ring-2 + ring-offset-2 (~4px outside the
+    // pill). The wrapper scrolls; the <ol> keeps `overflow-visible` plus a
+    // little vertical padding, so the ring is never cut at any root font-size.
+    <div className={cn("w-full overflow-x-auto", className)}>
       <ol
         role="group"
         aria-label="Status"
-        className="flex min-w-0 items-center gap-1 overflow-x-auto"
+        className="flex min-w-0 items-center gap-1 overflow-visible py-1"
       >
         {stages.map((stage, i) => {
           const reached = activeIndex >= 0 && i <= activeIndex

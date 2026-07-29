@@ -629,8 +629,8 @@ function renderDetail(
             value: t.key,
             label: t.label,
             icon: t.icon ?? "",
-            badge: "",
-            badgeVariant: "",
+            badge: t.badge ?? "",
+            badgeVariant: t.badgeVariant ?? "",
           })),
         }}
         onValueChange={(v) => onIntent?.({ kind: "tab", tab: v })}

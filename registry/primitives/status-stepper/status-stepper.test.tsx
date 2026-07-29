@@ -59,4 +59,22 @@ describe("StatusStepper", () => {
       .querySelectorAll("button")
       .forEach((b) => expect((b as HTMLButtonElement).disabled).toBe(true))
   })
+
+  it("scrolls on the WRAPPER, not the <ol> — else the active ring is clipped", () => {
+    // The active pill's ring-2 + ring-offset-2 paints ~4px OUTSIDE the pill.
+    // Per CSS, `overflow-x: auto` with a visible overflow-y computes the y-axis
+    // to `auto` as well, so a scrolling <ol> became a scroll box in BOTH axes
+    // and sheared that ring off. Keep the scroll on the wrapper.
+    const { container } = render(
+      <StatusStepper stages={stages} value="in-progress" />
+    )
+    const wrapper = container.firstElementChild as HTMLElement
+    const list = container.querySelector("ol") as HTMLElement
+
+    expect(wrapper.className).toMatch(/overflow-x-auto/)
+    expect(list.className).not.toMatch(/overflow-x-auto/)
+    expect(list.className).toMatch(/overflow-visible/)
+    // vertical breathing room so the ring offset has somewhere to paint
+    expect(list.className).toMatch(/\bpy-/)
+  })
 })

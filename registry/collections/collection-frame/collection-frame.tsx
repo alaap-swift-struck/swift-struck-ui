@@ -41,6 +41,7 @@ function CollectionFrame<T>({
   renderItems,
   serverSide = false,
   onQueryChange,
+  modal = false,
   className,
 }: {
   config: CollectionConfig
@@ -62,6 +63,9 @@ function CollectionFrame<T>({
     sortBy: string
     sortDir: "asc" | "desc"
   }) => void
+  /** Set `true` when the collection can render inside a Dialog/Sheet, so the
+   *  filter/sort popovers stay scrollable under the dialog's scroll lock. */
+  modal?: boolean
   className?: string
 }) {
   const [query, setQuery] = React.useState("")
@@ -177,6 +181,7 @@ function CollectionFrame<T>({
               onClearAll={clearAll}
               canClear={canClear}
               resultCount={filtered.length}
+              modal={modal}
             />
           ) : null
           const sortControl = showSort ? (
@@ -188,6 +193,7 @@ function CollectionFrame<T>({
                 setSortBy(by)
                 setSortDir(dir)
               }}
+              modal={modal}
             />
           ) : null
 
@@ -218,7 +224,7 @@ function CollectionFrame<T>({
                   <div className="min-w-0 flex-1">{titleBlock}</div>
                 )}
                 {(showFilterBar || showSort) && (
-                  <Popover>
+                  <Popover modal={modal}>
                     <PopoverTrigger asChild>
                       <Button
                         type="button"

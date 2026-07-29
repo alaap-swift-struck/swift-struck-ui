@@ -103,6 +103,53 @@ describe("FilterBar", () => {
     expect(onChange).toHaveBeenCalledWith("commits", "")
   })
 
+  it("an active select facet can be cleared on its own, without Clear all", () => {
+    const onChange = vi.fn()
+    const onClearAll = vi.fn()
+    const selects: FilterFacet[] = [
+      {
+        field: "status",
+        label: "Status",
+        control: "select",
+        options: [
+          { value: "active", label: "Active" },
+          { value: "away", label: "Away" },
+        ],
+      },
+    ]
+    render(
+      <FilterBar
+        facets={selects}
+        values={{ status: "active" }}
+        data={data}
+        onChange={onChange}
+        onClearAll={onClearAll}
+        canClear
+      />
+    )
+    fireEvent.click(screen.getByRole("button", { name: "Clear Status" }))
+    // clears THAT facet only — the rest of the selection survives
+    expect(onChange).toHaveBeenCalledWith("status", "")
+    expect(onClearAll).not.toHaveBeenCalled()
+  })
+
+  it("shows no per-facet clear when that facet is inactive", () => {
+    const selects: FilterFacet[] = [
+      { field: "status", label: "Status", control: "select" },
+    ]
+    render(
+      <FilterBar
+        facets={selects}
+        values={{}}
+        data={data}
+        onChange={() => {}}
+        onClearAll={() => {}}
+        canClear={false}
+      />
+    )
+    expect(screen.queryByRole("button", { name: "Clear Status" })).toBeNull()
+  })
+
   it("client-side searchable select filters its own options", async () => {
     const onChange = vi.fn()
     const searchable: FilterFacet[] = [

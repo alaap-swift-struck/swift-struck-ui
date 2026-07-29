@@ -26,6 +26,7 @@ function SortControl({
   sortBy,
   sortDir,
   onChange,
+  modal,
   className,
 }: {
   options: SortOption[]
@@ -35,6 +36,8 @@ function SortControl({
   /** Fired with the next (field, direction). Picking a field applies that
    * option's `defaultDir`; the toggle flips only the direction. */
   onChange: (sortBy: string, sortDir: "asc" | "desc") => void
+  /** See Choice's `modal` — needed when the control renders inside a Dialog. */
+  modal?: boolean
   className?: string
 }) {
   if (options.length === 0) return null
@@ -51,6 +54,7 @@ function SortControl({
   return (
     <div className={cn("flex items-center gap-1", className)}>
       <Choice
+        modal={modal}
         options={options.map((o) => ({ value: o.value, label: o.label }))}
         value={sortBy ? [sortBy] : []}
         onChange={(v) => v[0] && pick(v[0])}

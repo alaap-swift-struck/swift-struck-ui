@@ -70,6 +70,11 @@ export const defaultChoiceConfig: ChoiceConfig = {
 export interface ChoiceOption {
   label: string
   value: string
+  /** A shorter label for the CLOSED trigger only — the menu always shows the
+   *  full `label`. Lets a host show a compact code ("INR") in the control and
+   *  the full name ("INR — Indian Rupee") in the list, so the trigger doesn't
+   *  have to truncate at all. Falls back to `label` when omitted. */
+  triggerLabel?: string
 }
 
 export interface ChoiceProps {
@@ -83,6 +88,11 @@ export interface ChoiceProps {
    *  also in the next `onChange`, so a host that reconciles from `value` alone
    *  can ignore this. Never fired for a value that matches an existing option. */
   onCreate?: (value: string) => void
+  /** Set `true` when this Choice can render inside a Dialog/Sheet. The dropdown
+   *  is portaled out of the dialog, so the dialog's scroll lock would otherwise
+   *  kill wheel/touch scrolling in the open list. Off by default — a modal
+   *  popover also traps focus and blocks outside clicks. See popover.tsx. */
+  modal?: boolean
   className?: string
 }
 
@@ -92,6 +102,7 @@ function Choice({
   onChange,
   config,
   onCreate,
+  modal = false,
   className,
 }: ChoiceProps) {
   const [open, setOpen] = React.useState(false)
@@ -99,6 +110,12 @@ function Choice({
   // query, decide whether it matches an existing option, and label itself.
   const [query, setQuery] = React.useState("")
   const labelOf = (v: string) => options.find((o) => o.value === v)?.label ?? v
+  // The CLOSED trigger prefers a compact `triggerLabel` when the host gave one;
+  // the menu always shows the full label.
+  const triggerLabelOf = (v: string) => {
+    const o = options.find((x) => x.value === v)
+    return o?.triggerLabel ?? o?.label ?? v
+  }
   const isSelected = (v: string) => value.includes(v)
   const atMax =
     config.mode === "multi" && config.max !== null && value.length >= config.max
@@ -261,7 +278,7 @@ function Choice({
             </button>
           </Badge>
         ))}
-        <Popover open={open} onOpenChange={setOpen}>
+        <Popover open={open} onOpenChange={setOpen} modal={modal}>
           <PopoverTrigger asChild>
             <Button type="button" size="sm" variant="outline" disabled={atMax}>
               + Add
@@ -275,7 +292,7 @@ function Choice({
 
   /* ---- dropdown: trigger + popover (selected shown first) ---- */
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={setOpen} modal={modal}>
       <PopoverTrigger asChild>
         <Button
           type="button"
@@ -284,22 +301,36 @@ function Choice({
           aria-expanded={open}
           className={cn("w-full justify-between font-normal", className)}
         >
-          <span className="flex flex-1 flex-wrap items-center gap-1 overflow-hidden">
+          {/* min-w-0 lets the flex child actually shrink; without it the span
+              never gets narrower than its content and the text is sheared
+              mid-letter ("INR — Indian F") instead of ellipsising. */}
+          <span className="flex min-w-0 flex-1 items-center gap-1 overflow-hidden">
             {value.length === 0 ? (
-              <span className="text-muted-foreground">
+              <span className="truncate text-muted-foreground">
                 {config.placeholder}
               </span>
             ) : config.mode === "single" ? (
-              labelOf(value[0])
+              // `title` so the full label is still reachable on hover when the
+              // trigger is too narrow to show it.
+              <span className="truncate" title={labelOf(value[0])}>
+                {triggerLabelOf(value[0])}
+              </span>
             ) : (
               <>
                 {value.slice(0, 2).map((v) => (
-                  <Badge key={v} variant="secondary">
-                    {labelOf(v)}
+                  <Badge
+                    key={v}
+                    variant="secondary"
+                    className="max-w-[10rem] truncate"
+                    title={labelOf(v)}
+                  >
+                    {triggerLabelOf(v)}
                   </Badge>
                 ))}
                 {value.length > 2 && (
-                  <Badge variant="secondary">+{value.length - 2}</Badge>
+                  <Badge variant="secondary" className="shrink-0">
+                    +{value.length - 2}
+                  </Badge>
                 )}
               </>
             )}

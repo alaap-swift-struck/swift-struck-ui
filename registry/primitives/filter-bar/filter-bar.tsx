@@ -48,10 +48,13 @@ function RangeFacet({
   facet,
   value,
   onChange,
+  modal,
 }: {
   facet: FilterFacet
   value: string
   onChange: (value: string) => void
+  /** See FilterBar's `modal` — needed when the bar renders inside a Dialog. */
+  modal?: boolean
 }) {
   const { label, min: lo, max: hi, step = 1 } = facet
   const [open, setOpen] = React.useState(false)
@@ -88,13 +91,13 @@ function RangeFacet({
           : label
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={setOpen} modal={modal}>
       <PopoverTrigger asChild>
         <Button
           type="button"
           variant="outline"
           aria-label={label}
-          className="h-8 w-auto min-w-[8rem] justify-between gap-1 font-normal"
+          className="h-8 w-auto max-w-[14rem] min-w-[8rem] justify-between gap-1 font-normal"
         >
           <span
             className={cn("truncate", value === "" && "text-muted-foreground")}
@@ -192,12 +195,15 @@ function SearchableFacet({
   value,
   options,
   onChange,
+  modal,
 }: {
   facet: FilterFacet
   value: string
   /** Options shown before the user types (facet.options or data-derived). */
   options: FacetOption[]
   onChange: (value: string) => void
+  /** See FilterBar's `modal` — needed when the bar renders inside a Dialog. */
+  modal?: boolean
 }) {
   const { field, label, onSearch } = facet
   const [open, setOpen] = React.useState(false)
@@ -271,7 +277,7 @@ function SearchableFacet({
   }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={setOpen} modal={modal}>
       <PopoverTrigger asChild>
         <Button
           type="button"
@@ -279,7 +285,7 @@ function SearchableFacet({
           role="combobox"
           aria-expanded={open}
           aria-label={label}
-          className="h-8 w-auto min-w-[8rem] justify-between gap-1 font-normal"
+          className="h-8 w-auto max-w-[14rem] min-w-[8rem] justify-between gap-1 font-normal"
         >
           <span className={cn("truncate", !value && "text-muted-foreground")}>
             {triggerLabel}
@@ -363,6 +369,7 @@ function FilterBar<T>({
   onClearAll,
   canClear,
   resultCount,
+  modal,
   className,
 }: {
   facets: FilterFacet[]
@@ -378,6 +385,10 @@ function FilterBar<T>({
   canClear: boolean
   /** Announced politely to screen readers when results change. */
   resultCount?: number
+  /** Set `true` when the bar can render inside a Dialog/Sheet. Facet popovers
+   *  are portaled out of the dialog, so the dialog's scroll lock would kill
+   *  wheel/touch scrolling in an open facet list. See popover.tsx. */
+  modal?: boolean
   className?: string
 }) {
   if (facets.length === 0 && !canClear) return null
@@ -402,6 +413,7 @@ function FilterBar<T>({
               facet={f}
               value={val}
               onChange={(v) => onChange(f.field, v)}
+              modal={modal}
             />
           )
         }
@@ -455,31 +467,45 @@ function FilterBar<T>({
               value={val}
               options={opts}
               onChange={(v) => onChange(f.field, v)}
+              modal={modal}
             />
           )
         }
 
-        // control: "select"
+        // control: "select" — a plain dropdown. Radix Select has no "clear", so
+        // an active one gets its own ✕ beside it: clearing ONE facet shouldn't
+        // mean "Clear all" and rebuilding the rest of the selection.
         return (
-          <Select
-            key={f.field}
-            value={val || undefined}
-            onValueChange={(v) => onChange(f.field, v)}
-          >
-            <SelectTrigger
-              aria-label={f.label}
-              className="h-8 w-auto min-w-[8rem] gap-1"
+          <div key={f.field} className="flex items-center gap-1">
+            <Select
+              value={val || undefined}
+              onValueChange={(v) => onChange(f.field, v)}
             >
-              <SelectValue placeholder={f.label} />
-            </SelectTrigger>
-            <SelectContent>
-              {opts.map((o) => (
-                <SelectItem key={o.value} value={o.value}>
-                  {o.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+              <SelectTrigger
+                aria-label={f.label}
+                className="h-8 w-auto max-w-[14rem] min-w-[8rem] gap-1"
+              >
+                <SelectValue placeholder={f.label} />
+              </SelectTrigger>
+              <SelectContent>
+                {opts.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>
+                    {o.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {val !== "" && (
+              <button
+                type="button"
+                aria-label={`Clear ${f.label}`}
+                onClick={() => onChange(f.field, "")}
+                className="shrink-0 rounded-sm p-0.5 text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <X className="size-3.5" aria-hidden />
+              </button>
+            )}
+          </div>
         )
       })}
 

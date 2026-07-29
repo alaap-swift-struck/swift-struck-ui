@@ -3,7 +3,7 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 90 components** (64 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 172 across 27 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async/range filter facets · creatable Choice · in-header sort control · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
+> **Built: 90 components** (64 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 187 across 29 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async/range filter facets · creatable Choice · in-header sort control · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
 
 > The live counts are authoritative from `registry.json` (components) and
 > `npm run guardrails` ("N modules", which also counts logic + test files).
@@ -11,6 +11,46 @@ what's built and what's left.
 > **Glide config reference:** see `GLIDE-CONFIG-RESEARCH.md` — every component's real Glide config options, the source of truth for parity.
 
 ---
+
+## ✅ Built — host-reported primitive fixes: dialogs, ring shape, truncation, tab badges (v0.9.0)
+
+Six verified host findings fixed at the primitive level. All additive — no host code
+breaks by upgrading; two items need host opt-in to take effect (marked ⚙).
+
+- [x] **⚙ Dropdown lists scroll inside dialogs.** A popover is portaled to `<body>`, so
+      one opened inside a Dialog sat OUTSIDE the dialog's subtree and the dialog's scroll
+      lock (react-remove-scroll) preventDefaulted its wheel/touchmove — typing worked,
+      scrolling was dead. `Popover` already forwarded Radix's `modal` (it's Root
+      verbatim); nothing passed it. Added a `modal` prop to **Choice**, **FilterBar**,
+      **SortControl** and **CollectionFrame** (default `false`, so in-page controls keep
+      click-through). Hosts set `modal` on controls that can appear in a Dialog/Sheet.
+- [x] **Required-ring is no longer shape-blind.** `.required-ring` had a hard-coded
+      rectangle radius, so it double-bordered rounded triggers and drew a gold rectangle
+      around gap-separated pill/chip groups. The radius is now inheritable
+      (`--ss-ring-radius`), and `Field` takes **`shape: "input" | "pill" | "group"`** —
+      `group` drops the ring entirely and lets the label asterisk carry "required".
+      Text inputs are untouched. The duplicated rule in `collections/form/form.tsx` is
+      documented against the same vocabulary so it can't drift.
+- [x] **Truncation floor — never shear letters.** Choice's trigger span was
+      `overflow-hidden` with no `truncate` and no `min-w-0`, so it hard-clipped
+      mid-letter ("INR — Indian F"). Now `min-w-0` + `truncate` + a `title` for the full
+      text. Added a global `::placeholder` ellipsis rule (a pseudo-element `truncate`
+      can't reach). Filter-bar popover + select triggers gained `max-w-[14rem]` so their
+      existing `truncate` actually engages.
+- [x] **⚙ `ChoiceOption.triggerLabel`** — a short label for the CLOSED trigger only
+      ("INR") while the menu keeps the full name ("INR — Indian Rupee"), so the control
+      never truncates at all. Falls back to `label`.
+- [x] **StatusStepper's active ring no longer clips.** The `<ol>` was `overflow-x-auto`;
+      per CSS that computes overflow-y to `auto` too, making it a scroll box in BOTH axes
+      and shearing the active pill's `ring-2 + ring-offset-2` (~4px outside the pill).
+      Scroll moved to the wrapper; the list is `overflow-visible` with vertical padding,
+      so the ring survives at any root font-size (hosts run up to 107.5%).
+- [x] **⚙ `RecipeTab.badge` + `badgeVariant`** — recipe tabs can carry counts;
+      `screen-renderer` passed a hardcoded `badge: ""`. `badgeVariant` is typed to the
+      Badge variant union (not `string`) so an unknown tone fails at compile time.
+- [x] **Per-facet clear in FilterBar.** Clearing ONE active facet meant "Clear all" and
+      rebuilding the rest. Searchable/range facets already had a ✕; the plain `select`
+      facet now gets one too (Radix Select has no native clear). "Clear all" is unchanged.
 
 ## ✅ Built — creatable Choice (type a value that isn't in the list) (v0.8.0)
 

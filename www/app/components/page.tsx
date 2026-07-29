@@ -31,6 +31,7 @@ import {
   chartViewConfig,
   checkEnums,
   choiceEnums,
+  currencyOptions,
   CITIES,
   collectionEnums,
   dataTableEnums,
@@ -571,6 +572,9 @@ export default function ComponentsGallery() {
     { value: "copper", label: "Copper" },
   ])
   const [material, setMaterial] = React.useState<string[]>([])
+  // Long list + compact triggerLabel: the closed control shows "INR", the menu
+  // shows "INR — Indian Rupee", so the trigger never has to shear a word.
+  const [currency, setCurrency] = React.useState<string[]>(["INR"])
   const [materialCfg, setMaterialCfg] = React.useState<Record<string, unknown>>(
     {
       ...defaultChoiceConfig,
@@ -2243,6 +2247,44 @@ export default function ComponentsGallery() {
                   </Dialog>
                 )}
               />
+
+              {/* CHOICE INSIDE A DIALOG — the scroll-lock trap. The dropdown is
+                  portaled out of the dialog, so without `modal` the dialog's
+                  scroll lock swallows every wheel/touch event in the open list:
+                  typing filters, scrolling is dead. `modal` hands the popover
+                  its own lock. Open it and scroll the currency list. */}
+              <Demo name="Choice · inside a dialog (scrollable list)" span={2}>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">Edit product…</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Edit product</DialogTitle>
+                      <DialogDescription>
+                        The currency list is long — it must scroll inside this
+                        dialog.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <Choice
+                      options={currencyOptions}
+                      value={currency}
+                      onChange={setCurrency}
+                      modal
+                      config={{
+                        ...defaultChoiceConfig,
+                        placeholder: "Select currency…",
+                        searchPlaceholder: "Search currencies…",
+                      }}
+                    />
+                    <DialogFooter>
+                      <DialogClose asChild>
+                        <Button>Save</Button>
+                      </DialogClose>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </Demo>
 
               <Demo name="Dropdown Menu">
                 <DropdownMenu>
