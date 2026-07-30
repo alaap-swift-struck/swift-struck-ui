@@ -3,7 +3,7 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 90 components** (64 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 187 across 29 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async/range filter facets · creatable Choice · in-header sort control · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
+> **Built: 90 components** (64 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 208 across 30 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async/range filter facets · creatable Choice · in-header sort control · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
 
 > The live counts are authoritative from `registry.json` (components) and
 > `npm run guardrails` ("N modules", which also counts logic + test files).
@@ -11,6 +11,37 @@ what's built and what's left.
 > **Glide config reference:** see `GLIDE-CONFIG-RESEARCH.md` — every component's real Glide config options, the source of truth for parity.
 
 ---
+
+## 🐞 Fixed — the ✕ on an active filter opened the dropdown instead of clearing (v0.9.1)
+
+Patch. No API change, no host change needed.
+
+- [x] **The clear ✕ never received the click at all** — it was a bare `<X>` svg nested
+      inside the trigger `<Button>`, and Button's base class carries
+      `[&_svg]:pointer-events-none` (button.tsx:8), which removes every descendant svg
+      from hit-testing. The browser hit-tested straight through to the Button, whose
+      onClick Radix composes with `onOpenToggle`, so the popover opened and the user had
+      to unselect values one at a time. The ✕'s own `preventDefault`/`stopPropagation`
+      was dead code — not an event-bubbling problem.
+- [x] **Fix: the ✕ is now a real sibling `<button>`**, outside the trigger, mirroring the
+      pattern the plain-select and chips facets already used correctly (which is why
+      those two always worked). Fixed in **RangeFacet** and **SearchableFacet**.
+- [x] **Also fixed the same bug in `Choice`'s own `clearable` ✕** (choice.tsx) — not in
+      the original report, found while auditing for the pattern. A `clearable` Choice
+      could not be cleared, which also affects hosts using Choice directly.
+- [x] **Accessibility hole closed** — the old ✕ was `aria-hidden`, unfocusable and had no
+      keyboard path. The replacements are real buttons with an accessible name
+      (`Clear <label>` / `Clear selection`) and a focus stop.
+- [x] **Regression guard across ALL FOUR control types** (`select`, searchable `select`,
+      `select` auto-promoted past `SEARCHABLE_THRESHOLD`, `range`, plus `chips`) — because
+      a facet that merely GROWS past the threshold silently migrates into a different
+      control implementation without the host changing a line. The assertions are
+      structural (a real, named, focusable button outside the trigger), because jsdom does
+      no hit-testing: a click-based test passes against the broken code and proves
+      nothing. Verified by reverting the fix — 5 tests fail, then pass again.
+- [x] `NOT` fixed by removing `[&_svg]:pointer-events-none` (load-bearing for every icon
+      button) or by patching `pointer-events-auto` onto the ✕ (defeats the symptom, leaves
+      it keyboard-unreachable).
 
 ## ✅ Built — host-reported primitive fixes: dialogs, ring shape, truncation, tab badges (v0.9.0)
 

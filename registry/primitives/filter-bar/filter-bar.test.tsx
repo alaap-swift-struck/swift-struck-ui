@@ -99,7 +99,12 @@ describe("FilterBar", () => {
     // the trigger reads as the range, not the bare label
     const trigger = screen.getByRole("button", { name: "Commits" })
     expect(trigger.textContent).toContain("10 – 20")
-    fireEvent.click(trigger.querySelector("svg")!)
+    // Clearing goes through the sibling clear BUTTON. (This test used to click
+    // `trigger.querySelector("svg")` — i.e. it asserted the broken structure:
+    // an <X> nested in the trigger, which a real browser never lets you click
+    // because Button sets `[&_svg]:pointer-events-none`. See
+    // filter-bar-clear.test.tsx.)
+    fireEvent.click(screen.getByRole("button", { name: "Clear Commits" }))
     expect(onChange).toHaveBeenCalledWith("commits", "")
   })
 

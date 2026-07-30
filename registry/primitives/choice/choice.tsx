@@ -291,68 +291,74 @@ function Choice({
   }
 
   /* ---- dropdown: trigger + popover (selected shown first) ---- */
+  // The clear ✕ is a SIBLING of the trigger, never nested inside it. Button's
+  // base class carries `[&_svg]:pointer-events-none`, so an <X> inside the
+  // trigger is invisible to hit-testing — the click fell through to the Button
+  // and just opened the list, making a `clearable` Choice impossible to clear.
+  // A real <button> also gives it a focus stop and a keyboard path.
   return (
-    <Popover open={open} onOpenChange={setOpen} modal={modal}>
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className={cn("w-full justify-between font-normal", className)}
-        >
-          {/* min-w-0 lets the flex child actually shrink; without it the span
+    <div className={cn("flex w-full items-center gap-1", className)}>
+      <Popover open={open} onOpenChange={setOpen} modal={modal}>
+        <PopoverTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="min-w-0 flex-1 justify-between font-normal"
+          >
+            {/* min-w-0 lets the flex child actually shrink; without it the span
               never gets narrower than its content and the text is sheared
               mid-letter ("INR — Indian F") instead of ellipsising. */}
-          <span className="flex min-w-0 flex-1 items-center gap-1 overflow-hidden">
-            {value.length === 0 ? (
-              <span className="truncate text-muted-foreground">
-                {config.placeholder}
-              </span>
-            ) : config.mode === "single" ? (
-              // `title` so the full label is still reachable on hover when the
-              // trigger is too narrow to show it.
-              <span className="truncate" title={labelOf(value[0])}>
-                {triggerLabelOf(value[0])}
-              </span>
-            ) : (
-              <>
-                {value.slice(0, 2).map((v) => (
-                  <Badge
-                    key={v}
-                    variant="secondary"
-                    className="max-w-[10rem] truncate"
-                    title={labelOf(v)}
-                  >
-                    {triggerLabelOf(v)}
-                  </Badge>
-                ))}
-                {value.length > 2 && (
-                  <Badge variant="secondary" className="shrink-0">
-                    +{value.length - 2}
-                  </Badge>
-                )}
-              </>
-            )}
-          </span>
-          {config.clearable && value.length > 0 ? (
-            <X
-              className="opacity-60 hover:opacity-100"
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                onChange([])
-              }}
-            />
-          ) : (
+            <span className="flex min-w-0 flex-1 items-center gap-1 overflow-hidden">
+              {value.length === 0 ? (
+                <span className="truncate text-muted-foreground">
+                  {config.placeholder}
+                </span>
+              ) : config.mode === "single" ? (
+                // `title` so the full label is still reachable on hover when the
+                // trigger is too narrow to show it.
+                <span className="truncate" title={labelOf(value[0])}>
+                  {triggerLabelOf(value[0])}
+                </span>
+              ) : (
+                <>
+                  {value.slice(0, 2).map((v) => (
+                    <Badge
+                      key={v}
+                      variant="secondary"
+                      className="max-w-[10rem] truncate"
+                      title={labelOf(v)}
+                    >
+                      {triggerLabelOf(v)}
+                    </Badge>
+                  ))}
+                  {value.length > 2 && (
+                    <Badge variant="secondary" className="shrink-0">
+                      +{value.length - 2}
+                    </Badge>
+                  )}
+                </>
+              )}
+            </span>
             <ChevronsUpDown className="opacity-50" />
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
-        {list}
-      </PopoverContent>
-    </Popover>
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+          {list}
+        </PopoverContent>
+      </Popover>
+      {config.clearable && value.length > 0 && (
+        <button
+          type="button"
+          aria-label="Clear selection"
+          onClick={() => onChange([])}
+          className="shrink-0 rounded-sm p-1 text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <X className="size-4" aria-hidden />
+        </button>
+      )}
+    </div>
   )
 }
 

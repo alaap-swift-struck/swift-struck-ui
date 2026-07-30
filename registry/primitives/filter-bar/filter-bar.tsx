@@ -90,99 +90,108 @@ function RangeFacet({
           ? `≤ ${max}`
           : label
 
+  // The clear ✕ is a SIBLING of the trigger, never a child of it. Button's base
+  // class carries `[&_svg]:pointer-events-none`, so an <X> nested inside the
+  // trigger is invisible to hit-testing: the click lands on the Button, Radix
+  // opens the popover, and the X's own onClick never runs (its
+  // preventDefault/stopPropagation was dead code). A real sibling <button> also
+  // gives the control a focus stop and a keyboard path, which the SVG never had.
   return (
-    <Popover open={open} onOpenChange={setOpen} modal={modal}>
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          aria-label={label}
-          className="h-8 w-auto max-w-[14rem] min-w-[8rem] justify-between gap-1 font-normal"
-        >
-          <span
-            className={cn("truncate", value === "" && "text-muted-foreground")}
+    <div className="flex items-center gap-1">
+      <Popover open={open} onOpenChange={setOpen} modal={modal}>
+        <PopoverTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            aria-label={label}
+            className="h-8 w-auto max-w-[14rem] min-w-[8rem] justify-between gap-1 font-normal"
           >
-            {summary}
-          </span>
-          {value !== "" ? (
-            <X
-              className="size-3.5 shrink-0 opacity-60 hover:opacity-100"
-              aria-hidden
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                onChange("")
-              }}
-            />
-          ) : (
+            <span
+              className={cn(
+                "truncate",
+                value === "" && "text-muted-foreground"
+              )}
+            >
+              {summary}
+            </span>
             <ChevronsUpDown
               className="size-3.5 shrink-0 opacity-50"
               aria-hidden
             />
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        align="start"
-        className="w-[min(16rem,calc(100vw-2rem))] p-3"
-      >
-        {bounded ? (
-          <div className="flex flex-col gap-3">
-            <div className="flex items-baseline justify-between text-xs">
-              <span className="font-medium">{label}</span>
-              <span className="text-muted-foreground tabular-nums">
-                {min ?? lo} – {max ?? hi}
-              </span>
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          align="start"
+          className="w-[min(16rem,calc(100vw-2rem))] p-3"
+        >
+          {bounded ? (
+            <div className="flex flex-col gap-3">
+              <div className="flex items-baseline justify-between text-xs">
+                <span className="font-medium">{label}</span>
+                <span className="text-muted-foreground tabular-nums">
+                  {min ?? lo} – {max ?? hi}
+                </span>
+              </div>
+              <Slider
+                aria-label={label}
+                min={lo}
+                max={hi}
+                step={step}
+                value={[min ?? lo, max ?? hi]}
+                onValueChange={([a, b]) => onChange(formatRange(a, b))}
+              />
             </div>
-            <Slider
-              aria-label={label}
-              min={lo}
-              max={hi}
-              step={step}
-              value={[min ?? lo, max ?? hi]}
-              onValueChange={([a, b]) => onChange(formatRange(a, b))}
-            />
-          </div>
-        ) : (
-          <div className="flex items-end gap-2">
-            <label className="flex-1 text-xs text-muted-foreground">
-              Min
-              <Input
-                type="number"
-                inputMode="numeric"
-                min={lo}
-                max={hi}
-                step={step}
-                value={rawMin}
-                aria-label={`${label} minimum`}
-                onChange={(e) => {
-                  setRawMin(e.target.value)
-                  onChange(formatRange(toNum(e.target.value), toNum(rawMax)))
-                }}
-                className="mt-1 h-8"
-              />
-            </label>
-            <label className="flex-1 text-xs text-muted-foreground">
-              Max
-              <Input
-                type="number"
-                inputMode="numeric"
-                min={lo}
-                max={hi}
-                step={step}
-                value={rawMax}
-                aria-label={`${label} maximum`}
-                onChange={(e) => {
-                  setRawMax(e.target.value)
-                  onChange(formatRange(toNum(rawMin), toNum(e.target.value)))
-                }}
-                className="mt-1 h-8"
-              />
-            </label>
-          </div>
-        )}
-      </PopoverContent>
-    </Popover>
+          ) : (
+            <div className="flex items-end gap-2">
+              <label className="flex-1 text-xs text-muted-foreground">
+                Min
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  min={lo}
+                  max={hi}
+                  step={step}
+                  value={rawMin}
+                  aria-label={`${label} minimum`}
+                  onChange={(e) => {
+                    setRawMin(e.target.value)
+                    onChange(formatRange(toNum(e.target.value), toNum(rawMax)))
+                  }}
+                  className="mt-1 h-8"
+                />
+              </label>
+              <label className="flex-1 text-xs text-muted-foreground">
+                Max
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  min={lo}
+                  max={hi}
+                  step={step}
+                  value={rawMax}
+                  aria-label={`${label} maximum`}
+                  onChange={(e) => {
+                    setRawMax(e.target.value)
+                    onChange(formatRange(toNum(rawMin), toNum(e.target.value)))
+                  }}
+                  className="mt-1 h-8"
+                />
+              </label>
+            </div>
+          )}
+        </PopoverContent>
+      </Popover>
+      {value !== "" && (
+        <button
+          type="button"
+          aria-label={`Clear ${label}`}
+          onClick={() => onChange("")}
+          className="shrink-0 rounded-sm p-0.5 text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <X className="size-3.5" aria-hidden />
+        </button>
+      )}
+    </div>
   )
 }
 
@@ -277,87 +286,90 @@ function SearchableFacet({
   }
 
   return (
-    <Popover open={open} onOpenChange={setOpen} modal={modal}>
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          aria-label={label}
-          className="h-8 w-auto max-w-[14rem] min-w-[8rem] justify-between gap-1 font-normal"
-        >
-          <span className={cn("truncate", !value && "text-muted-foreground")}>
-            {triggerLabel}
-          </span>
-          {value ? (
-            <X
-              className="size-3.5 shrink-0 opacity-60 hover:opacity-100"
-              aria-hidden
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                onChange("")
-              }}
-            />
-          ) : (
+    // Clear ✕ is a SIBLING, not a child of the trigger — see RangeFacet above:
+    // Button's `[&_svg]:pointer-events-none` makes a nested <X> unclickable, so
+    // the click fell through to the trigger and merely opened the popover.
+    <div className="flex items-center gap-1">
+      <Popover open={open} onOpenChange={setOpen} modal={modal}>
+        <PopoverTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            aria-label={label}
+            className="h-8 w-auto max-w-[14rem] min-w-[8rem] justify-between gap-1 font-normal"
+          >
+            <span className={cn("truncate", !value && "text-muted-foreground")}>
+              {triggerLabel}
+            </span>
             <ChevronsUpDown
               className="size-3.5 shrink-0 opacity-50"
               aria-hidden
             />
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        align="start"
-        className="w-[min(16rem,calc(100vw-2rem))] p-0"
-      >
-        <Command shouldFilter={shouldFilter}>
-          <CommandInput
-            value={query}
-            onValueChange={onQueryChange}
-            placeholder={`Search ${label.toLowerCase()}…`}
-          />
-          <CommandList>
-            {loading ? (
-              <div className="py-6 text-center text-sm text-muted-foreground">
-                Searching…
-              </div>
-            ) : (
-              <CommandEmpty>No matches.</CommandEmpty>
-            )}
-            <CommandGroup>
-              {shown.map((o) => {
-                const selected = value === o.value
-                return (
-                  <CommandItem
-                    // cmdk matches on `value`; use the label for client-side
-                    // filtering, the raw value when the server already filtered.
-                    key={o.value}
-                    value={onSearch ? o.value : o.label}
-                    onSelect={() => pick(o.value)}
-                  >
-                    <Check
-                      className={cn(
-                        "size-4 shrink-0",
-                        selected ? "opacity-100" : "opacity-0"
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          align="start"
+          className="w-[min(16rem,calc(100vw-2rem))] p-0"
+        >
+          <Command shouldFilter={shouldFilter}>
+            <CommandInput
+              value={query}
+              onValueChange={onQueryChange}
+              placeholder={`Search ${label.toLowerCase()}…`}
+            />
+            <CommandList>
+              {loading ? (
+                <div className="py-6 text-center text-sm text-muted-foreground">
+                  Searching…
+                </div>
+              ) : (
+                <CommandEmpty>No matches.</CommandEmpty>
+              )}
+              <CommandGroup>
+                {shown.map((o) => {
+                  const selected = value === o.value
+                  return (
+                    <CommandItem
+                      // cmdk matches on `value`; use the label for client-side
+                      // filtering, the raw value when the server already filtered.
+                      key={o.value}
+                      value={onSearch ? o.value : o.label}
+                      onSelect={() => pick(o.value)}
+                    >
+                      <Check
+                        className={cn(
+                          "size-4 shrink-0",
+                          selected ? "opacity-100" : "opacity-0"
+                        )}
+                        aria-hidden
+                      />
+                      <span className="flex-1 truncate">{o.label}</span>
+                      {o.count != null && (
+                        <span className="ml-auto text-xs text-muted-foreground tabular-nums">
+                          {o.count}
+                        </span>
                       )}
-                      aria-hidden
-                    />
-                    <span className="flex-1 truncate">{o.label}</span>
-                    {o.count != null && (
-                      <span className="ml-auto text-xs text-muted-foreground tabular-nums">
-                        {o.count}
-                      </span>
-                    )}
-                  </CommandItem>
-                )
-              })}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+                    </CommandItem>
+                  )
+                })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+      {value !== "" && (
+        <button
+          type="button"
+          aria-label={`Clear ${label}`}
+          onClick={() => onChange("")}
+          className="shrink-0 rounded-sm p-0.5 text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <X className="size-3.5" aria-hidden />
+        </button>
+      )}
+    </div>
   )
 }
 

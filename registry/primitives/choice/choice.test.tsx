@@ -82,6 +82,69 @@ describe("Choice trigger label + truncation floor", () => {
   })
 })
 
+describe("Choice clearable ✕", () => {
+  // Same root cause as the FilterBar facets: the ✕ was a bare <X> svg nested in
+  // the trigger <Button>, and Button's base class sets
+  // `[&_svg]:pointer-events-none` — so in a real browser the click fell through
+  // to the trigger and just opened the list. A `clearable` Choice could not be
+  // cleared. jsdom does no hit-testing, so this asserts the STRUCTURE (a real,
+  // named, focusable button outside the trigger), which is what actually
+  // differs. See filter-bar-clear.test.tsx for the full rationale.
+  it("exposes a real clear button, outside the trigger, when clearable + selected", () => {
+    render(
+      <Choice
+        options={options}
+        value={["a"]}
+        onChange={() => {}}
+        config={{ ...defaultChoiceConfig, clearable: true }}
+      />
+    )
+    const clear = screen.getByRole("button", { name: "Clear selection" })
+    expect(clear.tagName).toBe("BUTTON")
+    expect(clear.getAttribute("aria-hidden")).toBeNull()
+    // must NOT be nested in the trigger — that's what made it unclickable
+    expect(screen.getByRole("combobox").contains(clear)).toBe(false)
+    clear.focus()
+    expect(document.activeElement).toBe(clear)
+  })
+
+  it("clears the whole selection", () => {
+    const onChange = vi.fn()
+    render(
+      <Choice
+        options={options}
+        value={["a", "b"]}
+        onChange={onChange}
+        config={{ ...defaultChoiceConfig, mode: "multi", clearable: true }}
+      />
+    )
+    fireEvent.click(screen.getByRole("button", { name: "Clear selection" }))
+    expect(onChange).toHaveBeenCalledWith([])
+  })
+
+  it("no clear button when nothing is selected, or when not clearable", () => {
+    const { unmount } = render(
+      <Choice
+        options={options}
+        value={[]}
+        onChange={() => {}}
+        config={{ ...defaultChoiceConfig, clearable: true }}
+      />
+    )
+    expect(screen.queryByRole("button", { name: "Clear selection" })).toBeNull()
+    unmount()
+    render(
+      <Choice
+        options={options}
+        value={["a"]}
+        onChange={() => {}}
+        config={{ ...defaultChoiceConfig, clearable: false }}
+      />
+    )
+    expect(screen.queryByRole("button", { name: "Clear selection" })).toBeNull()
+  })
+})
+
 describe("Choice (creatable)", () => {
   const creatable = (over = {}) => ({
     ...defaultChoiceConfig,
