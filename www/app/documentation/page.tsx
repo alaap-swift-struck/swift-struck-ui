@@ -98,7 +98,7 @@ const CATALOG: CatalogItem[] = [
     name: "Choice",
     category: "Inputs",
     blurb:
-      "Pick one or many — as a searchable dropdown, chips, or pills. Set creatable to let a user type a value that isn't in the list and use it.",
+      "Pick one or many — as a searchable dropdown, chips, or pills. Clearable shows a ✕ to drop the whole selection; creatable lets a user type a value that isn't in the list and use it.",
   },
   { name: "Checkbox", category: "Inputs", blurb: "A single on/off tick box." },
   { name: "Switch", category: "Inputs", blurb: "A toggle switch (on/off)." },
@@ -159,7 +159,7 @@ const CATALOG: CatalogItem[] = [
     name: "Filter Bar",
     category: "Inputs",
     blurb:
-      "User-facing collection filters — facets as dropdowns, searchable comboboxes (sync or async), chips, or a numeric min/max range, with Clear all. Dropdowns start searching themselves past 8 options.",
+      "User-facing collection filters — facets as dropdowns, searchable comboboxes (sync or async), chips, or a numeric min/max range. Every active filter has its own ✕ to drop just that one, plus Clear all to reset everything. Dropdowns start searching themselves past 8 options.",
   },
   {
     name: "Sort Control",
