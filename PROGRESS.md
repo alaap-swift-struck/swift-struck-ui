@@ -3,7 +3,7 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 90 components** (64 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 211 across 31 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async/range filter facets · creatable Choice · in-header sort control · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
+> **Built: 90 components** (64 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 212 across 31 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async/range filter facets · creatable Choice · in-header sort control · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
 
 > The live counts are authoritative from `registry.json` (components) and
 > `npm run guardrails` ("N modules", which also counts logic + test files).
@@ -11,6 +11,34 @@ what's built and what's left.
 > **Glide config reference:** see `GLIDE-CONFIG-RESEARCH.md` — every component's real Glide config options, the source of truth for parity.
 
 ---
+
+## 🧹 Maintenance — audit pass: split, drift guards, doc corrections (v0.9.3)
+
+No component behaviour changed. Four audits run (health, security, docs-story, errors).
+
+- [x] **`filter-bar.tsx` split 551 → 206 + 173 + 202** — `RangeFacet` and `SearchableFacet`
+      now live in their own files beside `FilterBar`, one component each. Behaviour
+      identical; all 26 filter-bar tests still pass.
+- [x] **Stale doc counts corrected + guarded.** README and HANDOFF both still claimed
+      "88 components (62 primitives + 26 collections)" while `registry.json` had grown to
+      90 (64 + 26); README also still told users to pin **v0.7.0** and claimed "100+
+      tests". All corrected, and a new test in `catalog-sync.test.ts` fails the build if
+      any prose count drifts from `registry.json` — verified by breaking a count on
+      purpose.
+- [x] **Security sweep: no findings.** Four XSS candidates were checked and all refuted —
+      the `template.innerHTML` in Notes is the inert-parse idiom _inside_ the sanitizer
+      (which strips every attribute), and both `article-body` hrefs are `safeHref()`
+      results. `sharp` (3 high, libvips) enters only via `www → next`, is not a library
+      dependency, and is unreachable in a static export (`images.unoptimized`); no
+      non-breaking fix exists, so it was **not** forced.
+- [x] **Error analysis: no error store exists, correctly.** There is no server runtime —
+      the docs site is a static export, so there are no routes, workers or DB to record
+      errors. The real error surface (the browser console on both deployed pages) is
+      clean: 0 errors, 0 failed requests, all assets 200.
+- [x] **Health: 94/100 (A).** Five of six dimensions ≥94; Size & Scope is 91, held down
+      entirely by the showcase site (`components/page.tsx` 2431, `_data.ts` 1275,
+      `documentation/page.tsx` 956 — ~24% of the codebase, none of it shipped). The split
+      is written up as the top fix-list item rather than rushed into this pass.
 
 ## 🐞 Fixed — docs drift, light-mode contrast, chart resize (v0.9.2)
 

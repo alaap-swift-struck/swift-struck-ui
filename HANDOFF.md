@@ -115,7 +115,7 @@ Apps consume the library via `@swift-struck/ui/registry/*` + `@swift-struck/ui/l
 
 ## Current status
 
-- ~**88 components** (62 primitives + 26 collections), Glide-palette parity
+- ~**90 components** (64 primitives + 26 collections), Glide-palette parity
   **complete** (only `Contact` and intentionally-skipped niche items remain; see
   GLIDE-PARITY.md). (Live counts: `registry.json` for components, `npm run
 guardrails` for the "N modules" figure which also counts logic + test files.)

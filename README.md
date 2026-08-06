@@ -10,7 +10,7 @@ data-bound, configurable collections inspired by [Glide](https://www.glideapps.c
 **Staging:** [staging.swift-struck-ui.pages.dev](https://staging.swift-struck-ui.pages.dev)
 (staging & live are the same build — only the URL differs).
 
-- **~88 components** (62 primitives + 26 collections) — primitives (Button,
+- **~90 components** (64 primitives + 26 collections) — primitives (Button,
   Input, Dialog…), data-bound collections (List, Card, Table, Kanban, Calendar,
   Chart…), agent/app surfaces (Agent Chat, Copilot Overlay, Import Wizard, Ticket
   Thread…), and a config-driven screen engine.
@@ -19,7 +19,7 @@ data-bound, configurable collections inspired by [Glide](https://www.glideapps.c
   is required, so no setting is ever hidden.
 - **Strictly layered** — `tokens → primitives → collections`, enforced in CI.
 - **Tested & hardened** — pure logic, component rendering, interactions, and
-  security regressions covered by 100+ tests in CI; links are scheme-guarded and
+  security regressions covered by 200+ tests in CI; links are scheme-guarded and
   rich-text is sanitized against XSS.
 - **Cross-platform** — one web build, wrapped natively with Tauri (desktop) and
   Capacitor (mobile) later. No rewrite.
@@ -33,14 +33,14 @@ The library **is** this repo — install it straight from GitHub:
 npm install github:alaap-swift-struck/swift-struck-ui react react-dom
 
 # or pin to a release (recommended for production apps)
-npm install github:alaap-swift-struck/swift-struck-ui#v0.7.0 react react-dom
+npm install github:alaap-swift-struck/swift-struck-ui#v0.9.2 react react-dom
 ```
 
 ```tsx
 import { Button } from "@swift-struck/ui/registry/primitives/button/button"
 ```
 
-Every release is a git tag (`v0.7.0`, `v0.6.0`, …) — see [PROGRESS.md](PROGRESS.md)
+Every release is a git tag (`v0.9.2`, `v0.9.1`, …) — see [PROGRESS.md](PROGRESS.md)
 for what changed in each.
 
 ### Required setup — the library ships TypeScript source
@@ -75,7 +75,7 @@ while its `package.json` looks current. To actually move:
 
 ```bash
 # untracked/pinned → jump to a specific release
-npm install github:alaap-swift-struck/swift-struck-ui#v0.7.0
+npm install github:alaap-swift-struck/swift-struck-ui#v0.9.2
 
 # tracking main → re-resolve to the newest commit
 npm update @swift-struck/ui

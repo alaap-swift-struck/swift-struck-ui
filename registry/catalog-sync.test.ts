@@ -102,3 +102,36 @@ describe("docs catalog covers registry.json", () => {
     expect(dupes).toEqual([])
   })
 })
+
+describe("prose component counts match registry.json", () => {
+  // Same drift class as the catalog, one level up: README and HANDOFF each state
+  // "N primitives + M collections" in prose. Both had silently fallen to
+  // "62 primitives" while registry.json had grown to 64 — a reader (or a host
+  // team sizing the library) would have been told the wrong number. registry.json
+  // is authoritative; these docs must agree with it.
+  const DOCS = ["README.md", "HANDOFF.md", "PROGRESS.md"]
+
+  it("every stated count matches registry.json", () => {
+    const raw = JSON.parse(readFileSync(join(root, "registry.json"), "utf8"))
+    const items: { name: string; layer?: string }[] =
+      raw.items ?? raw.registry ?? []
+    const primitives = items.filter((i) => i.layer === "primitives").length
+    const collections = items.filter((i) => i.layer === "collections").length
+
+    const wrong: string[] = []
+    for (const doc of DOCS) {
+      const text = readFileSync(join(root, doc), "utf8")
+      for (const m of text.matchAll(
+        /\((\d+)\s+primitives\s*\+\s*(\d+)\s+collections\)/g
+      )) {
+        if (+m[1] !== primitives || +m[2] !== collections) {
+          wrong.push(
+            `${doc}: says "${m[1]} primitives + ${m[2]} collections", ` +
+              `registry.json has ${primitives} + ${collections}`
+          )
+        }
+      }
+    }
+    expect(wrong, "Stale component counts in prose docs").toEqual([])
+  })
+})
