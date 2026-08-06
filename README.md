@@ -15,6 +15,11 @@ data-bound, configurable collections inspired by [Glide](https://www.glideapps.c
   Chart…), agent/app surfaces (Agent Chat, Copilot Overlay, Import Wizard, Ticket
   Thread…), and a config-driven screen engine.
 - **Token-driven** — every color/size resolves to one theme; re-skin in one file.
+  Doing that? Read the
+  **[re-skin contrast checklist](registry/tokens/README.md#re-skinning-the-contrast-checklist)**
+  first — several tokens you'd read as "brand colours" are rendered as body text
+  and links, and swapping values without re-checking the floors is how a fork of
+  this library ended up with 209 unreadable text nodes.
 - **Config-driven** — collections and inputs take one typed `config`; every field
   is required, so no setting is ever hidden.
 - **Strictly layered** — `tokens → primitives → collections`, enforced in CI.
@@ -111,6 +116,9 @@ npx tsc --noEmit   # type-check the library
 - **[CONFIG-REFERENCE.md](CONFIG-REFERENCE.md)** — **every component, every config
   field, every option, and what each value does.**
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** — how to add a component.
+- **[registry/tokens/README.md](registry/tokens/README.md)** — the design tokens,
+  and the **re-skin contrast checklist** (which tokens carry a WCAG floor, which
+  floor, and how to check your own palette).
 - **[DEPLOY.md](DEPLOY.md)** — staging/live publishing (Cloudflare Pages).
 - **[GLIDE-CONFIG-RESEARCH.md](GLIDE-CONFIG-RESEARCH.md)** — how each maps to Glide.
 

@@ -163,8 +163,12 @@ describe("docs point at files that exist", () => {
     const broken: string[] = []
     for (const doc of DOCS) {
       const dir = join(root, doc, "..")
+      // The trailing `(?:#…)?` matters: a link with an anchor
+      // (`tokens/README.md#re-skinning`) used to slip past this guard entirely,
+      // so a deep-link to a file that doesn't exist went unchecked. The anchor
+      // itself isn't validated — only the file it points at.
       for (const m of read(doc).matchAll(
-        /\[[^\]]+\]\(([^)#]+\.(?:md|css|ts|tsx|json|cjs))\)/g
+        /\[[^\]]+\]\(([^)#\s]+\.(?:md|css|ts|tsx|json|cjs))(?:#[^)\s]*)?\)/g
       )) {
         const target = m[1]
         if (/^https?:/.test(target)) continue
