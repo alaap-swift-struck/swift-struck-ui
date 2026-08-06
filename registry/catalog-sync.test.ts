@@ -14,7 +14,7 @@
 // Parsed as TEXT rather than imported: the catalog lives in a Next.js client
 // component, and importing it here would drag Next into the unit-test run.
 
-import { readFileSync } from "node:fs"
+import { existsSync, readFileSync } from "node:fs"
 import { join } from "node:path"
 
 import { describe, expect, it } from "vitest"
@@ -109,7 +109,10 @@ describe("prose component counts match registry.json", () => {
   // "62 primitives" while registry.json had grown to 64 — a reader (or a host
   // team sizing the library) would have been told the wrong number. registry.json
   // is authoritative; these docs must agree with it.
-  const DOCS = ["README.md", "HANDOFF.md", "PROGRESS.md"]
+  // README + HANDOFF describe CURRENT state, so their counts must be current.
+  // PROGRESS.md is deliberately excluded: it is a changelog, and its older
+  // entries legitimately quote the numbers as they were at the time.
+  const DOCS = ["README.md", "HANDOFF.md"]
 
   it("every stated count matches registry.json", () => {
     const raw = JSON.parse(readFileSync(join(root, "registry.json"), "utf8"))
@@ -133,5 +136,63 @@ describe("prose component counts match registry.json", () => {
       }
     }
     expect(wrong, "Stale component counts in prose docs").toEqual([])
+  })
+})
+
+describe("docs point at files that exist", () => {
+  // The drift that cost a real debugging cycle: HANDOFF said the design tokens
+  // resolve from `www/app/globals.css`. They resolve from the root `styles.css`
+  // — globals.css is a 3-line shim that imports it. A reader (human or agent)
+  // following HANDOFF edited the wrong file and nothing happened.
+  //
+  // Deliberately NOT "every backticked path must exist": docs legitimately use
+  // shorthand (`logic.ts`, `FancyButton.tsx` as a hypothetical), so that check
+  // is noisy enough to get switched off. These two are objective instead.
+  const DOCS = [
+    "README.md",
+    "HANDOFF.md",
+    "ARCHITECTURE.md",
+    "CONTRIBUTING.md",
+    "CONFIG-REFERENCE.md",
+    "registry/tokens/README.md",
+    "registry/primitives/README.md",
+  ]
+  const read = (f: string) => readFileSync(join(root, f), "utf8")
+
+  it("every markdown link to a local file resolves", () => {
+    const broken: string[] = []
+    for (const doc of DOCS) {
+      const dir = join(root, doc, "..")
+      for (const m of read(doc).matchAll(
+        /\[[^\]]+\]\(([^)#]+\.(?:md|css|ts|tsx|json|cjs))\)/g
+      )) {
+        const target = m[1]
+        if (/^https?:/.test(target)) continue
+        if (!existsSync(join(dir, target))) broken.push(`${doc} -> ${target}`)
+      }
+    }
+    expect(broken, "Markdown links pointing at files that don't exist").toEqual(
+      []
+    )
+  })
+
+  it("no doc claims the design tokens live in globals.css", () => {
+    // styles.css is the shipped theme and the ONLY place tokens are defined.
+    const wrong: string[] = []
+    for (const doc of DOCS) {
+      read(doc)
+        .split("\n")
+        .forEach((line, i) => {
+          if (!/globals\.css/.test(line)) return
+          // a line may mention globals.css only to say it's a shim / importer
+          if (/shim|imports? it|only imports|not\b.*globals/i.test(line)) return
+          if (/token|@theme|Layer 0|Layer-0/i.test(line))
+            wrong.push(`${doc}:${i + 1}: ${line.trim().slice(0, 80)}`)
+        })
+    }
+    expect(
+      wrong,
+      "Design tokens live in root styles.css, not globals.css (which only imports it)"
+    ).toEqual([])
   })
 })

@@ -24,7 +24,7 @@ Everything lives in exactly one layer, and dependencies flow **one direction
 only**:
 
 ```
-  Layer 0   tokens        app/globals.css + registry/tokens
+  Layer 0   tokens        styles.css (root) + registry/tokens
                 │           colors, radii, surfaces — the single source of truth
                 ▼
   Layer 1   primitives    registry/primitives
@@ -36,7 +36,7 @@ only**:
 
 - Collections may use primitives. Primitives may **not** reach into collections.
 - Primitives use tokens. Tokens import nothing.
-- The library (`registry/`, `lib/`) never depends on `app/` (the docs harness).
+- The library (`registry/`, `lib/`) never depends on `www/` (the docs harness).
 
 This is not a guideline — it's enforced by `npm run guardrails`
 ([`.dependency-cruiser.cjs`](.dependency-cruiser.cjs)). A violation fails the
@@ -76,14 +76,15 @@ component code changes when we add them.
 ## Directory map
 
 ```
-app/                  Next.js docs + showcase harness (NOT shipped to consumers)
-  globals.css         Layer 0 tokens live here (CSS-first Tailwind v4 @theme)
+www/                  Next.js docs + showcase harness (NOT shipped to consumers)
+  app/globals.css     3-line shim — imports tailwind + the root styles.css theme
 lib/
   utils.ts            cn() — the class-merge helper every component uses
 registry/             THE library — the copy-in source
-  tokens/             Layer 0 TS helpers (CSS tokens are in app/globals.css)
-  primitives/         Layer 1 — one folder per atom (component + .mdx)
-  collections/        Layer 2 — one folder per data view (component + .mdx)
+  tokens/             Layer 0 TS helpers (CSS tokens are in root styles.css)
+  primitives/         Layer 1 — one folder per atom (component + optional logic/test)
+  collections/        Layer 2 — one folder per data view (component + optional logic/test)
+styles.css            Layer 0 — THE theme (tokens); shipped to consumers
 registry.json         Manifest of every registry item (drives the copy-in CLI)
 .dependency-cruiser.cjs   The enforced layering rules
 ARCHITECTURE.md       This file

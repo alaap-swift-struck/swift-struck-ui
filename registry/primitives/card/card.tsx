@@ -7,10 +7,19 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
     <div
       className={cn(
         // `glass` = frosted translucent surface; `hover-lift` = the reactive
-        // border-glow + gentle lift on hover. Both live in globals.css so the
+        // border-glow + gentle lift on hover. Both live in styles.css so the
         // whole library shares one "alive" vocabulary. Pass `hover-lift-none`
         // to opt a nested/static card out of the lift.
-        "glass hover-lift rounded-xl border text-card-foreground shadow-sm",
+        //
+        // `min-w-0` is load-bearing: a Card is almost always a grid/flex item,
+        // and such an item defaults to `min-width: auto` — it refuses to shrink
+        // below its widest child. One wide child (a chart, a table, a long
+        // unbroken string) then pins the Card open and the PAGE scrolls
+        // sideways, even though the child itself clips correctly. Fixing it
+        // here rather than per-consumer means it can't recur every time
+        // something wide lands in a Card. (No effect outside flex/grid: for a
+        // plain block, `min-width: auto` already computes to 0.)
+        "glass hover-lift min-w-0 rounded-xl border text-card-foreground shadow-sm",
         className
       )}
       {...props}

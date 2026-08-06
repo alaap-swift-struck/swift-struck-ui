@@ -6,7 +6,7 @@ surfaces, and (later) spacing and typography scales.
 ## Where they live
 
 The canonical tokens are defined as CSS variables in
-[`app/globals.css`](../../app/globals.css) inside the `:root` / `.dark` /
+[`styles.css`](../../styles.css) at the repo root, inside the `:root` / `.dark` /
 `@theme` blocks. This folder holds any **TypeScript** token helpers that
 components need to read at runtime (e.g. a typed list of theme names, or
 platform-specific token maps for the future native skins).
@@ -28,7 +28,7 @@ Components reference tokens through Tailwind utilities, never raw values:
 <div style={{ background: "#ffffff", borderRadius: "10px" }} />
 ```
 
-Adding a new token means editing `app/globals.css` once. Every consumer updates
+Adding a new token means editing root `styles.css` once. Every consumer updates
 automatically.
 
 ## Contrast floor (light mode)

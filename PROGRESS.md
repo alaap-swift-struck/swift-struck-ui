@@ -3,7 +3,7 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 90 components** (64 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 212 across 31 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async/range filter facets · creatable Choice · in-header sort control · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
+> **Built: 90 components** (64 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 214 across 31 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async/range filter facets · creatable Choice · in-header sort control · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
 
 > The live counts are authoritative from `registry.json` (components) and
 > `npm run guardrails` ("N modules", which also counts logic + test files).
@@ -11,6 +11,40 @@ what's built and what's left.
 > **Glide config reference:** see `GLIDE-CONFIG-RESEARCH.md` — every component's real Glide config options, the source of truth for parity.
 
 ---
+
+## 🐞 Fixed — Card couldn't shrink, chart amber over-darkened, stale token paths (v0.9.4)
+
+Three follow-ups from the v0.9.2/0.9.3 review. All three reports were correct; one of the
+supporting numbers wasn't.
+
+- [x] **The real cause of the sideways scroll was `Card`, not the chart.** v0.9.2's
+      `min-w-0 + overflow-hidden` on the chart wrapper was right but one level too low: a
+      `Card` is almost always a grid/flex item, and such an item defaults to
+      `min-width: auto` — it refuses to shrink below its widest child, so one wide child
+      pinned the Card open and the PAGE scrolled. Fixed on the **Card primitive** so it
+      can't recur wherever something wide lands in a Card. Verified: drag desktop → 375
+      with no reload now gives `scrollWidth 375`, overflow 0 (production: 11px).
+- [x] **Same root cause explained the "new" 11px fresh-load overflow on `/`.** Measured on
+      production: the offending node was the Card at `min-width: auto`, right edge 386 vs
+      a 375 viewport. One fix, both symptoms — it was never a second bug.
+- [x] **`--chart-2` restored toward amber; `--chart-1` reverted outright.** The chart
+      tokens are **graphics** — chart areas, rating stars (`fill-chart-2`), calendar dots
+      — never text (chart axis/legend text uses `muted-foreground`). So the bar is WCAG
+      1.4.11 non-text contrast at **3:1**, not the 4.5:1 text bar, and darkening them to
+      4.5:1 turned the amber accent to ochre for no accessibility gain. `--chart-1` goes
+      back to its original `#0d8d82` (4.08:1 — it always cleared 3:1, so v0.9.2 changed it
+      for nothing). `--chart-2` goes to `#ce8300` (3.06:1) rather than all the way back:
+      **the original `#f49f1e` was 2.13:1 and failed even the 3:1 graphics floor.**
+      `--primary` and `--success` stay at 4.5:1 — those two ARE used as text. The split is
+      now documented in `styles.css` so neither side gets "fixed" back.
+- [x] **Stale token paths purged, and guarded.** HANDOFF said tokens resolve from
+      `www/app/globals.css`; they resolve from root `styles.css` (globals.css is a 3-line
+      shim that imports it). That one stale line sent a debugging session at the wrong
+      file. Same drift found and fixed in **ARCHITECTURE.md** (3 places, plus a directory
+      map still showing `app/` instead of `www/app/` and two stale `.mdx` claims) and
+      **registry/tokens/README.md** (2 places, including a link that resolved nowhere).
+      Two new tests now fail the build if a markdown link points at a missing file, or if
+      any doc claims the tokens live in globals.css.
 
 ## 🧹 Maintenance — audit pass: split, drift guards, doc corrections (v0.9.3)
 

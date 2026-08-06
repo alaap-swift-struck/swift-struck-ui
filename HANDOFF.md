@@ -18,12 +18,12 @@ device," kept **lean, clean, and exhaustively documented**.
 
 1. **Anti-bloat.** A past project hit ~187k LOC for 10% done; never again.
    Prefer reuse, variants over new files, composition over duplication. Keep it
-   small and well-organized. (See `memory/anti-bloat-mandate.md`.)
 2. **Strict layering** (enforced): `tokens → primitives → collections`. Run
    `npm run guardrails` — it fails the build on illegal cross-layer or
    harness imports.
 3. **Tokens are the only source of truth** — no hardcoded colors/sizes; use
-   Tailwind utilities that resolve to `www/app/globals.css` `@theme`.
+   Tailwind utilities that resolve to the theme in root `styles.css` (the
+   shipped file; `www/app/globals.css` only imports it).
 4. **Config: every field required, no optionals.** Each configurable component
    exports `XConfig` (all required) + `defaultXConfig` template. The user
    explicitly never wants a hidden/forgettable knob.
@@ -32,7 +32,7 @@ device," kept **lean, clean, and exhaustively documented**.
 ## Tech stack
 
 Next.js 15 (App Router) · React 19 · TypeScript · **Tailwind v4** (CSS-first
-`@theme` tokens in `www/app/globals.css`) · Radix UI · CVA · cmdk ·
+`@theme` tokens in root `styles.css`) · Radix UI · CVA · cmdk ·
 **tw-animate-css** · **recharts** (charts) · next-themes · lucide-react (v1) ·
 sonner (toasts) · dependency-cruiser (layering) · **vitest + React Testing
 Library + jsdom** (tests). No CSS-in-JS.
@@ -58,7 +58,7 @@ README.md                 package + repo front-door (install from GitHub)
 www/                      Next.js DOCS/SHOWCASE site (the gallery; NOT shipped)
   package.json            the app; pulls the library via @swift-struck/ui/* tsconfig paths
   next.config.ts          externalDir:true (compiles the root library as source)
-  app/globals.css         Layer-0 tokens + @source ../../registry (scans the library)
+  app/globals.css         3-line shim: imports tailwind + the root styles.css theme
   app/page.tsx            Dashboard demo (the "/" face)
   app/components/page.tsx The GALLERY — 7 Glide-style sections, a ⚙ per card
   app/components/_playground/ config-editor.tsx (harness-only live editor)
