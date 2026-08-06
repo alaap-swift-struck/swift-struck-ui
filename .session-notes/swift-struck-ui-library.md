@@ -11,8 +11,8 @@
 
 ## Current state
 
-- **Package version `0.9.4`.** Local = GitHub (`origin/main`) = staging = production, all
-  at commit **`c26c028`**, tagged `v0.9.4`. Working tree clean.
+- **Package version `0.9.5`.** Local = GitHub (`origin/main`) = staging = production, all
+  at the same commit, tagged `v0.9.5`. Working tree clean.
 - **Tests: 224 passing across 33 files.** Gate is green: `tsc` (root AND `www`),
   `npm test`, `npm run guardrails` (176 modules, 0 violations), `npm run format:check`.
 - **Health (lean_mean_check): 94/100, Grade A.** Reports at `lean-mean-report.html` +
@@ -25,8 +25,8 @@
 
 ### Every release is a git tag
 
-`v0.1.0` … `v0.9.4`, each verified against the `package.json` at that commit. Hosts pin
-with `npm install github:alaap-swift-struck/swift-struck-ui#v0.9.4`.
+`v0.1.0` … `v0.9.5`, each verified against the `package.json` at that commit. Hosts pin
+with `npm install github:alaap-swift-struck/swift-struck-ui#v0.9.5`.
 
 ---
 
@@ -46,6 +46,7 @@ with `npm install github:alaap-swift-struck/swift-struck-ui#v0.9.4`.
 | 0.9.2   | docs-catalog drift, light-mode contrast, chart resize                                                                 |
 | 0.9.3   | audit pass: split filter-bar, drift guards, doc corrections                                                           |
 | 0.9.4   | **Card `min-w-0`**, chart tokens restored to graphics floor, stale token paths purged                                 |
+| 0.9.5   | **RE-SKIN CONTRAST CHECKLIST** + last 3 contrast gaps closed (new `--warning-strong`); Card/Chart regression guards   |
 
 ---
 
@@ -72,25 +73,38 @@ with `npm install github:alaap-swift-struck/swift-struck-ui#v0.9.4`.
   The checklist carries a copy-pasteable console snippet (canvas rasterisation — a naive
   `oklch()` string parse gets it wrong) that prints pass/fail per token.
 
-#### Contrast register (light mode, measured live on prod — verified twice, offline + snippet)
+#### Contrast register (light mode) — v0.9.5: EVERY floor-carrying token clears its floor
 
-Passing: `--foreground` 19.80 · `--destructive` 4.77 · `--muted-foreground` 4.73 (on white)
-· `--primary`/`--ring` 4.63 · `--success` 4.58 · `--accent-foreground` 13.19 · `--chart-1`
-4.08 · `--chart-3` 3.94 · `--chart-4` 3.53 · `--chart-2` 3.06.
+`--foreground` 19.80 · `--accent-foreground` 13.19 · `--muted-foreground` 5.39 ·
+`--warning-strong` 4.88 · `--destructive` 4.77 · `--primary`/`--ring` 4.63 · `--success` 4.58
+· `--chart-1` 4.08 · `--chart-3` 3.94 · `--chart-4` 3.53 · `--chart-5` 3.17 · `--chart-2`
+3.06. (`--warning` is a fill: 1.92 vs the page, but **9.33** for its own label — the check
+that matters.) The live register lives in `registry/tokens/README.md`; keep them in sync.
 
-**Three logged gaps — known, not fixed, do not let these get lost:**
+**All three gaps below were CLOSED in v0.9.5.** Kept here because the _reasoning_ is what
+matters — a future re-skin will hit the same three shapes.
 
-1. `--muted-foreground` **4.24:1 on `--accent`-tinted card surfaces** (4.73 on plain white).
-   Near-miss, secondary text only, cosmetic. Fixing = darken the token, which changes the
-   look of ~105 call sites. _(User-reported; independently reproduced to the same 4.24.)_
-2. `--warning` **1.92:1 used as TEXT** — `text-warning` in `data-preview-table`, on both the
-   issue count and its TriangleAlert icon. The token is fine as a _fill_ (`bg-warning` with
-   the near-black `--warning-foreground` on top). So the fix is a separate on-surface tone,
-   **not** darkening `--warning`, which would break that badge pairing.
-   _(Found 2026-08-06 while writing the checklist.)_
-3. `--chart-5` **2.53:1 — below the 3:1 graphics floor we ourselves set.** Pie slices +
-   calendar event dots. Fix = drop lightness ~0.06, and chroma usually has to come down with
-   it or the colour leaves sRGB gamut. _(Found 2026-08-06 writing the checklist.)_
+1. **`--muted-foreground` — the denominator trap. `0.556` → `0.525` (`#6a6a6a`).**
+   The user reported 4.24:1 on tinted card surfaces; reproduced exactly, then measured the
+   **real DOM** on prod rather than assuming a surface: 207 muted-foreground nodes, 198 on
+   plain white at 4.74 (fine), and **5 shipped components failing** — a hovered list row at
+   **4.14** (the true worst, worse than the reported 4.24), chat timestamps and an inactive
+   tab at 4.35, the command-menu ⌘ hint at 4.24. Now 4.71 on the worst, 5.39 on white.
+   → **Lesson: measuring against `--background` HIDES this class of failure entirely.**
+   The fix is systemic (the token), not per-component — 4 different components had it, so
+   patching call sites would have been whack-a-mole and left re-skinners in the same trap.
+2. **`--warning` — the fill-vs-text trap. New `--warning-strong` token (`#946a00`, 4.88:1).**
+   `--warning` was 1.92:1 used as TEXT (`text-warning` in `data-preview-table`: the issue
+   count and its TriangleAlert). But it's fine as a _fill_ — `--warning-foreground` on it is
+   **9.33:1**, and the light amber is the accent identity. So: **do NOT darken `--warning`**;
+   that fixes the text and breaks the badge. A separate on-surface tone is the answer.
+   Dark mode gets `--warning-strong` as an ADDITION (11.5:1) so the utility resolves in both
+   themes — no existing dark value was changed.
+3. **`--chart-5` — we broke our own floor. `0.7` → `0.64` (`#47a34e`), 2.52 → 3.17.**
+   Was under the 3:1 graphics floor this library sets for itself (pie slices, calendar dots).
+   Chroma usually has to come down with lightness or the colour leaves sRGB gamut.
+   → **Lesson: a documented floor is worthless until you measure your own values against it.
+   Writing the checklist is what found gaps 2 and 3 — neither was reported.**
 
 ### `min-width: auto` is the recurring villain — fix it at the producer
 
@@ -263,9 +277,7 @@ Before trusting a new regression test, **revert the fix and confirm the test goe
    unlock render tests for CalendarView / ImportWizard. **Cost:** a substantial new dev
    dependency against the anti-bloat mandate. **User's call — don't add it unilaterally.**
 3. **Workspace-package restructure** — deferred; scope as a written PLAN first.
-4. **Fix or accept the three logged contrast gaps** (`--warning` as text 1.92:1, `--chart-5`
-   2.53:1, `--muted-foreground` 4.24:1 on tinted surfaces). See the contrast register above.
-5. **`sharp` 3 high advisories** — via `www → next` only, not a library dep, unreachable in
+4. **`sharp` 3 high advisories** — via `www → next` only, not a library dep, unreachable in
    a static export (`images.unoptimized`). No non-breaking fix; **not** forced.
 
 ### Settled — do NOT re-open as "pending"

@@ -24,6 +24,12 @@ device," kept **lean, clean, and exhaustively documented**.
 3. **Tokens are the only source of truth** — no hardcoded colors/sizes; use
    Tailwind utilities that resolve to the theme in root `styles.css` (the
    shipped file; `www/app/globals.css` only imports it).
+   **Changing a token value?** Read the re-skin contrast checklist in
+   [`registry/tokens/README.md`](registry/tokens/README.md) first: several tokens
+   read as "brand colours" are rendered as body text, links or icons and carry a
+   hard WCAG floor, and one (`--warning`) is a fill whose text tone is a separate
+   token. A fork that swapped values without checking shipped 209 unreadable
+   nodes.
 4. **Config: every field required, no optionals.** Each configurable component
    exports `XConfig` (all required) + `defaultXConfig` template. The user
    explicitly never wants a hidden/forgettable knob.

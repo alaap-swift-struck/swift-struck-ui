@@ -48,8 +48,11 @@ function DataPreviewTable({
           <span className="tabular-nums">
             Previewing {rows.length} of {totalCount.toLocaleString()} rows
           </span>
+          {/* `warning-strong`, not `warning`: --warning is the FILL tone (badges
+              carry near-black text ON it) and reads 1.92:1 as text on a light
+              surface. --warning-strong is the same amber tuned for text/icons. */}
           {issueCount > 0 && (
-            <span className="inline-flex items-center gap-1 text-warning">
+            <span className="inline-flex items-center gap-1 text-warning-strong">
               <TriangleAlert className="size-3.5" aria-hidden /> {issueCount}{" "}
               {issueCount === 1 ? "issue" : "issues"}
             </span>
@@ -87,7 +90,8 @@ function DataPreviewTable({
                                 className="inline-flex"
                                 aria-label={`Issue: ${issue}`}
                               >
-                                <TriangleAlert className="size-4 text-warning" />
+                                {/* text tone, not the fill tone — see above */}
+                                <TriangleAlert className="size-4 text-warning-strong" />
                               </span>
                             </TooltipTrigger>
                             <TooltipContent>{issue}</TooltipContent>

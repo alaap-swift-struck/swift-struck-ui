@@ -44,25 +44,39 @@
 
   /* PRIMARY (brand) */
   --primary: oklch(0.55 0.095 185);
-  --primary-foreground: oklch(0.985 0 0);
+  /* Pure white, not 0.985: a label on a fill is measured against THAT FILL, and
+   * off-white gave 4.43:1 on --primary (4.37 on --success) — under the 4.5 text
+   * floor on every filled button and badge. White buys ~0.2 for free and is
+   * indistinguishable on a coloured fill. See registry/tokens/README.md, trap 3. */
+  --primary-foreground: oklch(1 0 0);
 
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
 
   --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  /* Secondary text. Measured against the TINTED surfaces it actually sits on
+   * (a hovered list row, a chat bubble, a command-menu highlight), not white:
+   * at 0.556 those were 4.14–4.35:1, under the 4.5 text floor, while plain
+   * white read a comfortable 4.73. See registry/tokens/README.md, trap 2. */
+  --muted-foreground: oklch(0.525 0 0);
 
   --accent: oklch(0.96 0.02 185);
   --accent-foreground: oklch(0.3 0.06 185);
 
   --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
+  --destructive-foreground: oklch(1 0 0); /* 4.56 → 4.76 on its own fill */
 
   --success: oklch(0.548 0.155 149);
-  --success-foreground: oklch(0.985 0 0);
+  --success-foreground: oklch(1 0 0); /* was 4.37 on its own fill — under 4.5 */
 
+  /* --warning is a FILL (badges, stepper tones, status dots) carrying the
+   * near-black --warning-foreground on top — that pairing is fine and the light
+   * amber is the accent identity, so it stays put. But at 1.92:1 it can never be
+   * TEXT on a light surface. --warning-strong is that on-surface tone (4.88:1).
+   * Two different checks; see registry/tokens/README.md, trap 3. */
   --warning: oklch(0.795 0.16 86);
   --warning-foreground: oklch(0.205 0 0);
+  --warning-strong: oklch(0.55 0.135 86);
 
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
@@ -79,7 +93,7 @@
   --chart-2: oklch(0.673 0.146 70);
   --chart-3: oklch(0.6 0.13 250);
   --chart-4: oklch(0.65 0.18 320);
-  --chart-5: oklch(0.7 0.15 145);
+  --chart-5: oklch(0.64 0.15 145); /* was 0.7 — 2.52:1, under the 3:1 floor */
 }
 
 .dark {
@@ -113,6 +127,10 @@
 
   --warning: oklch(0.828 0.16 86);
   --warning-foreground: oklch(0.205 0 0);
+  /* Dark mode never had the light-mode problem: the same amber reads 11.5:1 on
+   * the dark background. The token exists here so `text-warning-strong` resolves
+   * in both themes — this is an ADDITION, no existing dark value changed. */
+  --warning-strong: oklch(0.828 0.16 86);
 
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
@@ -158,6 +176,7 @@
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
+  --color-warning-strong: var(--warning-strong);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);

@@ -61,7 +61,9 @@ Light mode is the tight one. Dark mode has more headroom, but check both.
 | `--card-foreground` · `--popover-foreground` | text on those surfaces                                                | **4.5:1** | `--card`/`--popover`                                 |
 | `--muted-foreground`                         | secondary text, captions, chart axis + legend labels (~105 uses)      | **4.5:1** | the **tinted** surface it sits on — see trap 2       |
 | `--primary`                                  | **link text**, active tab/step labels, selected state, checked marks  | **4.5:1** | `--background`                                       |
-| `--success` · `--destructive` · `--warning`  | inline status text and icons (e.g. "3 issues" in the import preview)  | **4.5:1** | `--background`                                       |
+| `--success` · `--destructive`                | inline status text and icons                                          | **4.5:1** | `--background`                                       |
+| `--warning-strong`                           | warning **text and icons** on a light surface (e.g. "3 issues")       | **4.5:1** | `--background`                                       |
+| `--warning`                                  | warning **fill** only — badge/stepper/dot background, never text      | **4.5:1** | its own label, `--warning-foreground` — not the page |
 | `--accent-foreground`                        | text on `--accent`                                                    | **4.5:1** | `--accent`                                           |
 | `--*-foreground` on a solid fill             | label inside a filled Button/Badge                                    | **4.5:1** | its **own fill**, not the page                       |
 | `--ring`                                     | focus ring — the only visible focus affordance                        | **3:1**   | both the field **and** the page behind it            |
@@ -84,12 +86,18 @@ border the _only_ affordance for an input, WCAG 1.4.11 pulls it to **3:1**.
    reverted it in v0.9.4). Keep graphics tokens ≥ 3:1 and no further. The
    converse is the real danger: the amber we started with was **2.13:1** and
    failed even the graphics floor.
-2. **Measure `--muted-foreground` on your tinted surfaces, not on white.** Ours
-   is 4.73:1 on `#fff` but **4.24:1** on an `--accent`-tinted card — the same
-   token passes and fails depending on what's behind it.
-3. **Foreground-on-fill pairs are measured against the fill.** `--warning` can
-   be too light to read as text while `--warning-foreground` on top of it is
-   perfectly fine. Those are two different checks; both must pass.
+2. **Measure `--muted-foreground` on your tinted surfaces, not on white.** This is
+   the one that hides. Ours read a comfortable 4.73:1 on plain white while
+   **failing at 4.14–4.35:1** on the surfaces it actually sits on — a hovered list
+   row, a chat bubble, an inactive tab, a command-menu highlight. 198 of 207 nodes
+   passed; the 9 that mattered were invisible to a check against `--background`.
+   Fixed in v0.9.5 by darkening the token to `oklch(0.525 0 0)`.
+3. **A fill tone and a text tone are two different tokens.** `--warning` is a
+   _fill_: a badge background with near-black `--warning-foreground` on top, which
+   is fine. As **text** on a light surface the same amber is **1.92:1** — unusable.
+   So the library carries a separate `--warning-strong` for warning text and
+   icons. If your skin has a light accent colour, it needs the same split; don't
+   darken the fill to fix the text, or you lose the fill's own pairing.
 
 ## How to check your own values
 
@@ -107,7 +115,7 @@ and prints pass/fail per floor. Run it once in light mode and once in dark.
     primary: 4.5,
     success: 4.5,
     destructive: 4.5,
-    warning: 4.5,
+    "warning-strong": 4.5, // the TEXT tone; --warning is a fill, see trap 3
     "accent-foreground": 4.5,
     ring: 3,
     "chart-1": 3,
@@ -157,35 +165,65 @@ states, and the focus ring**. Those are where the failures actually land.
 Light mode, measured on the live site with the snippet above. Dark mode sits
 comfortably at 5.7–10:1 throughout.
 
-| Token                  | Value     | Ratio   | Floor |              |
-| ---------------------- | --------- | ------- | ----- | ------------ |
-| `--foreground`         | `#0a0a0a` | 19.80:1 | 4.5   | ✅           |
-| `--muted-foreground`   | `#737373` | 4.73:1  | 4.5   | ⚠️ see below |
-| `--primary` / `--ring` | `#0a8379` | 4.63:1  | 4.5   | ✅           |
-| `--success`            | `#008839` | 4.58:1  | 4.5   | ✅           |
-| `--destructive`        | `#e7000b` | 4.77:1  | 4.5   | ✅           |
-| `--warning`            | `#eab312` | 1.92:1  | 4.5   | ❌ known     |
-| `--accent-foreground`  | `#003732` | 13.19:1 | 4.5   | ✅           |
-| `--chart-1`            | `#0d8d82` | 4.08:1  | 3     | ✅           |
-| `--chart-2`            | `#ce8300` | 3.06:1  | 3     | ✅           |
-| `--chart-3`            | `#3a84ca` | 3.94:1  | 3     | ✅           |
-| `--chart-4`            | `#be64d2` | 3.53:1  | 3     | ✅           |
-| `--chart-5`            | `#5bb661` | 2.53:1  | 3     | ❌ known     |
+**Every token carrying a floor now clears it.** As of v0.9.5 there are no known
+gaps — if you find one, it's a bug, not accepted debt.
 
-**Known gaps — logged, not yet fixed:**
+| Token                  | Value     | vs `--background` | Floor |      |
+| ---------------------- | --------- | ----------------- | ----- | ---- |
+| `--foreground`         | `#0a0a0a` | 19.80:1           | 4.5   | ✅   |
+| `--accent-foreground`  | `#003732` | 13.19:1           | 4.5   | ✅   |
+| `--muted-foreground`   | `#6a6a6a` | 5.39:1            | 4.5   | ✅   |
+| `--warning-strong`     | `#946a00` | 4.88:1            | 4.5   | ✅   |
+| `--destructive`        | `#e7000b` | 4.77:1            | 4.5   | ✅   |
+| `--primary` / `--ring` | `#0a8379` | 4.63:1            | 4.5   | ✅   |
+| `--success`            | `#008839` | 4.58:1            | 4.5   | ✅   |
+| `--chart-1`            | `#0d8d82` | 4.08:1            | 3     | ✅   |
+| `--chart-3`            | `#3a84ca` | 3.94:1            | 3     | ✅   |
+| `--chart-4`            | `#be64d2` | 3.53:1            | 3     | ✅   |
+| `--chart-5`            | `#47a34e` | 3.17:1            | 3     | ✅   |
+| `--chart-2`            | `#ce8300` | 3.06:1            | 3     | ✅   |
+| `--warning` (fill)     | `#eab312` | 1.92:1            | —\*   | ✅\* |
 
-- **`--muted-foreground` 4.24:1 on `--accent`-tinted card surfaces** (4.73:1 on
-  plain white). A near-miss on secondary text only. Cosmetic; fixing it means
-  darkening the token a notch, which touches ~105 call sites' appearance.
-- **`--warning` 1.92:1 used as text.** `text-warning` appears in
-  [`data-preview-table`](../collections/data-preview-table/data-preview-table.tsx)
-  for the issue count and its warning icon. The token itself is fine as a _fill_
-  (`bg-warning` with the near-black `--warning-foreground` on it) — this is trap 3. A fix needs a separate on-surface tone rather than darkening `--warning`,
-  which would break the badge pairing.
-- **`--chart-5` 2.53:1**, below the 3:1 graphics floor set above. Used for pie
-  slices and calendar event dots. Raising it means dropping lightness ~0.06;
-  chroma usually has to come down a little as lightness does, or the colour
-  falls out of sRGB gamut.
+\* `--warning` is a **fill**, so the check that matters is its own label sitting on
+it: `--warning-foreground` on `--warning` is **9.33:1**. Its 1.92:1 against the
+page is not a text failure — it's why `--warning-strong` exists (trap 3). One
+caveat to carry into your own skin: where a `bg-warning` **dot** appears with no
+text beside it, that low page-contrast is doing real work, so keep such dots
+paired with a label rather than relying on colour alone.
 
-If you are re-skinning, **do not inherit these three** — they are our debt, not a
-licence to sit under the floor.
+`--muted-foreground` is the one to re-check by hand, because the table above
+measures it against `--background` and that is not where it fails. On the tinted
+surfaces it actually sits on it reads **4.71:1** (hovered list row), **4.82:1**
+(command-menu highlight) and **4.95:1** (chat bubble / `--muted`) — all clear,
+but all lower than the 5.39 the table shows.
+
+### Labels on fills (light)
+
+The other check the table can't do. Each is measured against its own fill:
+
+| Pair                                          | Ratio  |     |
+| --------------------------------------------- | ------ | --- |
+| `--warning-foreground` on `--warning`         | 9.33:1 | ✅  |
+| `--destructive-foreground` on `--destructive` | 4.76:1 | ✅  |
+| `--primary-foreground` on `--primary`         | 4.62:1 | ✅  |
+| `--success-foreground` on `--success`         | 4.57:1 | ✅  |
+
+Those top out where they do because the fills are already at the text floor
+against the page; the labels are **pure white** (`oklch(1 0 0)`) rather than the
+conventional off-white `0.985`, which was worth ~0.2 and moved `--primary` and
+`--success` from failing to passing. If you re-skin, don't "tidy" them back to
+off-white.
+
+### Known gap — dark mode, labels on fills
+
+Dark mode is comfortable for text on the page (5.7–19:1), but two **filled**
+controls are not: `--primary-foreground` on the dark `--primary` is **3.30:1**
+and `--destructive-foreground` on the dark `--destructive` is **2.77:1**. Dark
+`--success` and `--warning` are fine because they already carry the _near-black_
+foreground (7.07:1 and 10.44:1).
+
+The fix is to follow suit — near-black labels on those two bright dark-mode fills
+gives 5.53:1 — but that inverts button label colour in dark mode, so it is a
+**design decision, not a silent patch**, and is deliberately not applied here.
+Carry the check into your own skin either way: a bright fill in a dark theme
+usually wants a dark label.

@@ -3,12 +3,56 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 90 components** (64 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 214 across 31 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async/range filter facets · creatable Choice · in-header sort control · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
+> **Built: 90 components** (64 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 224 across 33 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async/range filter facets · creatable Choice · in-header sort control · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
 
 > The live counts are authoritative from `registry.json` (components) and
 > `npm run guardrails` ("N modules", which also counts logic + test files).
 
 > **Glide config reference:** see `GLIDE-CONFIG-RESEARCH.md` — every component's real Glide config options, the source of truth for parity.
+
+---
+
+## 🎨 Re-skin contrast checklist + the last three contrast gaps closed (v0.9.5)
+
+A fork of this library re-skinned it by changing **only** the token values and the icon set
+— 5 lines of visible text differed across three pages — and shipped **209 failing-contrast
+text nodes** in light mode against our 39 on the identical page. Worst case: a pale-yellow
+`--primary` at **1.30:1**, because `--primary` is what `article-body` renders **link text**
+in. Everything needed to prevent that existed only as a comment in `styles.css`.
+
+- [x] **`registry/tokens/README.md` now carries a RE-SKIN CONTRAST CHECKLIST** — which
+      tokens carry a floor, which floor each carries and why, which are text vs fills, three
+      traps, and a paste-in browser-console snippet that prints pass/fail per token. It uses
+      **canvas rasterisation**, because a naive `oklch()` string parse of `getComputedStyle`
+      output gets the numbers wrong. **Linked from README.md in two places** — a forker
+      reads the README, not our token comments — and it ships inside the package.
+- [x] **`--muted-foreground` darkened `0.556` → `0.525` (`#6a6a6a`).** The trap it
+      illustrates: measured against `--background` it read a comfortable 4.73:1 and looked
+      fine. Measured against the surfaces it _actually_ sits on, 5 shipped components failed
+      — a hovered list row (**4.14:1**), chat-bubble timestamps, an inactive tab, and the
+      command-menu shortcut hint (4.24–4.35:1). Now 4.71:1 on the worst of those, 5.39:1 on
+      white. 198 of 207 nodes were always fine; the 9 that weren't are invisible to a check
+      against the page background.
+- [x] **New `--warning-strong` token (`#946a00`, 4.88:1) for warning TEXT.** `--warning`
+      is a **fill**: a badge/stepper background carrying near-black `--warning-foreground`
+      at 9.33:1, which is fine and is the amber accent identity. As _text_ on a light
+      surface the same amber is **1.92:1**. `data-preview-table` used `text-warning` for the
+      issue count and its warning icon; both now use `text-warning-strong`. Darkening
+      `--warning` itself would have fixed the text and broken the badge.
+- [x] **`--chart-5` darkened `0.7` → `0.64` (`#47a34e`, 2.52:1 → 3.17:1)** — it was under
+      the 3:1 graphics floor this library sets for itself, on pie slices and calendar dots.
+- [x] **Regression guards for the two bugs that had none.** `min-width: auto` has caused
+      three bugs here and the chart-shrink bug shipped twice. `card.test.tsx` and
+      `chart.test.tsx` cover them, and **both were proven able to fail** — reverting the
+      fixes turns 5 tests red. jsdom has no layout engine, so the Card guard is a class
+      contract and the chart guard drives a controllable `ResizeObserver` by hand; both
+      files say so at the top, so nobody "improves" them into tests that cannot fail. Real
+      pixel reflow remains a manual browser check — stated plainly rather than implied.
+- [x] **The catalog drift guard skipped anchored links.** `[x](file.md#section)` never
+      matched its regex, so deep links to non-existent files went unchecked. Fixed.
+
+Dark mode was not touched: `--warning-strong` is _added_ there (11.5:1) so the utility
+resolves in both themes, and no existing dark value changed.
 
 ---
 
