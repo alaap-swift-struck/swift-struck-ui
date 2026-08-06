@@ -30,3 +30,16 @@ Components reference tokens through Tailwind utilities, never raw values:
 
 Adding a new token means editing `app/globals.css` once. Every consumer updates
 automatically.
+
+## Contrast floor (light mode)
+
+The brand tokens that get used as **text or icons** — `--primary`, `--chart-1`,
+`--chart-2`, `--success` — are tuned to clear **WCAG AA 4.5:1** against the light
+`--background`, and `--ring` follows `--primary`. Light mode is the tight one:
+dark mode sits comfortably at 5.7–10:1.
+
+When re-theming, change the **hue** freely but re-check the ratio before dropping
+lightness back up — several of these previously sat between 2.1:1 and 4.1:1, which
+failed for label text and (at 2.13:1) even for the Rating stars, where the 3:1
+graphics floor applies. Chroma usually has to come down a little as lightness does,
+or the colour falls out of sRGB gamut.

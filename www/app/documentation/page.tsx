@@ -150,6 +150,39 @@ const CATALOG: CatalogItem[] = [
     blurb: "A config-driven form with built-in validation.",
   },
   {
+    name: "Select",
+    category: "Inputs",
+    blurb:
+      "A native-feeling dropdown for a short, fixed list. For a long list use Choice — it searches itself.",
+  },
+  {
+    name: "Toggle",
+    category: "Inputs",
+    blurb: "A single button that stays pressed — on or off.",
+  },
+  {
+    name: "Toggle Group",
+    category: "Inputs",
+    blurb: "A row of toggles behaving as one control — pick one, or several.",
+  },
+  {
+    name: "Command",
+    category: "Overlays",
+    blurb:
+      "The ⌘K palette — type to find and run anything, with grouped results and shortcuts.",
+  },
+  {
+    name: "Stopwatch",
+    category: "Display",
+    blurb: "A running timer — start, pause, and reset an elapsed count.",
+  },
+  {
+    name: "Table",
+    category: "Collections",
+    blurb:
+      "The bare table primitive (header, body, rows, cells). Data Table is the config-driven one built on it.",
+  },
+  {
     name: "Search Input",
     category: "Inputs",
     blurb:

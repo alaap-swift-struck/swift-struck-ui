@@ -169,17 +169,33 @@ function Chart<T extends Record<string, unknown>>({
 
   // Measure the container ourselves (ResponsiveContainer mis-measures inside
   // some flex/grid + animated layouts) and pass explicit pixel dimensions.
+  //
+  // The chart must SHRINK as well as grow. It used to only grow: dragging a
+  // desktop window down to phone width left the chart at its old pixel width
+  // and the page scrolled sideways (a fresh load at that width was fine, so it
+  // only bit on window-drag and device rotation). Three things keep it honest:
+  //   • `clientWidth` on the element, not the observer's contentRect — the
+  //     entry can lag or be skipped while the box itself is always current.
+  //   • a `window.resize` listener as a second trigger, because a single
+  //     ResizeObserver is not reliably delivered in every host (embedded
+  //     webviews, background tabs, throttled rAF).
+  //   • `min-w-0` + `overflow-hidden` on the wrapper below, so even if a
+  //     measurement is momentarily stale the oversized chart can never widen
+  //     its parent or the page.
   const ref = React.useRef<HTMLDivElement>(null)
   const [width, setWidth] = React.useState(0)
   React.useEffect(() => {
     const el = ref.current
     if (!el) return
-    setWidth(el.clientWidth)
-    const ro = new ResizeObserver((entries) =>
-      setWidth(Math.round(entries[0].contentRect.width))
-    )
+    const measure = () => setWidth(el.clientWidth)
+    measure()
+    const ro = new ResizeObserver(measure)
     ro.observe(el)
-    return () => ro.disconnect()
+    window.addEventListener("resize", measure)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener("resize", measure)
+    }
   }, [])
 
   // token → real colour (falls back to the var() until resolved); raw CSS
@@ -401,7 +417,10 @@ function Chart<T extends Record<string, unknown>>({
   return (
     <div
       ref={ref}
-      className={cn("w-full", className)}
+      // min-w-0: as a flex/grid item the default `min-width: auto` refuses to
+      // shrink below the chart's own width. overflow-hidden: a stale wide chart
+      // clips instead of pushing the page sideways. See the measure effect.
+      className={cn("w-full min-w-0 overflow-hidden", className)}
       style={{ height: config.height }}
     >
       {width > 0 &&

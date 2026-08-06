@@ -3,7 +3,7 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 90 components** (64 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 208 across 30 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async/range filter facets · creatable Choice · in-header sort control · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
+> **Built: 90 components** (64 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 211 across 31 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async/range filter facets · creatable Choice · in-header sort control · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
 
 > The live counts are authoritative from `registry.json` (components) and
 > `npm run guardrails` ("N modules", which also counts logic + test files).
@@ -11,6 +11,44 @@ what's built and what's left.
 > **Glide config reference:** see `GLIDE-CONFIG-RESEARCH.md` — every component's real Glide config options, the source of truth for parity.
 
 ---
+
+## 🐞 Fixed — docs drift, light-mode contrast, chart resize (v0.9.2)
+
+Three findings from an audit of the live site. All verified independently before changing
+anything — two of the reported numbers needed correcting (below).
+
+- [x] **Docs catalog was 6 entries behind registry.json** (85 vs 91). Confirmed the 13
+      unmatched names, then classified each: **Select, Toggle, Toggle Group, Command,
+      Stopwatch and Table** are genuinely user-facing (each has its own gallery demo card)
+      and are now documented — they were demoed but unfindable from docs search.
+      `visibility`, `use-debounce`, `label` and `sonner` are internal/renamed, and
+      `calendar-view` / `detail-view` / `stat-grid` were already documented under
+      friendlier names. **Table was NOT on the reported "looks real" list**, but it has a
+      dedicated "Table (primitive)" demo, so it counted.
+- [x] **Drift can't repeat: `registry/catalog-sync.test.ts`.** The catalog stays
+      hand-written (the prose is worth it) and a test now fails when the two lists
+      disagree. Every registry entry must be documented or declared exempt _with a
+      reason_; a second test keeps the exemption list honest so it can't become a hiding
+      place. Adding a component now fails CI until it's documented.
+- [x] **Light-mode contrast now meets AA (4.5:1).** Darkened `--primary`, `--chart-1`,
+      `--chart-2` and `--success` — lightness/chroma only, **hue unchanged**, so the teal
+      brand identity is intact. Measured in-browser after the change: 4.63 / 4.63 / 4.59 /
+      4.58 (all pass). `--ring` was left behind at the old value despite its own "RING
+      follows PRIMARY" comment — synced. Dark mode untouched and still clean (5.7–10:1).
+      **Two corrections to the report:** the tokens live in `styles.css` (the shipped
+      theme), not `www/app/globals.css` — that file only imports it, so editing it would
+      have done nothing; and the two chart values quoted were the **dark-mode** tokens
+      (light `--chart-2` was 2.13:1, not 1.99:1). The failures were real either way.
+- [x] **Chart shrinks as well as grows.** Reproduced: dragged 1280 → 375 without
+      reloading and the chart stayed 942px while its parent went to 293px, pushing
+      `scrollWidth` to 983. Fixed with `min-w-0` + `overflow-hidden` on the wrapper (a
+      flex item's default `min-width: auto` refuses to shrink below its content) plus a
+      `window.resize` fallback beside the ResizeObserver, and measuring `clientWidth`
+      rather than the observer's `contentRect`. Verified: no page overflow at 375, and
+      the chart re-measured 942 → 340 to fit a clamped container.
+      **Harness note:** neither the preview pane nor a CDP-driven background tab delivers
+      ResizeObserver callbacks or `resize` events (measured: 0 of each while the viewport
+      changed), so the re-measure had to be proven by dispatching the event directly.
 
 ## 🐞 Fixed — the ✕ on an active filter opened the dropdown instead of clearing (v0.9.1)
 

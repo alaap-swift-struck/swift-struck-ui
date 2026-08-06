@@ -43,7 +43,7 @@
   --popover-foreground: oklch(0.145 0 0);
 
   /* PRIMARY (brand) */
-  --primary: oklch(0.58 0.1 185);
+  --primary: oklch(0.55 0.095 185);
   --primary-foreground: oklch(0.985 0 0);
 
   --secondary: oklch(0.97 0 0);
@@ -58,7 +58,7 @@
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
 
-  --success: oklch(0.627 0.17 149);
+  --success: oklch(0.548 0.155 149);
   --success-foreground: oklch(0.985 0 0);
 
   --warning: oklch(0.795 0.16 86);
@@ -66,11 +66,11 @@
 
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.58 0.1 185); /* RING follows PRIMARY */
+  --ring: oklch(0.55 0.095 185); /* RING follows PRIMARY */
 
   /* Chart palette — chart-2 (amber) is the accent in the demo dashboard. */
-  --chart-1: oklch(0.58 0.1 185);
-  --chart-2: oklch(0.77 0.16 70);
+  --chart-1: oklch(0.55 0.095 185);
+  --chart-2: oklch(0.57 0.124 70);
   --chart-3: oklch(0.6 0.13 250);
   --chart-4: oklch(0.65 0.18 320);
   --chart-5: oklch(0.7 0.15 145);
