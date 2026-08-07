@@ -11,9 +11,9 @@
 
 ## Current state
 
-- **Package version `0.9.5`.** Local = GitHub (`origin/main`) = staging = production, all
-  at the same commit, tagged `v0.9.5`. Working tree clean.
-- **Tests: 224 passing across 33 files.** Gate is green: `tsc` (root AND `www`),
+- **Package version `0.9.6`.** Local = GitHub (`origin/main`) = staging = production, all
+  at the same commit, tagged `v0.9.6`. Working tree clean.
+- **Tests: 225 passing across 33 files.** Gate is green: `tsc` (root AND `www`),
   `npm test`, `npm run guardrails` (176 modules, 0 violations), `npm run format:check`.
 - **Health (lean_mean_check): 94/100, Grade A.** Reports at `lean-mean-report.html` +
   `.md` (gitignored, local artifacts).
@@ -25,28 +25,29 @@
 
 ### Every release is a git tag
 
-`v0.1.0` … `v0.9.5`, each verified against the `package.json` at that commit. Hosts pin
-with `npm install github:alaap-swift-struck/swift-struck-ui#v0.9.5`.
+`v0.1.0` … `v0.9.6`, each verified against the `package.json` at that commit. Hosts pin
+with `npm install github:alaap-swift-struck/swift-struck-ui#v0.9.6`.
 
 ---
 
 ## What shipped since v0.3.0 (chronological)
 
-| Version | What                                                                                                                  |
-| ------- | --------------------------------------------------------------------------------------------------------------------- |
-| 0.4.0   | flat List self-rounds; AgentChat attachment slot                                                                      |
-| 0.5.0   | **searchable + async filter facets** (`FilterFacet.searchable`, `onSearch`)                                           |
-| 0.5.1   | shared `use-debounce` primitive (`useDebouncedCallback`) — DRY cleanup                                                |
-| 0.6.0   | **numeric range facet** (`control:"range"`) + `Input` placeholder ellipsis                                            |
-| 0.7.0   | **in-header SortControl** + `ListItem.fields`                                                                         |
-| 0.7.1   | release hygiene: git tags, tests excluded from tarball, honest install docs                                           |
-| 0.8.0   | **creatable Choice** (`creatable`, `createLabel`, `onCreate`)                                                         |
-| 0.9.0   | 6 host-reported primitive fixes (dialog scroll `modal`, ring `shape`, truncation, `RecipeTab.badge`, per-facet clear) |
-| 0.9.1   | **clear ✕ opened the dropdown instead of clearing**                                                                   |
-| 0.9.2   | docs-catalog drift, light-mode contrast, chart resize                                                                 |
-| 0.9.3   | audit pass: split filter-bar, drift guards, doc corrections                                                           |
-| 0.9.4   | **Card `min-w-0`**, chart tokens restored to graphics floor, stale token paths purged                                 |
-| 0.9.5   | **RE-SKIN CONTRAST CHECKLIST** + last 3 contrast gaps closed (new `--warning-strong`); Card/Chart regression guards   |
+| Version | What                                                                                                                      |
+| ------- | ------------------------------------------------------------------------------------------------------------------------- |
+| 0.4.0   | flat List self-rounds; AgentChat attachment slot                                                                          |
+| 0.5.0   | **searchable + async filter facets** (`FilterFacet.searchable`, `onSearch`)                                               |
+| 0.5.1   | shared `use-debounce` primitive (`useDebouncedCallback`) — DRY cleanup                                                    |
+| 0.6.0   | **numeric range facet** (`control:"range"`) + `Input` placeholder ellipsis                                                |
+| 0.7.0   | **in-header SortControl** + `ListItem.fields`                                                                             |
+| 0.7.1   | release hygiene: git tags, tests excluded from tarball, honest install docs                                               |
+| 0.8.0   | **creatable Choice** (`creatable`, `createLabel`, `onCreate`)                                                             |
+| 0.9.0   | 6 host-reported primitive fixes (dialog scroll `modal`, ring `shape`, truncation, `RecipeTab.badge`, per-facet clear)     |
+| 0.9.1   | **clear ✕ opened the dropdown instead of clearing**                                                                       |
+| 0.9.2   | docs-catalog drift, light-mode contrast, chart resize                                                                     |
+| 0.9.3   | audit pass: split filter-bar, drift guards, doc corrections                                                               |
+| 0.9.4   | **Card `min-w-0`**, chart tokens restored to graphics floor, stale token paths purged                                     |
+| 0.9.5   | **RE-SKIN CONTRAST CHECKLIST** + last 3 contrast gaps closed (new `--warning-strong`); Card/Chart regression guards       |
+| 0.9.6   | **Recharts legend labels pinned to the text token** (trap 4); dark-mode fill labels to near-black; chat timestamp opacity |
 
 ---
 
@@ -57,14 +58,27 @@ with `npm install github:alaap-swift-struck/swift-struck-ui#v0.9.5`.
 - `--primary` and `--success` **are used as text** (`text-primary` ×22, `text-success` on
   the progress-toggle "Done" label) → they must hold **WCAG 4.5:1**. Currently 4.63 / 4.58.
 - `--chart-1` … `--chart-5` are **GRAPHICS ONLY** — chart areas, rating stars
-  (`fill-chart-2`), 6px calendar dots. Chart axis/legend text uses `muted-foreground`.
-  → the bar is **WCAG 1.4.11 non-text contrast, 3:1**, NOT 4.5:1.
+  (`fill-chart-2`), 6px calendar dots. Chart axis text uses `muted-foreground`, and legend
+  label text does too — but only because `Chart` forces it (see v0.9.6 below; Recharts
+  defaults it to the series colour). → the bar is **WCAG 1.4.11 non-text contrast, 3:1**,
+  NOT 4.5:1.
 - v0.9.2 wrongly darkened the chart tokens to 4.5:1, turning the amber accent to ochre.
   v0.9.4 restored: `--chart-1` → `#0d8d82` (4.08:1, a full revert — it always cleared 3:1),
   `--chart-2` → `#ce8300` (3.06:1).
 - **The original amber `#f49f1e` was 2.13:1 and failed even the 3:1 floor** — so do NOT
   "restore" it. This split is documented in `styles.css` so neither side gets reverted.
-- Dark mode was never touched and is clean (5.7–10:1).
+- Dark mode **page text** is clean (5.7–10:1) and was never touched. Its **filled
+  controls** were not, and were fixed in v0.9.6: dark brand fills are LIGHTER than their
+  light-mode counterparts, so the near-white label that works in light mode read 3.30:1 on
+  `--primary` and 2.77:1 on `--destructive`. Both now use the near-black foreground that
+  dark `--success`/`--warning` always had (5.20:1, 6.19:1). Rule to carry: **a bright fill
+  in a dark theme wants a dark label** — check fill/label pairs in BOTH modes.
+- **v0.9.6 — a dependency can put your fill token into text.** Recharts colours legend
+  **labels** with the series colour by default; the chart palette sat at the 3:1 graphics
+  floor on the (wrong) basis that it was never text. `--chart-2` was rendering as 12px text
+  at 3.05:1. `Chart` now pins the legend label to `--muted-foreground` via `formatter`; the
+  swatch keeps the series colour. Guarded in `chart.test.tsx`, proven able to fail. This is
+  trap 4 in the checklist. The lesson generalises: **audit the rendered page, not your JSX.**
 - **This knowledge now lives in `registry/tokens/README.md` as a RE-SKIN CHECKLIST**, linked
   from README.md — a forker reads the README, not our token comments. Written because a fork
   changed only the token values + icon set (5 lines of visible text differed across three

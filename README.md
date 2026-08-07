@@ -38,14 +38,14 @@ The library **is** this repo — install it straight from GitHub:
 npm install github:alaap-swift-struck/swift-struck-ui react react-dom
 
 # or pin to a release (recommended for production apps)
-npm install github:alaap-swift-struck/swift-struck-ui#v0.9.5 react react-dom
+npm install github:alaap-swift-struck/swift-struck-ui#v0.9.6 react react-dom
 ```
 
 ```tsx
 import { Button } from "@swift-struck/ui/registry/primitives/button/button"
 ```
 
-Every release is a git tag (`v0.9.5`, `v0.9.4`, …) — see [PROGRESS.md](PROGRESS.md)
+Every release is a git tag (`v0.9.6`, `v0.9.5`, …) — see [PROGRESS.md](PROGRESS.md)
 for what changed in each.
 
 ### Required setup — the library ships TypeScript source
@@ -80,7 +80,7 @@ while its `package.json` looks current. To actually move:
 
 ```bash
 # untracked/pinned → jump to a specific release
-npm install github:alaap-swift-struck/swift-struck-ui#v0.9.5
+npm install github:alaap-swift-struck/swift-struck-ui#v0.9.6
 
 # tracking main → re-resolve to the newest commit
 npm update @swift-struck/ui

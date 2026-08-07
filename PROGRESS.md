@@ -3,12 +3,49 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 90 components** (64 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 224 across 33 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async/range filter facets · creatable Choice · in-header sort control · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
+> **Built: 90 components** (64 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 225 across 33 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async/range filter facets · creatable Choice · in-header sort control · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
 
 > The live counts are authoritative from `registry.json` (components) and
 > `npm run guardrails` ("N modules", which also counts logic + test files).
 
 > **Glide config reference:** see `GLIDE-CONFIG-RESEARCH.md` — every component's real Glide config options, the source of truth for parity.
+
+---
+
+## 🔎 Legend labels + dark-mode fill labels — the last two contrast gaps (v0.9.6)
+
+Two gaps the v0.9.5 audit could not see, both found by measuring the **rendered
+page** rather than our own JSX.
+
+**1 · Recharts was colouring legend labels for us.** The chart palette was audited
+as graphics-only and set to the 3:1 floor on that basis. But Recharts colours its
+legend **label text** with the series colour by default — putting `--chart-2` into
+12px text at **3.05:1** and `--chart-1` at **4.07:1**, with nothing in our source
+asking for it. `Chart` now pins the legend label to `--muted-foreground`; the
+swatch keeps the series colour, so the chart still reads as colour-coded. This is
+now **trap 4** in the re-skin checklist: _a dependency can turn your fill token
+into text without you writing a line._
+
+**2 · Dark-mode labels on filled controls.** Dark brand fills are **lighter** than
+their light-mode counterparts, so the near-white label that works in light mode was
+wrong here: **3.30:1** on `--primary` and **2.77:1** on `--destructive`. Both now
+carry the near-black foreground that dark `--success` and `--warning` always used —
+**5.20:1** and **6.19:1** — which also makes the four filled controls consistent
+with each other for the first time.
+
+Also fixed while in there: the chat timestamp used `text-primary-foreground/70`,
+which at 10px measured **2.6:1** (light) and **2.3:1** (dark) against the bubble
+fill. It now runs at full opacity — the size difference already carries the
+hierarchy.
+
+Guard: `chart.test.tsx` asserts the legend label resolves to the text token.
+Proven able to fail — deleting the `formatter` prop turns it red.
+
+Verified on the rendered gallery in both modes: 869 text nodes, **zero real
+failures**. The only flagged nodes are white/near-black labels on the primary
+**gradient** button (4.78–5.20:1, computed) and a cover-image title sitting on a
+`from-black/75` scrim — both invisible to a checker that only reads
+`background-color`.
 
 ---
 

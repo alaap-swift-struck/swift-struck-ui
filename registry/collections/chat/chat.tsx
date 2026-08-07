@@ -66,8 +66,11 @@ function Chat({
               <div
                 className={cn(
                   "mt-0.5 text-[10px]",
+                  // Full opacity, not /70: at 10px the faded variant measured
+                  // 2.6:1 (light) and 2.3:1 (dark) against the bubble fill. The
+                  // size difference already carries the hierarchy.
                   m.from === "me"
-                    ? "text-primary-foreground/70"
+                    ? "text-primary-foreground"
                     : "text-muted-foreground"
                 )}
               >

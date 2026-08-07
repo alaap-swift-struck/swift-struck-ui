@@ -140,6 +140,28 @@ describe("Chart resizes with its container", () => {
     expect(observers.length).toBe(0)
   })
 
+  it("legend LABELS use the text token, not the series colour", () => {
+    // WHY: Recharts colours legend label text with the series colour by
+    // default. That put --chart-2 (tuned to the 3:1 GRAPHICS floor) into 12px
+    // text at 3.05:1 and --chart-1 at 4.07:1 — both under the 4.5:1 text floor,
+    // with nothing in our own source asking for it. Proven able to fail:
+    // deleting the `formatter` prop turns this red.
+    const { container } = render(
+      <Chart
+        data={DATA}
+        config={{ ...defaultChartConfig, animate: false, showLegend: true }}
+      />
+    )
+    const labels = container.querySelectorAll(".recharts-legend-item-text")
+    expect(labels.length).toBeGreaterThan(0)
+    labels.forEach((label) => {
+      // The formatter wraps the text in a span that pins the colour.
+      const pinned = label.querySelector("span")
+      expect(pinned).not.toBeNull()
+      expect(pinned!.style.color).toContain("--color-muted-foreground")
+    })
+  })
+
   it("wrapper can never widen its parent (min-w-0 + overflow-hidden)", () => {
     // Belt and braces: even a momentarily stale measurement must clip rather
     // than push the page sideways. Same class-contract caveat as card.test.tsx.

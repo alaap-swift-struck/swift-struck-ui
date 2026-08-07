@@ -107,8 +107,12 @@
   --popover-foreground: oklch(0.985 0 0);
 
   /* PRIMARY (brand) */
+  /* Near-black label, matching --success/--warning below. The dark brand fills
+   * are LIGHTER than their light-mode counterparts, so a near-white label sat
+   * at 3.30:1 on --primary and 2.77:1 on --destructive — under the 4.5:1 floor
+   * a filled control's own label has to clear. Near-black gives 5.20 and 6.19. */
   --primary: oklch(0.62 0.11 185);
-  --primary-foreground: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
 
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
@@ -120,7 +124,7 @@
   --accent-foreground: oklch(0.95 0.02 185);
 
   --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.985 0 0);
+  --destructive-foreground: oklch(0.205 0 0); /* was 2.77 on its own fill */
 
   --success: oklch(0.696 0.17 149);
   --success-foreground: oklch(0.205 0 0);

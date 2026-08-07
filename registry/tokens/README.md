@@ -55,19 +55,22 @@ Light mode is the tight one. Dark mode has more headroom, but check both.
 
 ## Which tokens carry a floor
 
-| Token                                        | Rendered as                                                           | Floor     | Measured against                                     |
-| -------------------------------------------- | --------------------------------------------------------------------- | --------- | ---------------------------------------------------- |
-| `--foreground`                               | body text                                                             | **4.5:1** | `--background`                                       |
-| `--card-foreground` · `--popover-foreground` | text on those surfaces                                                | **4.5:1** | `--card`/`--popover`                                 |
-| `--muted-foreground`                         | secondary text, captions, chart axis + legend labels (~105 uses)      | **4.5:1** | the **tinted** surface it sits on — see trap 2       |
-| `--primary`                                  | **link text**, active tab/step labels, selected state, checked marks  | **4.5:1** | `--background`                                       |
-| `--success` · `--destructive`                | inline status text and icons                                          | **4.5:1** | `--background`                                       |
-| `--warning-strong`                           | warning **text and icons** on a light surface (e.g. "3 issues")       | **4.5:1** | `--background`                                       |
-| `--warning`                                  | warning **fill** only — badge/stepper/dot background, never text      | **4.5:1** | its own label, `--warning-foreground` — not the page |
-| `--accent-foreground`                        | text on `--accent`                                                    | **4.5:1** | `--accent`                                           |
-| `--*-foreground` on a solid fill             | label inside a filled Button/Badge                                    | **4.5:1** | its **own fill**, not the page                       |
-| `--ring`                                     | focus ring — the only visible focus affordance                        | **3:1**   | both the field **and** the page behind it            |
-| `--chart-1` … `--chart-5`                    | bars, areas, pie slices, rating stars, calendar dots — **never text** | **3:1**   | `--background` (and each other, for adjacent slices) |
+| Token                                        | Rendered as                                                            | Floor     | Measured against                                     |
+| -------------------------------------------- | ---------------------------------------------------------------------- | --------- | ---------------------------------------------------- |
+| `--foreground`                               | body text                                                              | **4.5:1** | `--background`                                       |
+| `--card-foreground` · `--popover-foreground` | text on those surfaces                                                 | **4.5:1** | `--card`/`--popover`                                 |
+| `--muted-foreground`                         | secondary text, captions, chart axis **and legend** labels (~105 uses) | **4.5:1** | the **tinted** surface it sits on — see trap 2       |
+| `--primary`                                  | **link text**, active tab/step labels, selected state, checked marks   | **4.5:1** | `--background`                                       |
+| `--success` · `--destructive`                | inline status text and icons                                           | **4.5:1** | `--background`                                       |
+| `--warning-strong`                           | warning **text and icons** on a light surface (e.g. "3 issues")        | **4.5:1** | `--background`                                       |
+| `--warning`                                  | warning **fill** only — badge/stepper/dot background, never text       | **4.5:1** | its own label, `--warning-foreground` — not the page |
+| `--accent-foreground`                        | text on `--accent`                                                     | **4.5:1** | `--accent`                                           |
+| `--*-foreground` on a solid fill             | label inside a filled Button/Badge                                     | **4.5:1** | its **own fill**, not the page                       |
+| `--ring`                                     | focus ring — the only visible focus affordance                         | **3:1**   | both the field **and** the page behind it            |
+| `--chart-1` … `--chart-5`                    | bars, areas, pie slices, rating stars, calendar dots — **never text**¹ | **3:1**   | `--background` (and each other, for adjacent slices) |
+
+¹ Only because the chart component forces it. Recharts colours legend labels
+with the series colour unless you override it — see trap 4.
 
 **No floor** (these are the _denominator_, not the numerator): `--background`,
 `--card`, `--popover`, `--muted`, `--secondary`, `--accent`. Darkening any
@@ -78,7 +81,7 @@ touch one.
 by its fill and label, so no hard floor applies — but if your skin makes the
 border the _only_ affordance for an input, WCAG 1.4.11 pulls it to **3:1**.
 
-## Three traps
+## Four traps
 
 1. **Text floors and graphics floors are different — don't collapse them.**
    Darkening the chart palette to 4.5:1 "to be safe" turns an amber accent to
@@ -98,6 +101,14 @@ border the _only_ affordance for an input, WCAG 1.4.11 pulls it to **3:1**.
    So the library carries a separate `--warning-strong` for warning text and
    icons. If your skin has a light accent colour, it needs the same split; don't
    darken the fill to fix the text, or you lose the fill's own pairing.
+4. **A dependency can turn your fill token into text without you writing a line.**
+   Auditing our own components said the chart palette was graphics-only, so it
+   sat at the 3:1 floor. Recharts then coloured its **legend labels** with the
+   series colour by default — putting `--chart-2` into 12px text at **3.05:1** and
+   `--chart-1` at 4.07:1. Nothing in our source asked for it. The chart component
+   now pins the legend label to `--muted-foreground` and lets the swatch keep the
+   series colour. **Audit the rendered page, not just your own JSX** — the console
+   snippet below reads whatever actually shipped, third-party defaults included.
 
 ## How to check your own values
 
@@ -214,16 +225,22 @@ conventional off-white `0.985`, which was worth ~0.2 and moved `--primary` and
 `--success` from failing to passing. If you re-skin, don't "tidy" them back to
 off-white.
 
-### Known gap — dark mode, labels on fills
+### Labels on fills (dark) — closed
 
-Dark mode is comfortable for text on the page (5.7–19:1), but two **filled**
-controls are not: `--primary-foreground` on the dark `--primary` is **3.30:1**
-and `--destructive-foreground` on the dark `--destructive` is **2.77:1**. Dark
-`--success` and `--warning` are fine because they already carry the _near-black_
-foreground (7.07:1 and 10.44:1).
+Dark mode is comfortable for text on the page (5.7–19:1). Two **filled** controls
+were not, and are now fixed: `--primary-foreground` on the dark `--primary` was
+**3.30:1** and `--destructive-foreground` on the dark `--destructive` was
+**2.77:1**, both carrying a near-white label. They now carry the _near-black_
+foreground that dark `--success` and `--warning` always used:
 
-The fix is to follow suit — near-black labels on those two bright dark-mode fills
-gives 5.53:1 — but that inverts button label colour in dark mode, so it is a
-**design decision, not a silent patch**, and is deliberately not applied here.
-Carry the check into your own skin either way: a bright fill in a dark theme
-usually wants a dark label.
+| Pair                                               | Ratio   |     |
+| -------------------------------------------------- | ------- | --- |
+| `--warning-foreground` on dark `--warning`         | 10.44:1 | ✅  |
+| `--success-foreground` on dark `--success`         | 7.07:1  | ✅  |
+| `--destructive-foreground` on dark `--destructive` | 6.19:1  | ✅  |
+| `--primary-foreground` on dark `--primary`         | 5.20:1  | ✅  |
+
+The general rule, worth carrying into your own skin: **a bright fill in a dark
+theme wants a dark label.** Dark-mode brand fills are usually _lighter_ than
+their light-mode counterparts, so the label that worked in light mode is often
+exactly wrong here. Check every fill/label pair in both modes, not one.

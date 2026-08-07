@@ -221,8 +221,19 @@ function Chart<T extends Record<string, unknown>>({
       cursor={{ fill: "var(--color-muted)", opacity: 0.35 }}
     />
   ) : null
+  // Recharts colours the legend LABEL with the series colour by default. That
+  // quietly puts a chart token — tuned to the 3:1 GRAPHICS floor — into text,
+  // where the 4.5:1 floor applies (`--chart-2` landed at 3.05:1 that way). The
+  // formatter pins the label to the text token; the swatch keeps the series
+  // colour, so the chart still reads as colour-coded. See registry/tokens/README.
   const legend = config.showLegend ? (
-    <Legend wrapperStyle={{ fontSize: 12 }} iconType="circle" />
+    <Legend
+      wrapperStyle={{ fontSize: 12 }}
+      iconType="circle"
+      formatter={(value: React.ReactNode) => (
+        <span style={{ color: "var(--color-muted-foreground)" }}>{value}</span>
+      )}
+    />
   ) : null
 
   let chart: React.ReactElement
