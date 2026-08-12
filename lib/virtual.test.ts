@@ -1,3 +1,7 @@
+// Tests for the windowed-rendering arithmetic. DOM-free on purpose: the hook
+// that measures real elements is covered separately in
+// registry/primitives/use-virtual-rows.
+
 import { describe, expect, it } from "vitest"
 
 import { initialWindow, windowSlice } from "./virtual"

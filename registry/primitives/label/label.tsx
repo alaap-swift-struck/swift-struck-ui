@@ -1,5 +1,9 @@
 "use client"
 
+// Label — the form label. Radix wires the htmlFor/id association, so clicking the
+// text focuses the control. Used INSIDE Field rather than placed on its own,
+// which is why it has no entry of its own in the docs catalog.
+
 import * as React from "react"
 import * as LabelPrimitive from "@radix-ui/react-label"
 

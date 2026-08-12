@@ -1,5 +1,9 @@
 "use client"
 
+// Avatar — a circular user image with an automatic text fallback. Radix handles
+// the image-load race: the fallback stays until the image actually decodes, so a
+// slow or broken URL never leaves an empty circle.
+
 import * as React from "react"
 import * as AvatarPrimitive from "@radix-ui/react-avatar"
 

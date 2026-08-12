@@ -1,0 +1,28 @@
+# Who owns what, and who to ask.
+#
+# This is a solo project: one maintainer owns every area. The file exists so a
+# successor knows that for a fact rather than inferring it from the git log, and
+# so GitHub requests a review automatically if a second contributor ever appears.
+#
+# Maintainer: Swift Struck — alaap@swiftstruck.com — @alaap-swift-struck
+
+# Everything, unless a more specific rule below matches.
+*                       @alaap-swift-struck
+
+# Layer 0 — the design tokens. Changing a value here re-skins every component and
+# can silently break contrast; read registry/tokens/README.md first.
+/styles.css             @alaap-swift-struck
+/registry/tokens/       @alaap-swift-struck
+
+# Layers 1 and 2 — the shipped library.
+/registry/primitives/   @alaap-swift-struck
+/registry/collections/  @alaap-swift-struck
+/lib/                   @alaap-swift-struck
+
+# The docs and showcase harness — not shipped to consumers.
+/www/                   @alaap-swift-struck
+
+# Contract documents. Changes here change how everything else is built.
+/ARCHITECTURE.md        @alaap-swift-struck
+/CONTRIBUTING.md        @alaap-swift-struck
+/OPERATIONS.md          @alaap-swift-struck

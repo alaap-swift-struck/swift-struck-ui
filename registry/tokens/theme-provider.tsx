@@ -1,5 +1,9 @@
 "use client"
 
+// ThemeProvider — Layer 0. Wraps next-themes and is mounted once at the app root.
+// It writes the `dark` class on <html>, which is the switch every token in
+// styles.css keys off. Without it mounted, dark mode simply never applies.
+
 import { ThemeProvider as NextThemesProvider } from "next-themes"
 import type { ComponentProps } from "react"
 

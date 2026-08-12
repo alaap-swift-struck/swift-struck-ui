@@ -1,5 +1,8 @@
 "use client"
 
+// Progress — a determinate progress bar. Radix supplies the ARIA role and value
+// semantics, so a screen reader announces the percentage without extra markup.
+
 import * as React from "react"
 import * as ProgressPrimitive from "@radix-ui/react-progress"
 

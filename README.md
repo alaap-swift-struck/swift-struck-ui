@@ -42,14 +42,14 @@ The library **is** this repo — install it straight from GitHub:
 npm install github:alaap-swift-struck/swift-struck-ui react react-dom
 
 # or pin to a release (recommended for production apps)
-npm install github:alaap-swift-struck/swift-struck-ui#v0.10.0 react react-dom
+npm install github:alaap-swift-struck/swift-struck-ui#v0.10.1 react react-dom
 ```
 
 ```tsx
 import { Button } from "@swift-struck/ui/registry/primitives/button/button"
 ```
 
-Every release is a git tag (`v0.10.0`, `v0.9.6`, …) — see [PROGRESS.md](PROGRESS.md)
+Every release is a git tag (`v0.10.1`, `v0.10.0`, …) — see [PROGRESS.md](PROGRESS.md)
 for what changed in each.
 
 ### Required setup — the library ships TypeScript source
@@ -84,7 +84,7 @@ while its `package.json` looks current. To actually move:
 
 ```bash
 # untracked/pinned → jump to a specific release
-npm install github:alaap-swift-struck/swift-struck-ui#v0.10.0
+npm install github:alaap-swift-struck/swift-struck-ui#v0.10.1
 
 # tracking main → re-resolve to the newest commit
 npm update @swift-struck/ui
@@ -105,13 +105,42 @@ npm ls @swift-struck/ui
 
 ## Develop
 
+### Prerequisites
+
+| Need        | Version         | Notes                                                                                 |
+| ----------- | --------------- | ------------------------------------------------------------------------------------- |
+| **Node.js** | **20 or newer** | Pinned in `.nvmrc` and `package.json` `engines`; CI runs 20. `nvm use` picks it up.   |
+| **npm**     | 10 or newer     | Ships with Node 20. This repo uses npm workspaces — yarn and pnpm are not configured. |
+| A browser   | any modern      | For the showcase at `localhost:3000`.                                                 |
+
+Nothing else. There is no database, no API keys and **no environment variables** —
+a fresh clone runs with no configuration at all. If you'd rather not install Node,
+open the repo in its devcontainer (`.devcontainer/devcontainer.json`) and skip
+straight to `npm install`.
+
+Deploying (as opposed to developing) needs a Cloudflare account — see
+[OPERATIONS.md](OPERATIONS.md).
+
+### Commands
+
 ```bash
 npm install
 npm run dev        # showcase at http://localhost:3000  (and /components)
+npm run verify     # the full gate: typecheck + tests + layering + formatting
+```
+
+`npm run verify` is the one to run before committing. Its parts, if you want them
+individually:
+
+```bash
+npx tsc --noEmit   # type-check the library
 npm test           # unit tests (vitest)
 npm run guardrails # enforce the tokens → primitives → collections layering
-npx tsc --noEmit   # type-check the library
+npm run format     # prettier write
 ```
+
+**Green looks like:** `tsc` silent, 277 tests passing across 36 files, guardrails
+reporting 0 violations, prettier reporting all files formatted.
 
 ## Docs
 
@@ -123,7 +152,11 @@ npx tsc --noEmit   # type-check the library
 - **[registry/tokens/README.md](registry/tokens/README.md)** — the design tokens,
   and the **re-skin contrast checklist** (which tokens carry a WCAG floor, which
   floor, and how to check your own palette).
-- **[DEPLOY.md](DEPLOY.md)** — staging/live publishing (Cloudflare Pages).
+- **[OPERATIONS.md](OPERATIONS.md)** — **the operational source of truth:** deploy
+  commands, accounts and credentials by name, rollback and its trigger, what to
+  check when it breaks, and how to pick this project up if you inherited it.
+- **[DEPLOY.md](DEPLOY.md)** — the short deploy summary; points at OPERATIONS.md.
+- **[NOTICE.md](NOTICE.md)** — third-party licences and what they oblige you to do.
 - **[GLIDE-CONFIG-RESEARCH.md](GLIDE-CONFIG-RESEARCH.md)** — how each maps to Glide.
 
 > Stack: Next.js 15 · React 19 · Tailwind CSS v4 · Radix UI · CVA · recharts ·

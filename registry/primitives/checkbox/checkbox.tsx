@@ -1,5 +1,9 @@
 "use client"
 
+// Checkbox — a Radix checkbox styled with tokens. Radix supplies the tri-state
+// (checked / unchecked / indeterminate) and the label association; this file
+// only draws it.
+
 import * as React from "react"
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
 import { Check } from "lucide-react"

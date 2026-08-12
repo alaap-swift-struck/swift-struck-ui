@@ -1,5 +1,9 @@
 "use client"
 
+// Popover — the floating panel behind filters, sort and Choice. Radix Root is
+// re-exported verbatim so every prop passes straight through and only the content
+// surface is styled. Read the `modal` note below before using this in a Dialog.
+
 import * as React from "react"
 import * as PopoverPrimitive from "@radix-ui/react-popover"
 

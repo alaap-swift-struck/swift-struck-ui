@@ -1,3 +1,8 @@
+// Badge — a small status pill. Each variant is a FILL that carries its own
+// foreground token (`bg-warning` + `text-warning-foreground`), so those pairs are
+// contrast-checked against EACH OTHER, not against the page. That is why a light
+// amber badge is fine while amber TEXT is not — registry/tokens/README.md, trap 3.
+
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 

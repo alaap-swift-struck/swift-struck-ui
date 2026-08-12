@@ -1,5 +1,10 @@
 "use client"
 
+// The GALLERY — every component, grouped Glide-style, each card one live
+// configuration with a gear to edit it. This is how the library documents
+// itself: a component is not "done" until it appears here (see CONTRIBUTING).
+// Harness only: nothing in www/ ships to consumers.
+
 import * as React from "react"
 import dynamic from "next/dynamic"
 import Link from "next/link"

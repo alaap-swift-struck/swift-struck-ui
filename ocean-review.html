@@ -1,0 +1,984 @@
+<title>Ocean review — swift-struck-ui</title>
+<style>
+  :root {
+    --bg: #fbfbfc;
+    --panel: #ffffff;
+    --ink: #12141a;
+    --muted: #5c6472;
+    --line: #e3e6ec;
+    --good: #0a7f5f;
+    --warn: #b26a00;
+    --bad: #b3261e;
+    --accent: #0a8379;
+    --track: #eceef3;
+    --shadow: 0 1px 2px rgba(16, 20, 28, 0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e1014;
+      --panel: #161a21;
+      --ink: #eef1f6;
+      --muted: #9aa4b4;
+      --line: #262c37;
+      --good: #3ec99b;
+      --warn: #e0a33a;
+      --bad: #ef7a70;
+      --accent: #35b3a5;
+      --track: #222833;
+      --shadow: none;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e1014;
+    --panel: #161a21;
+    --ink: #eef1f6;
+    --muted: #9aa4b4;
+    --line: #262c37;
+    --good: #3ec99b;
+    --warn: #e0a33a;
+    --bad: #ef7a70;
+    --accent: #35b3a5;
+    --track: #222833;
+    --shadow: none;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    margin: 0;
+    padding: 32px 20px 72px;
+    font:
+      15px/1.6 ui-sans-serif,
+      -apple-system,
+      "Segoe UI",
+      Roboto,
+      sans-serif;
+  }
+  .wrap {
+    max-width: 1040px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 26px;
+    margin: 0 0 6px;
+    letter-spacing: -0.02em;
+  }
+  h2 {
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--muted);
+    margin: 40px 0 14px;
+    font-weight: 600;
+  }
+  .sub {
+    color: var(--muted);
+    margin: 0 0 4px;
+  }
+  .quote {
+    border-left: 2px solid var(--accent);
+    padding-left: 14px;
+    color: var(--muted);
+    margin: 18px 0 28px;
+    font-style: italic;
+    max-width: 70ch;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+  .score-hero {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    flex-wrap: wrap;
+  }
+  .dial {
+    font-size: 58px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+  .dial small {
+    font-size: 20px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .band {
+    display: inline-block;
+    padding: 3px 11px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid currentColor;
+  }
+  .two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-top: 18px;
+  }
+  @media (max-width: 720px) {
+    .two {
+      grid-template-columns: 1fr;
+    }
+  }
+  .col h3 {
+    margin: 0 0 12px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+  .col.keep h3 {
+    color: var(--good);
+  }
+  .col.lose h3 {
+    color: var(--bad);
+  }
+  .col ul {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+  }
+  .col li {
+    display: flex;
+    gap: 9px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 14px;
+    align-items: flex-start;
+  }
+  .col li:last-child {
+    border-bottom: 0;
+  }
+  .col svg {
+    flex: 0 0 auto;
+    margin-top: 2px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  th,
+  td {
+    text-align: left;
+    padding: 9px 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  th {
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  td.n,
+  th.n {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .bar {
+    height: 7px;
+    border-radius: 4px;
+    background: var(--track);
+    overflow: hidden;
+    min-width: 120px;
+  }
+  .bar span {
+    display: block;
+    height: 100%;
+    border-radius: 4px;
+  }
+  .scroller {
+    overflow-x: auto;
+  }
+  .arith {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px;
+    background: var(--track);
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: var(--ink);
+    white-space: pre;
+    overflow-x: auto;
+    margin-top: 14px;
+  }
+  ol.journey {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  ol.journey li {
+    display: grid;
+    grid-template-columns: 26px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 0;
+    position: relative;
+  }
+  ol.journey li::before {
+    content: "";
+    position: absolute;
+    left: 12px;
+    top: 28px;
+    bottom: -10px;
+    width: 2px;
+    background: var(--line);
+  }
+  ol.journey li:last-child::before {
+    display: none;
+  }
+  .pip {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    border: 2px solid;
+    background: var(--panel);
+    z-index: 1;
+  }
+  .pip.ok {
+    color: var(--good);
+  }
+  .pip.stop {
+    color: var(--bad);
+  }
+  .step-t {
+    font-size: 14px;
+  }
+  .step-t code {
+    font-size: 13px;
+    background: var(--track);
+    padding: 1px 6px;
+    border-radius: 5px;
+  }
+  .ms {
+    color: var(--muted);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+  .stopnote {
+    margin-top: 14px;
+    border: 1px dashed var(--bad);
+    color: var(--bad);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+  .tier {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 5px;
+    border: 1px solid currentColor;
+  }
+  .t1 {
+    color: var(--good);
+  }
+  .t2 {
+    color: var(--warn);
+  }
+  .t3 {
+    color: var(--muted);
+  }
+  .foot {
+    margin-top: 44px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 14px;
+  }
+</style>
+
+<div class="wrap">
+  <h1>Ocean review — swift-struck-ui</h1>
+  <p class="sub">
+    commit <code>f9105e8</code> · tag <code>v0.10.0</code> · remote
+    <code>github.com/alaap-swift-struck/swift-struck-ui</code> · drill run in
+    full
+  </p>
+
+  <p class="quote">
+    The person who built this is gone. Their machine is gone. A competent
+    stranger has only what is stored remotely. Can they get it running,
+    understand why it is shaped the way it is, change it safely, and carry it
+    forward?
+  </p>
+
+  <div class="card score-hero">
+    <div>
+      <div class="dial" style="color: var(--muted)">
+        79<small> / 100</small>
+      </div>
+      <div style="margin-top: 8px">
+        <span class="band" style="color: var(--warn)"
+          >as stored on the remote</span
+        >
+      </div>
+    </div>
+    <div style="font-size: 34px; color: var(--muted); font-weight: 300">
+      &rarr;
+    </div>
+    <div>
+      <div class="dial" style="color: var(--good)">97<small> / 100</small></div>
+      <div style="margin-top: 8px">
+        <span class="band" style="color: var(--good)"
+          >after repair, shipped</span
+        >
+      </div>
+    </div>
+    <div style="flex: 1 1 300px; color: var(--muted); font-size: 14px">
+      No gate cap applied — criterion 1 scored 95, well above the 70 threshold.
+      A stranger can have this library cloned, tested and running in
+      <strong style="color: var(--ink)">19 seconds</strong>. What they could not
+      do was deploy it, roll it back, or find out whose Cloudflare account it
+      lives in — all now written down.
+    </div>
+  </div>
+
+  <div
+    class="stopnote"
+    style="border-color: var(--warn); color: var(--warn); margin-top: 18px"
+  >
+    <strong>Shipped.</strong> Every repair is committed and pushed, so this
+    score describes what is actually <em>stored</em> — the only thing this
+    review measures.
+  </div>
+
+  <h2>Survival verdict</h2>
+  <div class="two">
+    <div class="card col keep">
+      <h3>Survives tonight</h3>
+      <ul>
+        <li>
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M5 12l5 5L20 7" /></svg
+          >Every line of source — all 186 tracked files
+        </li>
+        <li>
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M5 12l5 5L20 7" /></svg
+          >All 18 release tags, <code>v0.1.0</code> to <code>v0.10.0</code>
+        </li>
+        <li>
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M5 12l5 5L20 7" /></svg
+          >A clone that installs, passes 277 tests and runs
+        </li>
+        <li>
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M5 12l5 5L20 7" /></svg
+          >The complete "why" — architecture, locked decisions, config reference
+        </li>
+        <li>
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M5 12l5 5L20 7" /></svg
+          >Session notes carrying the reasoning behind ten releases
+        </li>
+      </ul>
+    </div>
+    <div class="card col lose">
+      <h3>Lost tonight</h3>
+      <ul>
+        <li>
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M18 6L6 18M6 6l12 12" /></svg
+          >How to deploy — the <code>wrangler</code> command lives in a Claude
+          skill under <code>~/.claude</code>, not the repo
+        </li>
+        <li>
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M18 6L6 18M6 6l12 12" /></svg
+          >Which Cloudflare account owns the Pages project
+        </li>
+        <li>
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M18 6L6 18M6 6l12 12" /></svg
+          >Who to contact for access to anything
+        </li>
+        <li>
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M18 6L6 18M6 6l12 12" /></svg
+          >How to roll back a bad deploy
+        </li>
+        <li>
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M18 6L6 18M6 6l12 12" /></svg
+          >Which Node version this was built against
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>The rebuild journey — what the drill actually did</h2>
+  <div class="card">
+    <ol class="journey">
+      <li>
+        <span class="pip ok"
+          ><svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+          >
+            <path d="M5 12l5 5L20 7" /></svg
+        ></span>
+        <span class="step-t"
+          ><code>git clone</code> — tree complete, 186 files</span
+        ><span class="ms">1s</span>
+      </li>
+      <li>
+        <span class="pip ok"
+          ><svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+          >
+            <path d="M5 12l5 5L20 7" /></svg
+        ></span>
+        <span class="step-t"><code>npm install</code></span
+        ><span class="ms">3s</span>
+      </li>
+      <li>
+        <span class="pip ok"
+          ><svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+          >
+            <path d="M5 12l5 5L20 7" /></svg
+        ></span>
+        <span class="step-t"
+          ><code>npm test</code> — 277 passed across 36 files</span
+        ><span class="ms">5s</span>
+      </li>
+      <li>
+        <span class="pip ok"
+          ><svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+          >
+            <path d="M5 12l5 5L20 7" /></svg
+        ></span>
+        <span class="step-t"
+          ><code>npm run guardrails</code> — 0 violations</span
+        ><span class="ms">1s</span>
+      </li>
+      <li>
+        <span class="pip ok"
+          ><svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+          >
+            <path d="M5 12l5 5L20 7" /></svg
+        ></span>
+        <span class="step-t"><code>npx tsc --noEmit</code></span
+        ><span class="ms">2s</span>
+      </li>
+      <li>
+        <span class="pip ok"
+          ><svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+          >
+            <path d="M5 12l5 5L20 7" /></svg
+        ></span>
+        <span class="step-t"
+          ><code>npm run dev</code> — HTTP 200, correct title</span
+        ><span class="ms">7s</span>
+      </li>
+      <li>
+        <span class="pip ok"
+          ><svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+          >
+            <path d="M5 12l5 5L20 7" /></svg
+        ></span>
+        <span class="step-t"
+          >Install into a fresh app from GitHub — paths resolve, 0 test files
+          shipped</span
+        ><span class="ms">14s</span>
+      </li>
+      <li>
+        <span class="pip stop"
+          ><svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+          >
+            <path d="M18 6L6 18M6 6l12 12" /></svg
+        ></span>
+        <span class="step-t"
+          ><code>DEPLOY.md</code> → <code>npm run changeset</code> —
+          <strong>script does not exist</strong></span
+        ><span class="ms">stop</span>
+      </li>
+    </ol>
+    <div class="stopnote">
+      <strong>Time to running: ~19 seconds.</strong> The stranger stops at
+      deployment. <code>DEPLOY.md</code> describes a changesets/npm-publish
+      pipeline that was never built, and contradicts
+      <code>OPERATIONS.md</code> — which is the accurate one, and which the
+      README's docs map does not mention.
+    </div>
+  </div>
+
+  <h2>Scorecard</h2>
+  <div class="card scroller">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Criterion</th>
+          <th style="width: 180px">Score</th>
+          <th class="n">Score</th>
+          <th class="n">Weight</th>
+          <th class="n">Contribution</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>A remote copy exists and is current</td>
+          <td>
+            <div class="bar">
+              <span style="width: 95%; background: var(--good)"></span>
+            </div>
+          </td>
+          <td class="n">95</td>
+          <td class="n">14</td>
+          <td class="n">1330</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>The stored tree is complete</td>
+          <td>
+            <div class="bar">
+              <span style="width: 100%; background: var(--good)"></span>
+            </div>
+          </td>
+          <td class="n">100</td>
+          <td class="n">9</td>
+          <td class="n">900</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Clone to running, reproducibly</td>
+          <td>
+            <div class="bar">
+              <span style="width: 60%; background: var(--warn)"></span>
+            </div>
+          </td>
+          <td class="n">60</td>
+          <td class="n">11</td>
+          <td class="n">660</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>A stranger can prove it works</td>
+          <td>
+            <div class="bar">
+              <span style="width: 80%; background: var(--good)"></span>
+            </div>
+          </td>
+          <td class="n">80</td>
+          <td class="n">8</td>
+          <td class="n">640</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>The README is a real front door</td>
+          <td>
+            <div class="bar">
+              <span style="width: 85%; background: var(--good)"></span>
+            </div>
+          </td>
+          <td class="n">85</td>
+          <td class="n">8</td>
+          <td class="n">680</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>Architecture and decisions are written down</td>
+          <td>
+            <div class="bar">
+              <span style="width: 100%; background: var(--good)"></span>
+            </div>
+          </td>
+          <td class="n">100</td>
+          <td class="n">12</td>
+          <td class="n">1200</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td>Operating it: deploy, environments, rollback</td>
+          <td>
+            <div class="bar">
+              <span style="width: 55%; background: var(--bad)"></span>
+            </div>
+          </td>
+          <td class="n">55</td>
+          <td class="n">9</td>
+          <td class="n">495</td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td>The code explains itself</td>
+          <td>
+            <div class="bar">
+              <span style="width: 75%; background: var(--warn)"></span>
+            </div>
+          </td>
+          <td class="n">75</td>
+          <td class="n">8</td>
+          <td class="n">600</td>
+        </tr>
+        <tr>
+          <td>9</td>
+          <td>The history tells the story</td>
+          <td>
+            <div class="bar">
+              <span style="width: 100%; background: var(--good)"></span>
+            </div>
+          </td>
+          <td class="n">100</td>
+          <td class="n">5</td>
+          <td class="n">500</td>
+        </tr>
+        <tr>
+          <td>10</td>
+          <td>Bus factor and ownership</td>
+          <td>
+            <div class="bar">
+              <span style="width: 15%; background: var(--bad)"></span>
+            </div>
+          </td>
+          <td class="n">15</td>
+          <td class="n">5</td>
+          <td class="n">75</td>
+        </tr>
+        <tr>
+          <td>11</td>
+          <td>The legal right to reuse it</td>
+          <td>
+            <div class="bar">
+              <span style="width: 85%; background: var(--good)"></span>
+            </div>
+          </td>
+          <td class="n">85</td>
+          <td class="n">5</td>
+          <td class="n">425</td>
+        </tr>
+        <tr>
+          <td>12</td>
+          <td>The non-code inventory</td>
+          <td>
+            <div class="bar">
+              <span style="width: 70%; background: var(--warn)"></span>
+            </div>
+          </td>
+          <td class="n">70</td>
+          <td class="n">6</td>
+          <td class="n">420</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="arith">
+      total = Σ(score × weight) / Σ(weights) = 7925 / 100 = 79.25 → 79 gate:
+      criterion 1 = 95 ≥ 70, no cap applied
+    </div>
+  </div>
+
+  <h2>After repair — measured, not projected</h2>
+  <div class="card scroller">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Criterion</th>
+          <th class="n">Before</th>
+          <th class="n">After</th>
+          <th>What changed</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>3</td>
+          <td>Clone to running</td>
+          <td class="n">60</td>
+          <td class="n" style="color: var(--good); font-weight: 700">100</td>
+          <td>
+            <code>.nvmrc</code> + <code>engines</code>, README prerequisites,
+            devcontainer
+          </td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Prove it works</td>
+          <td class="n">80</td>
+          <td class="n" style="color: var(--good); font-weight: 700">100</td>
+          <td><code>npm run verify</code> — one command, whole gate</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>README front door</td>
+          <td class="n">85</td>
+          <td class="n" style="color: var(--good); font-weight: 700">100</td>
+          <td>prerequisites; docs map now points at the accurate file</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td>Operating it</td>
+          <td class="n">55</td>
+          <td class="n" style="color: var(--good); font-weight: 700">100</td>
+          <td>
+            deploy commands, rollback + trigger, credentials by name, incident
+            checks
+          </td>
+        </tr>
+        <tr>
+          <td>10</td>
+          <td>Bus factor</td>
+          <td class="n">15</td>
+          <td class="n" style="color: var(--warn); font-weight: 700">60</td>
+          <td>
+            <code>CODEOWNERS</code> + named maintainer; 40 pts need a 2nd
+            contributor
+          </td>
+        </tr>
+        <tr>
+          <td>11</td>
+          <td>Legal</td>
+          <td class="n">85</td>
+          <td class="n" style="color: var(--good); font-weight: 700">100</td>
+          <td><code>NOTICE.md</code> — derivation and dependency licences</td>
+        </tr>
+        <tr>
+          <td>12</td>
+          <td>Non-code inventory</td>
+          <td class="n">70</td>
+          <td class="n" style="color: var(--good); font-weight: 700">100</td>
+          <td>Cloudflare account and access contact named</td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td>Code explains itself</td>
+          <td class="n">75</td>
+          <td class="n" style="color: var(--good); font-weight: 700">100</td>
+          <td>
+            100% of source files (154/154) now open with a purpose line, up from
+            38%
+          </td>
+        </tr>
+        <tr>
+          <td>1, 2, 6, 9</td>
+          <td>unchanged</td>
+          <td class="n">&mdash;</td>
+          <td class="n">&mdash;</td>
+          <td>
+            1 still a single remote (declined); 2, 6 and 9 were already at full
+            marks
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="arith">total = 9730 / 100 = 97.3 → 97</div>
+  </div>
+
+  <h2>Priority list</h2>
+  <div class="card scroller">
+    <table>
+      <thead>
+        <tr>
+          <th>Gap</th>
+          <th>Criterion</th>
+          <th class="n">Points</th>
+          <th>Tier</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            Deploy command and rollback live only in
+            <code>~/.claude</code> skills, not the repo
+          </td>
+          <td>7</td>
+          <td class="n">+30</td>
+          <td><span class="tier t2">2</span></td>
+        </tr>
+        <tr>
+          <td>
+            <code>DEPLOY.md</code> describes a pipeline that does not exist and
+            contradicts <code>OPERATIONS.md</code>
+          </td>
+          <td>7</td>
+          <td class="n">—</td>
+          <td><span class="tier t2">2</span></td>
+        </tr>
+        <tr>
+          <td>No Cloudflare account identity, no access contact</td>
+          <td>12</td>
+          <td class="n">+30</td>
+          <td><span class="tier t1">1</span></td>
+        </tr>
+        <tr>
+          <td>No runtime pin, no prerequisites stated</td>
+          <td>3, 5</td>
+          <td class="n">+45</td>
+          <td><span class="tier t1">1</span></td>
+        </tr>
+        <tr>
+          <td>No maintainer contact, no <code>CODEOWNERS</code></td>
+          <td>10</td>
+          <td class="n">+45</td>
+          <td><span class="tier t1">1</span></td>
+        </tr>
+        <tr>
+          <td>No secret inventory — Cloudflare credentials unnamed</td>
+          <td>7</td>
+          <td class="n">+15</td>
+          <td><span class="tier t1">1</span></td>
+        </tr>
+        <tr>
+          <td>No single verify command covering typecheck and tests</td>
+          <td>4</td>
+          <td class="n">+20</td>
+          <td><span class="tier t1">1</span></td>
+        </tr>
+        <tr>
+          <td>
+            No third-party licence acknowledgement (shadcn/Radix derivation)
+          </td>
+          <td>11</td>
+          <td class="n">+15</td>
+          <td><span class="tier t1">1</span></td>
+        </tr>
+        <tr>
+          <td>Only 38% of source files open with a purpose line</td>
+          <td>8</td>
+          <td class="n">+25</td>
+          <td><span class="tier t3">rec</span></td>
+        </tr>
+        <tr>
+          <td>One remote — no mirror or documented second copy</td>
+          <td>1</td>
+          <td class="n">+5</td>
+          <td><span class="tier t3">3</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="foot">
+    <strong>The one sentence.</strong> If this laptop went into the ocean
+    tonight, a stranger could clone the library, run it, understand it and
+    change it safely within a minute — but they could not deploy it, could not
+    roll it back, and would not know whose Cloudflare account it lives in.
+  </p>
+</div>

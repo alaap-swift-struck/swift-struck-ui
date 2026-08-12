@@ -1,5 +1,9 @@
 "use client"
 
+// The gear panel behind each gallery card: edits a component's config live so a
+// reader can feel what every setting does instead of reading a table.
+// Harness only — it is a documentation device, never part of the library.
+
 /* ===========================================================================
  * ConfigEditor — a PLAYGROUND-ONLY live editor for a component's `config`.
  *

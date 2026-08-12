@@ -1,5 +1,9 @@
 "use client"
 
+// AmbientBackground — the slow, brand-tinted glow behind the whole page. Purely
+// decorative: it sits under the content and never takes a pointer event. The
+// animation is disabled under prefers-reduced-motion in styles.css.
+
 import * as React from "react"
 
 /**

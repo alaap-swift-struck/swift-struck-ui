@@ -1,5 +1,9 @@
 "use client"
 
+// Dialog — the modal overlay. Radix owns focus trapping, scroll locking and
+// dismissal. That scroll lock is exactly what makes a Popover opened INSIDE a
+// dialog need its `modal` prop — see registry/primitives/popover.
+
 import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"

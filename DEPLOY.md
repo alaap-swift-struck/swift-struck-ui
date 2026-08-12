@@ -1,68 +1,43 @@
-# Shipping Swift Struck UI — staging & live
+# Deploying Swift Struck UI
 
-There are **two things** we ship, and each has a **staging** and a **live** lane.
+> **This file used to describe a changesets/npm-publish pipeline that was never
+> built.** It listed `npm run changeset`, `npm run release`, an `NPM_TOKEN` secret
+> and a `.github/workflows/release.yml` — none of which exist — and it said
+> Cloudflare Pages builds from GitHub, which is not how this deploys. An ocean
+> review followed it literally and stopped dead at the first command. It has been
+> replaced with a pointer to the truth.
 
-| What                                             | Staging                      | Live              |
-| ------------------------------------------------ | ---------------------------- | ----------------- |
-| **The library** (npm package `@swift-struck/ui`) | `@next` tag                  | `@latest` tag     |
-| **The showcase site** (the gallery)              | staging URL (preview branch) | live URL (`main`) |
+**The operational source of truth is [OPERATIONS.md](OPERATIONS.md).** It carries
+the deploy commands, the account inventory, the credential list, rollback and its
+trigger, and what to check when something breaks.
 
-You test on staging, then promote to live. Live changes reach the outside world
-when they next update; **breaking changes need a new major version**, so nobody
-gets surprise-broken. Your own apps get fixes whenever they `npm update`.
+## The short version
 
----
+There are two things, and neither is published to a package registry.
 
-## One-time setup (needs YOU — ~10 min of signups)
-
-1. **GitHub:** push this repo to a **public** GitHub repo (for open source).
-2. **npm:** create a free account at npmjs.com, then create the **`@swift-struck`
-   org** (Settings → Add Organization — it's free for public packages). Generate
-   an **Automation access token** (Access Tokens → Generate → Automation).
-3. **GitHub secret:** in the repo, Settings → Secrets → Actions → add
-   `NPM_TOKEN` = that token. (CI publishing now works.)
-4. **Cloudflare:** create a Cloudflare account. We'll connect the GitHub repo to
-   **Cloudflare Pages** (build command `npm run build`, output `out`).
-
-Tell me when these exist and I'll wire the last mile.
-
----
-
-## Library — publish flow
+| What                                 | How it ships                                         | Where it lands                                                                                             |
+| ------------------------------------ | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **The library** (`@swift-struck/ui`) | a git tag on `main` — the repo root _is_ the package | consumers run `npm install github:alaap-swift-struck/swift-struck-ui#v<x.y.z>`                             |
+| **The showcase site**                | `npm run build:static`, then `wrangler pages deploy` | [staging](https://staging.swift-struck-ui.pages.dev), then [production](https://swift-struck-ui.pages.dev) |
 
 ```bash
-# 1. describe what changed (pick patch / minor / major)
-npm run changeset
-
-# 2. LIVE: merging to main opens a "Version Packages" PR; merging THAT publishes
-#    @swift-struck/ui@latest automatically (via .github/workflows/release.yml).
-
-# STAGING (test a prerelease before going live):
-npm run changeset
-npx changeset version --snapshot next
-npm run release -- --tag next      # publishes @swift-struck/ui@x.y.z-next.0
-# consumers test it with:  npm install @swift-struck/ui@next
+npm run verify                 # must be green first
+npm run build:static
+npx wrangler pages deploy www/out --project-name swift-struck-ui --branch staging --commit-dirty=true
+npx wrangler pages deploy www/out --project-name swift-struck-ui --branch main    --commit-dirty=true
 ```
 
-## Showcase site — deploy flow (Cloudflare Pages)
+Staging and production are the **same build** — only the `--branch` flag differs.
+Deploying production from the same `www/out` makes wrangler report
+`Uploaded 0 files`, which is the proof the two are identical.
 
-The gallery is a Next.js app that exports to a static site, which Cloudflare
-hosts directly.
+## Why there is no npm publish
 
-- **Live:** Cloudflare Pages builds from `main` → your live URL.
-- **Staging:** every branch / PR gets its own preview URL automatically.
+A deliberate decision, recorded in `HANDOFF.md`: distribution is GitHub-only, so
+there is one place to look rather than two. The cost is real and is documented in
+the README's "Updating" section — npm resolves a GitHub dependency to a **commit
+SHA**, so a plain `npm install` never pulls new library code. Consumers must pin a
+tag or run `npm update`.
 
-Build settings in Cloudflare Pages:
-
-- Build command: `npm run build`
-- Output directory: `out` (we enable `output: "export"` in `next.config.ts`
-  when we wire this — verified together so dev isn't disrupted).
-
----
-
-## The everyday loop
-
-1. Change a component → push a branch → **staging site preview** + optional
-   `@next` package to test.
-2. Happy? Merge to `main` → **live site** + (after the Version PR) `@latest`.
-3. Your apps pick it up on their next `npm update`; the world does too.
+Everything else — accounts, credentials, rollback, incident checks — is in
+[OPERATIONS.md](OPERATIONS.md).

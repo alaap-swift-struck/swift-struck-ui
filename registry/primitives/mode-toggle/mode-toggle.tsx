@@ -1,5 +1,9 @@
 "use client"
 
+// ModeToggle — the light/dark switch. next-themes owns the theme state and writes
+// the `dark` class that every token in styles.css keys off; this button only
+// flips it.
+
 import * as React from "react"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"

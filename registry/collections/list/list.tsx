@@ -1,5 +1,10 @@
 "use client"
 
+// List — a Glide-style data-bound list: hand it an array of records and it
+// renders a polished, optionally-interactive list, composed entirely from the
+// Card primitive plus tokens. Past 100 rows it renders only the rows near the
+// viewport (see use-virtual-rows), with no change to its props.
+
 import * as React from "react"
 
 import { cn } from "../../../lib/utils"
@@ -47,13 +52,10 @@ export interface ListProps<T extends ListItem> {
 }
 
 /**
- * A Glide-style data-bound list: hand it an array of records and it renders a
- * polished, optionally-interactive list. Composed entirely from the Card
- * primitive + tokens — it owns almost no markup of its own.
- *
  * Selection is opt-in: pass `selectedId` + `onSelect` and the active row gets an
- * accessible highlight (a teal left-accent + tint, distinct from the grey
- * hover/avatar chips, and `aria-current="true"`) that reads in light and dark.
+ * accessible highlight (a teal left-accent + tint, deliberately not the grey used
+ * by hover or the avatar chip, plus `aria-current="true"`) that reads in both
+ * light and dark.
  */
 function List<T extends ListItem>({
   items,

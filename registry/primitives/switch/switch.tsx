@@ -1,5 +1,9 @@
 "use client"
 
+// Switch — an on/off toggle that applies immediately. Use it for a setting that
+// takes effect at once; use Checkbox when the value is part of a form the user
+// still has to submit.
+
 import * as React from "react"
 import * as SwitchPrimitive from "@radix-ui/react-switch"
 

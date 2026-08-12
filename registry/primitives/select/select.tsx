@@ -1,5 +1,9 @@
 "use client"
 
+// Select — the plain dropdown for one value from a short, fixed list. For long
+// lists, search, multi-select or creatable entry, use Choice instead. This one
+// stays deliberately simple.
+
 import * as React from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"
 import { Check, ChevronDown } from "lucide-react"

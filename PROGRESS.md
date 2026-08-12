@@ -12,6 +12,56 @@ what's built and what's left.
 
 ---
 
+## 🌊 Survivability pass — ocean review 79 → 97 (v0.10.1)
+
+An **ocean review** asks one question: the author is gone and their machine is
+gone — can a stranger, holding only what is stored remotely, get this running,
+understand it, change it safely and carry it on? It cloned the GitHub copy into a
+scratch folder and followed only the written docs.
+
+**What passed, and it is the headline:** clone → `npm install` → 277 tests →
+guardrails → typecheck → `npm run dev` serving a page, in **19 seconds**. The
+README's central promise — installing the library into a fresh app straight from
+GitHub — also worked, with zero test files in the shipped tarball.
+
+**Where it stopped: deployment.** `DEPLOY.md` told the reader to run
+`npm run changeset` and `npm run release`. Neither script has ever existed, there
+is no `.changeset` and no `release.yml`, and the file contradicted `OPERATIONS.md`
+about how deploys actually happen. Worse, the literal `wrangler` command lived
+only inside a Claude skill under `~/.claude` — **on the laptop, not in the repo.**
+
+- [x] **`OPERATIONS.md` rewritten as the operational source of truth** — the real
+      deploy commands, a rollback procedure with a **named trigger**, credentials
+      inventoried **by name** (never by value), a "what to check when it breaks"
+      list, the account inventory, and a section for whoever inherits this.
+- [x] **`DEPLOY.md` replaced.** It now says plainly that its previous contents
+      described a pipeline that was never built, and points at `OPERATIONS.md`.
+- [x] **Reproducibility pinned.** `.nvmrc` + `engines: node >= 20` (CI already ran
+      20; nothing in the repo said so), a README prerequisites table, and a
+      devcontainer.
+- [x] **One verify command.** `npm run verify` = typecheck + tests + guardrails +
+      format, replacing four commands scattered across four documents.
+- [x] **Ownership and licences.** `CODEOWNERS`, a named maintainer in
+      `package.json` (`author`, `repository`, `homepage`, `bugs`), and `NOTICE.md`
+      acknowledging the shadcn/ui derivation and every dependency licence.
+- [x] **100% of source files now open with a line saying what they are for** —
+      154 of 154, up from 38%. Not filler: each says what the file is and, where
+      one exists, the reason it is shaped that way (Button's
+      `[&_svg]:pointer-events-none` trap, Badge's fill-vs-text contrast pairing,
+      Card's `min-w-0`).
+
+**Found while writing `NOTICE.md`:** `react-leaflet` is licensed
+**Hippocratic-2.1**, not MIT — a non-OSI licence with use restrictions, and it is
+a direct dependency, so every consumer inherits it. Documented along with the
+unmade decision (moving it to optional `peerDependencies`) rather than left for
+someone's legal review to discover.
+
+No component behaviour changed. The full report is `ocean-review.md` /
+`ocean-review.html`. The remaining 3 points need a second contributor (truck
+factor) and a second remote copy — neither is buyable with documentation.
+
+---
+
 ## 🪟 Windowed rendering in the collections (v0.10.0)
 
 A scaling review found the last open item on client data volume: the host's cache

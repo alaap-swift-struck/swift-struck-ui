@@ -1,5 +1,9 @@
 "use client"
 
+// Tooltip — a short label shown on hover or focus. For anything longer than a
+// phrase use HoverCard. A tooltip must never hold the only copy of something the
+// user needs: it does not exist on touch.
+
 import * as React from "react"
 import * as TooltipPrimitive from "@radix-ui/react-tooltip"
 

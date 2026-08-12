@@ -1,5 +1,9 @@
 "use client"
 
+// Sheet — a Dialog that slides in from an edge, for filters, detail panes and
+// mobile navigation. It IS Radix Dialog underneath, so it inherits the same focus
+// trap and scroll lock; the CVA `side` variant only changes where it enters from.
+
 import * as React from "react"
 import * as SheetPrimitive from "@radix-ui/react-dialog"
 import { cva, type VariantProps } from "class-variance-authority"

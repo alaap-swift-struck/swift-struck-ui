@@ -1,5 +1,9 @@
 "use client"
 
+// RadioGroup — mutually exclusive options. Radix owns roving focus: arrow keys
+// move between options and Tab leaves the whole group. That behaviour is what
+// separates a real radio group from a row of styled inputs.
+
 import * as React from "react"
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
 import { Circle } from "lucide-react"

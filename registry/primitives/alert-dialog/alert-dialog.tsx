@@ -1,5 +1,9 @@
 "use client"
 
+// AlertDialog — the confirm-before-you-destroy dialog. Unlike Dialog it does not
+// dismiss on an outside click: a destructive action should need an explicit
+// answer, not a stray tap. Reach for Dialog for everything else.
+
 import * as React from "react"
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog"
 

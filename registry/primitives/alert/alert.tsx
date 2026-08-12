@@ -1,3 +1,7 @@
+// Alert — a static, inline message banner. Not a toast (that is Sonner, which
+// interrupts) and not a dialog (that blocks). The icon slot is styled by the
+// parent, so any lucide icon lines up without per-icon classes.
+
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 

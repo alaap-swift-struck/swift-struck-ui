@@ -1,3 +1,6 @@
+// Textarea — multi-line text input. Carries the same token-backed border, ring
+// and placeholder treatment as Input, so the two line up when they share a form.
+
 import * as React from "react"
 
 import { cn } from "../../../lib/utils"

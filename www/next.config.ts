@@ -1,3 +1,7 @@
+// Next config for the showcase harness. `externalDir` compiles the repo-root
+// library as source (no build step between editing a component and seeing it),
+// and BUILD_STATIC switches on the static export that Cloudflare Pages serves.
+
 import type { NextConfig } from "next"
 
 // BUILD_STATIC=1 switches on Next's static export (a plain `out/` folder) for

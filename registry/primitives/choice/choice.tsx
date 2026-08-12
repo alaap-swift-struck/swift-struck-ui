@@ -1,5 +1,11 @@
 "use client"
 
+// Choice — the one "pick a value" control: single or multi select, rendered as a
+// dropdown, chips or pills, with optional search, a clear ✕ and creatable entry.
+// It is config-driven, so a host changes behaviour by editing config rather than
+// swapping components — which is why there is no separate MultiSelect, Combobox
+// or TagInput anywhere in this library.
+
 import * as React from "react"
 import { Check, ChevronsUpDown, Plus, X } from "lucide-react"
 

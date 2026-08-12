@@ -1,3 +1,8 @@
+// Table — the styled table primitives. `Table` wraps itself in an
+// `overflow-x-auto` container, so a wide table scrolls inside its own box instead
+// of widening the page (UI-RULES rule 2). DataTable composes these rather than
+// re-styling a raw <table>.
+
 import * as React from "react"
 
 import { cn } from "../../../lib/utils"

@@ -1,0 +1,15 @@
+{
+  "// why": "Removes 'works on my machine' entirely: a stranger opens this repo in a container that already has the right Node, and npm install is the only step. Never shipped to consumers — package.json 'files' does not include it.",
+  "name": "swift-struck-ui",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:20",
+  "postCreateCommand": "npm install",
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": { "label": "docs + showcase", "onAutoForward": "notify" }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["esbenp.prettier-vscode", "bradlc.vscode-tailwindcss"]
+    }
+  }
+}

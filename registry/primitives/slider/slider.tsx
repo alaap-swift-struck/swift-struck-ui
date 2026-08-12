@@ -1,5 +1,7 @@
 "use client"
 
+// Slider — the drag-to-choose control for a single number or a numeric range.
+
 import * as React from "react"
 import * as SliderPrimitive from "@radix-ui/react-slider"
 

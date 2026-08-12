@@ -1,3 +1,7 @@
+// Tests for the text helpers. Pure functions, so they are exercised directly
+// rather than through a component — the same split as lib/collection and
+// lib/virtual.
+
 import { describe, expect, it } from "vitest"
 
 import { truncateText } from "./text"

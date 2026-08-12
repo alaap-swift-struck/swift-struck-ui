@@ -1,3 +1,8 @@
+// The showcase site's root layout. Mounts ThemeProvider (which writes the `dark`
+// class every token keys off), loads Inter, and imports globals.css — the 3-line
+// shim that pulls in the real theme from the repo-root styles.css.
+// Harness only: nothing in www/ ships to consumers.
+
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 

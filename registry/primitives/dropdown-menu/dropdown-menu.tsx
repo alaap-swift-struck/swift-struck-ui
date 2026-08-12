@@ -1,5 +1,9 @@
 "use client"
 
+// DropdownMenu — the ⋯ or caret menu of actions. Radix owns keyboard navigation,
+// typeahead and collision-aware positioning; this file styles the surface to
+// match Popover so every floating layer in the library looks the same.
+
 import * as React from "react"
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
 import { Check, ChevronRight } from "lucide-react"

@@ -1,5 +1,9 @@
 "use client"
 
+// Accordion — collapsible sections, one or several open at a time. Radix owns the
+// open/close state and the keyboard behaviour; this file only styles it with
+// tokens and animates the chevron.
+
 import * as React from "react"
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
 import { ChevronDown } from "lucide-react"

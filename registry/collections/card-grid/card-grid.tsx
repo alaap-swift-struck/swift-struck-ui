@@ -1,5 +1,9 @@
 "use client"
 
+// CardGrid — a responsive grid of Cards built from data. Like List, it arranges
+// existing primitives and owns no styling of its own beyond layout. Past 100
+// items it renders only the cards near the viewport (see use-virtual-rows).
+
 import * as React from "react"
 
 import { cn } from "../../../lib/utils"

@@ -1,3 +1,8 @@
+// Card — the frosted surface almost everything else sits on. It owns the `glass`
+// and `hover-lift` vocabulary from styles.css, and the `min-w-0` that stops one
+// wide child pinning the whole page open. The full reasoning for that class is
+// inline below, because three separate bugs traced back to it.
+
 import * as React from "react"
 
 import { cn } from "../../../lib/utils"

@@ -1,3 +1,12 @@
+// Button — the base action control. Variants and sizes are CVA; `asChild` swaps
+// the rendered element through Radix Slot, so a link can be a button.
+//
+// LOAD-BEARING: `[&_svg]:pointer-events-none` in the base class removes EVERY
+// descendant icon from hit-testing, so a click always lands on the button rather
+// than the glyph. The consequence is that an interactive icon can never live
+// inside a Button — a clear ✕ has to be a real sibling <button>. Missing that
+// shipped a bug in v0.9.1; do not remove the rule to "fix" a nested control.
+
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"

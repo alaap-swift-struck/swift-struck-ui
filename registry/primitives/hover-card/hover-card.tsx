@@ -1,5 +1,9 @@
 "use client"
 
+// HoverCard — a rich preview that opens on hover, for detail worth showing but
+// not worth a click. Never put an action inside one: it cannot be reached by
+// keyboard or on touch, where hover does not exist.
+
 import * as React from "react"
 import * as HoverCardPrimitive from "@radix-ui/react-hover-card"
 

@@ -1,5 +1,9 @@
 "use client"
 
+// Command — the ⌘K palette, built on cmdk. It is also the searchable list inside
+// Choice and the filter facets, which is why it lives here as its own primitive
+// instead of inside the palette that first needed it.
+
 import * as React from "react"
 import { Command as CommandPrimitive } from "cmdk"
 import { Search } from "lucide-react"

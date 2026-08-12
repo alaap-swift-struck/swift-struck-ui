@@ -1,3 +1,8 @@
+// cn() — the class-merge helper every component uses. clsx flattens conditional
+// class lists, then tailwind-merge resolves Tailwind conflicts so the LAST class
+// wins. That ordering is what lets a consumer override any component's styling by
+// passing `className`, with no !important and no knowledge of our internals.
+
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 

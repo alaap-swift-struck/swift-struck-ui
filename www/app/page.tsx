@@ -1,5 +1,9 @@
 "use client"
 
+// The dashboard demo — the "/" face of the showcase. A realistic screen built
+// only from shipped components, so it doubles as proof the library composes.
+// Harness only: nothing in www/ ships to consumers.
+
 import * as React from "react"
 import Link from "next/link"
 import { Car, Coffee, CreditCard, ShoppingCart, TrendingUp } from "lucide-react"
