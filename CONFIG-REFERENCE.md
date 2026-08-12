@@ -142,6 +142,10 @@ filterFacets: [
 
 **Server-side seam (CollectionFrame props, not config):** pass `serverSide={true}` + `onQueryChange={({query, facetValues, sortBy, sortDir}) => …}` and the frame stops filtering/sorting in memory — it emits everything the user is asking for and renders whatever `data` you hand it, so the app can refetch (`?q=` / FTS5 / `ORDER BY`) later. **One seam, not three:** query, facets and sort all arrive in the same callback, which is exactly the payload a server-side host turns into its next request. `searchable`/`filter` defaults are unchanged, so existing consumers are unaffected.
 
+**Windowed rendering (a prop, not config — and you almost never set it):** `List`, `CardGrid` and `DataTable` render only the rows near the viewport once a collection passes **100 rows**, replacing the rest with equivalent empty space. A screen holding 2,000 rows keeps ~30 nodes in the DOM instead of 2,000. It is deliberately invisible: total height, scroll position, the scrollbar, selection, striping and every prop are unchanged, so **no recipe needs editing to get it**. It also never engages when `itemsPerPage` is set, because pagination has already bounded the rows.
+
+Pass `virtualize={false}` to force it off — the one case that needs it is a view that must contain every row whether or not it is on screen (printing, "select all" over the DOM, an external search-in-page). `virtualize={true}` forces it on below the threshold. There is no height prop and no scroll container to supply: the hook finds whichever ancestor is already scrolling, falling back to the page, and measures the row pitch and live column count from the rendered DOM. See `registry/primitives/use-virtual-rows`.
+
 ### Sort — `sortable` + `sortOptions`
 
 The sort control lives **inside** the header, on the same row as search and the filters — not a separate strip above the frame.

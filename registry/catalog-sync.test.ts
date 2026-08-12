@@ -27,6 +27,8 @@ const NOT_IN_CATALOG: Record<string, string> = {
   visibility:
     "runtime for config-driven show/hide (useIsVisible), not a UI part",
   "use-debounce": "shared hook (useDebouncedCallback), not a UI part",
+  "use-virtual-rows":
+    "shared hook (windowed rendering) the collections use internally, not a UI part",
   label: "form label used *inside* Field; never placed on its own",
   sonner: "the toast host; documented as the 'Toast' entry",
 }

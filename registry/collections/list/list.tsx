@@ -4,6 +4,7 @@ import * as React from "react"
 
 import { cn } from "../../../lib/utils"
 import { Card } from "../../primitives/card/card"
+import { useVirtualRows } from "../../primitives/use-virtual-rows/use-virtual-rows"
 
 export interface ListItem {
   id: string
@@ -37,6 +38,11 @@ export interface ListProps<T extends ListItem> {
   surface?: "card" | "none"
   /** Rendered when `items` is empty. */
   empty?: React.ReactNode
+  /** Windowed rendering — only the rows near the viewport go in the DOM. Turns
+   *  itself on past 100 rows and is invisible when it does: the list keeps its
+   *  full height, its scroll position and its markup. Pass `false` to force it
+   *  off (e.g. a print view that must contain every row), `true` to force it on. */
+  virtualize?: boolean
   className?: string
 }
 
@@ -56,8 +62,16 @@ function List<T extends ListItem>({
   onSelect,
   surface = "card",
   empty,
+  virtualize,
   className,
 }: ListProps<T>) {
+  // Row pitch estimate: py-3 + two lines of text ≈ 64px. Only used for the
+  // first paint; the real pitch is measured from the rendered rows.
+  const v = useVirtualRows({
+    count: items.length,
+    estimatePitch: 64,
+    enabled: virtualize,
+  })
   // "none" = a flat container (no card background/border); "card" = the frosted
   // Card. Either way rows keep their divider + hover/selected affordances.
   const Surface = surface === "card" ? Card : "div"
@@ -85,9 +99,19 @@ function List<T extends ListItem>({
 
   return (
     <Surface
+      ref={v.containerRef}
       className={cn("divide-y overflow-hidden p-0", surfaceClass, className)}
+      // Spacers are PADDING, not sibling nodes: `divide-y` draws a border
+      // between children, so a spacer div would paint a stray rule above the
+      // first row. Padding leaves the row group untouched while keeping the
+      // list's total height — and therefore the scrollbar — exactly as it was.
+      style={
+        v.active
+          ? { paddingTop: v.padTop, paddingBottom: v.padBottom }
+          : undefined
+      }
     >
-      {items.map((item) => {
+      {items.slice(v.start, v.end).map((item) => {
         const selected = selectedId != null && item.id === selectedId
         const content = (
           <>

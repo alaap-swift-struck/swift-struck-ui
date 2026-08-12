@@ -11,13 +11,13 @@
 
 ## Current state
 
-- **Package version `0.9.6`.** Local = GitHub (`origin/main`) = staging = production, all
-  at the same commit, tagged `v0.9.6`. Working tree clean.
-- **Tests: 225 passing across 33 files.** Gate is green: `tsc` (root AND `www`),
-  `npm test`, `npm run guardrails` (176 modules, 0 violations), `npm run format:check`.
+- **Package version `0.10.0`.** Local = GitHub (`origin/main`) = staging = production, all
+  at the same commit, tagged `v0.10.0`. Working tree clean.
+- **Tests: 276 passing across 36 files.** Gate is green: `tsc` (root AND `www`),
+  `npm test`, `npm run guardrails` (181 modules, 0 violations), `npm run format:check`.
 - **Health (lean_mean_check): 94/100, Grade A.** Reports at `lean-mean-report.html` +
   `.md` (gitignored, local artifacts).
-- **90 components** (64 primitives + 26 collections) — authoritative count is
+- **91 components** (65 primitives + 26 collections) — authoritative count is
   `registry.json`.
 - **Live:** production `https://swift-struck-ui.pages.dev`, staging
   `https://staging.swift-struck-ui.pages.dev`.
@@ -25,8 +25,8 @@
 
 ### Every release is a git tag
 
-`v0.1.0` … `v0.9.6`, each verified against the `package.json` at that commit. Hosts pin
-with `npm install github:alaap-swift-struck/swift-struck-ui#v0.9.6`.
+`v0.1.0` … `v0.10.0`, each verified against the `package.json` at that commit. Hosts pin
+with `npm install github:alaap-swift-struck/swift-struck-ui#v0.10.0`.
 
 ---
 
@@ -48,6 +48,7 @@ with `npm install github:alaap-swift-struck/swift-struck-ui#v0.9.6`.
 | 0.9.4   | **Card `min-w-0`**, chart tokens restored to graphics floor, stale token paths purged                                     |
 | 0.9.5   | **RE-SKIN CONTRAST CHECKLIST** + last 3 contrast gaps closed (new `--warning-strong`); Card/Chart regression guards       |
 | 0.9.6   | **Recharts legend labels pinned to the text token** (trap 4); dark-mode fill labels to near-black; chat timestamp opacity |
+| 0.10.0  | **Windowed rendering** in List/CardGrid/DataTable past 100 rows (`use-virtual-rows`); props API unchanged                 |
 
 ---
 
@@ -217,6 +218,34 @@ Four tests, all proven to fail against the real drift they guard:
 Deliberately NOT added: "every backticked path must exist" — docs legitimately use shorthand
 (`logic.ts`, the hypothetical `FancyButton.tsx`), so it would be noisy enough to get disabled.
 
+### Windowed rendering (v0.10.0) — and the bug only a real browser could find
+
+`List` / `CardGrid` / `DataTable` window their rows past **100** (`VIRTUALIZE_THRESHOLD`).
+`lib/virtual.ts` = DOM-free math; `registry/primitives/use-virtual-rows` = measure +
+subscribe. Automatic, so **no host recipe changed**; `virtualize={false}` is the escape hatch.
+
+- **It's a prop, not config.** `XConfig` fields are all-required by rule, so a new config
+  field would have broken every call site. Same reasoning as `modal`/`onSearch`.
+- **No fixed height, no scroll container prop.** The hook finds whichever ancestor already
+  scrolls and falls back to the page. Imposing our own bounded scroller would have been a
+  visible layout change on every existing screen.
+- **Pitch and column count are MEASURED**, by finding the first child that starts a new
+  visual row. One hook then serves a list, a table body, and a grid that re-flows at
+  breakpoints, with no prop to keep in sync.
+- Spacers differ per layout **because the layout forces it**: padding for list (a spacer div
+  takes a `divide-y` border and paints a stray rule) and grid (a spacer occupies a grid track
+  and shifts every later card a column); spacer **rows** for the table (padding on a `tbody`
+  is not rendered in table layout). `DataTable` stripes by the **absolute** index — the
+  sliced index restarts the zebra pattern at every window.
+
+**THE BUG — `findScroller` must skip `<html>`/`<body>`.** This library sets
+`html { overflow-x: hidden }`, and CSS computes the _other_ axis of a hidden overflow to
+`auto` — so the root always looked like a scroll container. It would then be measured like
+one, and for the root `getBoundingClientRect().top` is `-scrollTop`, which cancels the scroll
+out **exactly**: the window sat still while the page scrolled. Invisible to the unit tests
+(they return stubbed rects), found in 5 minutes in a real browser. Now guarded by a test that
+makes `<html>` look scrollable and asserts the window still advances.
+
 ### Tokens live in root `styles.css`
 
 `www/app/globals.css` is a **3-line shim** that imports tailwind + `../../styles.css`.
@@ -268,6 +297,14 @@ Before trusting a new regression test, **revert the fix and confirm the test goe
   chart's `window.resize` listener is not redundant with its observer, and why the unit
   guard in `chart.test.tsx` drives both by hand — see "What actually stops these regressing".
 - The pane's `javascript_tool` **awaits async IIFEs**; Chrome's **does not** (returns `{}`).
+  Hit this again in v0.10.0 — in real Chrome, split "act" and "measure" into two calls.
+- **The preview pane reports `innerHeight: 0` AND `documentElement.clientHeight: 0`.** Real
+  Chrome reports both correctly (986). Anything that divides by the viewport is unverifiable
+  in the pane — use real Chrome.
+- **`window.scrollTo()` in a backgrounded CDP tab moves the geometry but fires NO scroll
+  event**, so scroll-driven code looks frozen and you will "confirm" a bug that isn't there
+  (I did, for several minutes). Scroll **and then dispatch** `new Event("scroll")`; the rects
+  are real, only the event is missing.
 - React state is async — **`await` a tick after a click before reading the DOM**, or you read
   the pre-render DOM and wrongly conclude the fix failed (this happened).
 - `elementFromPoint` is the browser's real hit-test — the right tool for "is this clickable".

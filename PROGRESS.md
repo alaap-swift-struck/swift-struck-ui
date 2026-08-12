@@ -3,12 +3,68 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 90 components** (64 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 225 across 33 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async/range filter facets · creatable Choice · in-header sort control · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
+> **Built: 91 components** (65 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 276 across 36 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async/range filter facets · creatable Choice · in-header sort control · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
 
 > The live counts are authoritative from `registry.json` (components) and
 > `npm run guardrails` ("N modules", which also counts logic + test files).
 
 > **Glide config reference:** see `GLIDE-CONFIG-RESEARCH.md` — every component's real Glide config options, the source of truth for parity.
+
+---
+
+## 🪟 Windowed rendering in the collections (v0.10.0)
+
+A scaling review found the last open item on client data volume: the host's cache
+already caps at 2,000 rows and pages by keyset, so the **data** side is bounded —
+but the collections rendered every loaded row, so a 2,000-row screen put 2,000
+nodes in the DOM. Raised here rather than worked around in the app, because the
+host's rule is that a primitive is never forked.
+
+- [x] **`List`, `CardGrid` and `DataTable` now window their rows.** Only the
+      visible slice plus an overscan buffer is mounted; the rest becomes
+      equivalent empty space, so total height, scroll position and the scrollbar
+      are byte-for-byte what they were. 2,000 rows → ~30 nodes.
+- [x] **The props API did not change.** Windowing turns itself on past **100
+      rows** and is otherwise inert, so no host recipe needs an edit to get it.
+      The only new prop is an optional `virtualize` escape hatch (`false` for a
+      view that must contain every row — printing, select-all, find-in-page).
+      Adding a required config field would have broken every call site, and
+      `XConfig` fields are all-required by rule — so this is a prop, not config.
+- [x] **No fixed height, and no scroll container to supply.** The hook finds
+      whichever ancestor is already scrolling and falls back to the page, so a
+      collection in an ordinary page-scrolled layout keeps behaving exactly as it
+      looks. Imposing our own bounded scroller would have been a visible layout
+      change on every existing screen.
+- [x] **Row pitch and column count are MEASURED, not configured.** Pitch (not
+      height — it has to include the grid gap) and the live column count are read
+      off the rendered DOM by finding the first child that starts a new visual
+      row. That is what lets one hook serve a 1-column list, a table body, and a
+      grid whose column count changes at every breakpoint, with no prop to keep
+      in sync. It re-measures on resize.
+- [x] **One hook, three layouts.** `lib/virtual.ts` holds the DOM-free
+      arithmetic; `registry/primitives/use-virtual-rows` measures and subscribes.
+      Each collection applies the same numbers the way its own layout demands:
+      padding for the list (a spacer `div` would take a `divide-y` border and
+      paint a stray rule) and the grid (a spacer would occupy a grid track and
+      shift every later card by a column), spacer **rows** for the table (padding
+      on a `tbody` is not rendered in table layout).
+- [x] **Degenerate input renders everything rather than guessing.** An unmeasured
+      pitch, a non-finite viewport, a zero-height container — each falls back to
+      the full list. A complete collection is always correct, just slower; a
+      wrong window is a bug you can see.
+
+51 new tests (`lib/virtual.test.ts`, `use-virtual-rows.test.tsx`,
+`virtualization.test.tsx`), and **every one was mutation-checked**: removing the
+scroll listener, disabling column detection, counting spacers as rows, ignoring
+the threshold, dropping the table's top spacer, and striping by the sliced index
+each turn tests red. Two of those tests were vacuous on the first pass and were
+rewritten until they failed — the stub had to model a spacer that occupies real
+space before it could catch anything. jsdom has no layout engine, so geometry is
+stubbed and real scrolling stays a manual browser check; both test files say so.
+
+One subtlety worth recording: `DataTable` stripes by the **absolute** row index.
+The sliced index would restart the zebra pattern at every window, so stripes
+would visibly invert as you scrolled.
 
 ---
 
