@@ -28,11 +28,20 @@ const ROOT = join(__dirname, "..", "..", "..")
  * file it lives in. Adding one here is how a new overlay joins the rule. */
 const OVERLAYS: [string, string][] = [
   ["dialog", join("registry", "primitives", "dialog", "dialog.tsx")],
-  ["alert-dialog", join("registry", "primitives", "alert-dialog", "alert-dialog.tsx")],
+  [
+    "alert-dialog",
+    join("registry", "primitives", "alert-dialog", "alert-dialog.tsx"),
+  ],
   ["sheet", join("registry", "primitives", "sheet", "sheet.tsx")],
   ["popover", join("registry", "primitives", "popover", "popover.tsx")],
-  ["dropdown-menu", join("registry", "primitives", "dropdown-menu", "dropdown-menu.tsx")],
-  ["hover-card", join("registry", "primitives", "hover-card", "hover-card.tsx")],
+  [
+    "dropdown-menu",
+    join("registry", "primitives", "dropdown-menu", "dropdown-menu.tsx"),
+  ],
+  [
+    "hover-card",
+    join("registry", "primitives", "hover-card", "hover-card.tsx"),
+  ],
   ["select", join("registry", "primitives", "select", "select.tsx")],
   ["command", join("registry", "primitives", "command", "command.tsx")],
 ]
@@ -44,7 +53,9 @@ describe("every floating surface is opaque", () => {
       // The class list of the floating panel itself. `.glass` anywhere in a
       // className is the fault; naming it in a COMMENT explaining why it is not
       // used is fine, which is why comments are stripped first.
-      const code = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "")
+      const code = src
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .replace(/^\s*\/\/.*$/gm, "")
       expect(
         /["'`][^"'`]*\bglass\b/.test(code),
         `${name} still uses the translucent .glass surface — a floating panel over arbitrary content must be opaque`
@@ -63,7 +74,10 @@ describe("every floating surface is opaque", () => {
   it(".glass is still translucent, so the rule above is still doing work", () => {
     const css = readFileSync(join(ROOT, "styles.css"), "utf8")
     const at = css.indexOf(".glass")
-    expect(at, ".glass must exist — a card still uses it deliberately").toBeGreaterThan(-1)
+    expect(
+      at,
+      ".glass must exist — a card still uses it deliberately"
+    ).toBeGreaterThan(-1)
     const rule = css.slice(at, css.indexOf("}", at))
     expect(
       /color-mix\(/.test(rule),

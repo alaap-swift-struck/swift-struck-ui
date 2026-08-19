@@ -93,7 +93,9 @@ describe("StatusStepper", () => {
     // The padding must be on the <ol>, not the wrapper: a scroll container is
     // entitled to ignore its own inline-end padding, and several browsers do.
     for (const value of ["open", "resolved"]) {
-      const { container } = render(<StatusStepper stages={stages} value={value} />)
+      const { container } = render(
+        <StatusStepper stages={stages} value={value} />
+      )
       const list = container.querySelector("ol") as HTMLElement
       expect(list.className, `${value} stage active`).toMatch(/\bpx-/)
     }

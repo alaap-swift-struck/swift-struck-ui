@@ -22,6 +22,19 @@ export interface CardGridItem {
   description?: React.ReactNode
   /** Media slot rendered above the header — an image, chart, or icon block. */
   media?: React.ReactNode
+  /** HOW THE MEDIA SITS IN THE CARD, and the two are genuinely different things.
+   *  `bleed` (the default, and what this slot has always done) runs the media to
+   *  the card's edges: right for a photo or a chart, where a gutter would look
+   *  like a mistake. `inset` gives it the card's own gutter, which is what a
+   *  small mark needs — an icon block or a record's face.
+   *
+   *  Added 19 Aug 2026, reported as "source logos are spilling out of cards": the
+   *  slot's own docstring offered "an image, chart, or icon block" and gave all
+   *  three the same zero-padding layout, so a 36px mark landed hard in the
+   *  corner, its rounded edge colliding with the card's. One layout for two
+   *  needs is the defect; naming which one you want is the fix. Default
+   *  unchanged, so every existing caller renders byte-identical markup. */
+  mediaFit?: "bleed" | "inset"
   /** Footer slot — badges, metadata, or actions. */
   footer?: React.ReactNode
 }
@@ -86,7 +99,15 @@ function CardGrid<T extends CardGridItem>({
             interactive && "hover-lift cursor-pointer"
           )}
         >
-          {item.media != null && <div>{item.media}</div>}
+          {item.media != null && (
+            // `px-6 pt-6` is CardHeader's own `p-6`, so an inset mark lines up
+            // with the title beneath it rather than approximately near it.
+            <div
+              className={item.mediaFit === "inset" ? "px-6 pt-6" : undefined}
+            >
+              {item.media}
+            </div>
+          )}
           <CardHeader>
             <CardTitle>{item.title}</CardTitle>
             {item.description != null && (

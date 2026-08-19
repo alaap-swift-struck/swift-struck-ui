@@ -582,6 +582,11 @@ function renderList(
               title: String(row[fields[0]?.column ?? "id"] ?? ""),
               description: String(row[fields[1]?.column ?? ""] ?? ""),
               media: leadingOf(row),
+              // ALWAYS INSET, because `leading` is always a record's MARK — a
+              // small face or glyph, never a photo that wants the card's full
+              // width. The renderer is the thing that knows which of the two it
+              // is passing, so it is the thing that says.
+              mediaFit: "inset" as const,
             }))}
             // A CARD OPENS ITS RECORD, exactly as a list row does. `CardGrid` has
             // taken `onItemClick` since it was written and this passed none, so a
@@ -590,7 +595,13 @@ function renderList(
             // is also what turns the cards interactive: `CardGrid` reads
             // `Boolean(onItemClick)` for its own hover and focus affordances, so
             // without it the cards did not even look clickable.
-            onItemClick={(item) => onIntent?.({ kind: "open", module: recipe.binding.module, id: item.id })}
+            onItemClick={(item) =>
+              onIntent?.({
+                kind: "open",
+                module: recipe.binding.module,
+                id: item.id,
+              })
+            }
           />
         ) : (
           <List
