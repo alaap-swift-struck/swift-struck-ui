@@ -583,6 +583,14 @@ function renderList(
               description: String(row[fields[1]?.column ?? ""] ?? ""),
               media: leadingOf(row),
             }))}
+            // A CARD OPENS ITS RECORD, exactly as a list row does. `CardGrid` has
+            // taken `onItemClick` since it was written and this passed none, so a
+            // recipe that chose `display: "cards"` got a grid of records nothing
+            // could open — the same collection, inert, for choosing a layout. It
+            // is also what turns the cards interactive: `CardGrid` reads
+            // `Boolean(onItemClick)` for its own hover and focus affordances, so
+            // without it the cards did not even look clickable.
+            onItemClick={(item) => onIntent?.({ kind: "open", module: recipe.binding.module, id: item.id })}
           />
         ) : (
           <List
