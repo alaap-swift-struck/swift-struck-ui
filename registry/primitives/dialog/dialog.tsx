@@ -24,7 +24,20 @@ function DialogContent({
       <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
       <DialogPrimitive.Content
         className={cn(
-          "glass fixed top-1/2 left-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl border p-6 text-card-foreground shadow-xl duration-200 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-bottom-2",
+          // OPAQUE surface (bg-card, not glass) — the same correction popover,
+          // dropdown-menu, hover-card, select and command were given, and the
+          // two this one missed.
+          //
+          // A dialog floats over WHATEVER the page happens to be showing, and
+          // `.glass` is a 72% color-mix: over a plain list nobody notices, over
+          // a grid of logo tiles the form behind it reads straight through the
+          // fields and the thing is unusable. That is not a taste call about
+          // frosting — a form is for READING, and 28% of somebody else's screen
+          // through the middle of it is noise on top of every label.
+          //
+          // The scrim behind (bg-black/50 on the Overlay) is what separates the
+          // dialog from the page. The dialog's own surface does not need to help.
+          "bg-card fixed top-1/2 left-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl border p-6 text-card-foreground shadow-xl duration-200 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-bottom-2",
           className
         )}
         {...props}

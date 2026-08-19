@@ -16,7 +16,10 @@ const SheetTrigger = SheetPrimitive.Trigger
 const SheetClose = SheetPrimitive.Close
 
 const sheetVariants = cva(
-  "glass fixed z-50 flex flex-col gap-4 border p-6 shadow-xl transition ease-in-out data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:animate-in data-[state=open]:duration-500",
+  // OPAQUE surface (bg-card, not glass), for the dialog's reason one component
+  // along: a sheet slides over the page it was opened from, so a translucent
+  // pane shows the very content it is covering straight through its own fields.
+  "bg-card fixed z-50 flex flex-col gap-4 border p-6 shadow-xl transition ease-in-out data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:animate-in data-[state=open]:duration-500",
   {
     variants: {
       side: {
