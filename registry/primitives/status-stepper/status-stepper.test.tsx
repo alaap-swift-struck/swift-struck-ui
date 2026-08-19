@@ -77,4 +77,25 @@ describe("StatusStepper", () => {
     // vertical breathing room so the ring offset has somewhere to paint
     expect(list.className).toMatch(/\bpy-/)
   })
+
+  it("pads the <ol> on BOTH axes — the first and last stage are where the ring is cut", () => {
+    // The sibling test above pinned the vertical half and shipped `py-1` alone,
+    // which is the whole story only while the active stage is in the middle. It
+    // never is at the two moments people look hardest:
+    //
+    //   • FIRST stage active — every new story, every fresh ticket. The ring's
+    //     leading 4px sits at a negative scroll offset, and no scroll container
+    //     can be scrolled to a negative position.
+    //   • LAST stage active — everything finished. A ring is a box-shadow, and a
+    //     box-shadow contributes nothing to scrollable overflow, so the trailing
+    //     4px lies past the scroll width.
+    //
+    // The padding must be on the <ol>, not the wrapper: a scroll container is
+    // entitled to ignore its own inline-end padding, and several browsers do.
+    for (const value of ["open", "resolved"]) {
+      const { container } = render(<StatusStepper stages={stages} value={value} />)
+      const list = container.querySelector("ol") as HTMLElement
+      expect(list.className, `${value} stage active`).toMatch(/\bpx-/)
+    }
+  })
 })

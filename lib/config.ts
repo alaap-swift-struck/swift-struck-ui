@@ -297,6 +297,18 @@ export interface CollectionConfig extends BaseConfig {
   /** Show a live "Showing X of Y" count in the header. */
   showCount: boolean
   emptyText: string
+  /** An OPTIONAL concept glyph above the empty sentence — a lucide name, the same
+   * shape `TabItem.icon` takes as a name. Defaults to none, so a caller that sets
+   * nothing renders exactly what it rendered before.
+   *
+   * WHY IT IS HERE. A lone line of grey text in the middle of a dashed box reads
+   * as a screen that FAILED, not one with nothing on it yet — and that is
+   * precisely the screen every brand-new team sees on every page. Hosts that
+   * compose their own empty states already lead with a glyph for this reason; a
+   * recipe-driven collection had no way to say it, and writing the glyph into
+   * `emptyText` would put a pictograph inside a sentence, which is the one shape
+   * a host style guide is most likely to forbid. */
+  emptyIcon?: string | null
   /** Header arrangement. "stacked" (default) = a title+search row with the filter
    * bar on its own line below; "inline" = title, search, and filters together on
    * one wrapping row. */
@@ -321,6 +333,7 @@ export const defaultCollectionConfig: CollectionConfig = {
   filterFacets: [],
   showCount: true,
   emptyText: "Nothing here yet.",
+  emptyIcon: null,
   headerLayout: "stacked",
 }
 

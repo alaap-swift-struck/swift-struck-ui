@@ -19,6 +19,7 @@
 
 import * as React from "react"
 import { ArrowUpDown, ChevronLeft, ChevronRight, Filter } from "lucide-react"
+import { DynamicIcon, type IconName } from "lucide-react/dynamic"
 
 import { selectRows } from "../../../lib/collection"
 import { type CollectionConfig } from "../../../lib/config"
@@ -298,6 +299,16 @@ function CollectionFrame<T>({
 
       {filtered.length === 0 ? (
         <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
+          {config.emptyIcon ? (
+            <DynamicIcon
+              name={config.emptyIcon as IconName}
+              // `aria-hidden`: the sentence under it already says what this is,
+              // and a screen reader announcing an icon name before it is noise.
+              aria-hidden
+              className="mx-auto mb-3 size-8 opacity-60"
+              fallback={() => null}
+            />
+          ) : null}
           {config.emptyText}
         </div>
       ) : (

@@ -58,12 +58,30 @@ function StatusStepper({
     // y-axis to `auto` too — so a scrolling <ol> was a scroll box in BOTH axes
     // and clipped the active pill's ring-2 + ring-offset-2 (~4px outside the
     // pill). The wrapper scrolls; the <ol> keeps `overflow-visible` plus a
-    // little vertical padding, so the ring is never cut at any root font-size.
+    // little padding, so the ring is never cut at any root font-size.
+    //
+    // THE PADDING IS ON BOTH AXES, and for a year it was on one. The fix above
+    // was written looking at the top and bottom of the ring and shipped `py-1`,
+    // which is the whole story only if the active stage is somewhere in the
+    // middle. It never is, at the two moments that matter:
+    //
+    //   • FIRST stage active — every new story ("Open"), every fresh ticket. The
+    //     ring's leading 4px sits at a negative offset, and a scroll container
+    //     cannot be scrolled to a negative position, so it is simply gone.
+    //   • LAST stage active — every finished thing ("Done", "Resolved"). A ring
+    //     is a `box-shadow`, and per CSS Overflow a box-shadow contributes
+    //     NOTHING to scrollable overflow, so the trailing 4px lies past the
+    //     scroll width and cannot be reached either.
+    //
+    // Both ends, in other words, and only ever on the states people look at
+    // most. `px-1` on the <ol> — not on the wrapper, whose inline-end padding a
+    // scroll container is entitled to ignore — gives the ring the same 4px of
+    // room sideways that it already had vertically.
     <div className={cn("w-full overflow-x-auto", className)}>
       <ol
         role="group"
         aria-label="Status"
-        className="flex min-w-0 items-center gap-1 overflow-visible py-1"
+        className="flex min-w-0 items-center gap-1 overflow-visible px-1 py-1"
       >
         {stages.map((stage, i) => {
           const reached = activeIndex >= 0 && i <= activeIndex
