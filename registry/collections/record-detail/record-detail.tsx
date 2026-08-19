@@ -36,6 +36,7 @@ function RecordDetail({
   subtitle,
   avatarSrc,
   avatarFallback,
+  avatarShape = "circle",
   actions,
   config,
   children,
@@ -43,9 +44,14 @@ function RecordDetail({
 }: {
   title: React.ReactNode
   subtitle?: React.ReactNode
-  /** Optional record image; falls back to `avatarFallback` (e.g. initials). */
+  /** Optional record image; falls back to `avatarFallback` (e.g. initials).
+   *  Pass NEITHER and the header draws no avatar at all — a record with no
+   *  picture concept shouldn't open with two letters of its title in a disc. */
   avatarSrc?: string
   avatarFallback?: React.ReactNode
+  /** How the image is cropped. Default "circle" (a person). Use "square" for a
+   *  company logo or wordmark — a circular crop makes those unreadable. */
+  avatarShape?: "circle" | "square"
   /** Right-aligned slot for buttons (edit, delete, share…). */
   actions?: React.ReactNode
   config: RecordDetailConfig
@@ -68,9 +74,18 @@ function RecordDetail({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           {hasAvatar && (
-            <Avatar className="size-12">
+            <Avatar
+              className={cn(
+                "size-12",
+                avatarShape === "square" && "rounded-lg"
+              )}
+            >
               {avatarSrc && <AvatarImage src={avatarSrc} />}
-              <AvatarFallback>{avatarFallback}</AvatarFallback>
+              <AvatarFallback
+                className={cn(avatarShape === "square" && "rounded-lg")}
+              >
+                {avatarFallback}
+              </AvatarFallback>
             </Avatar>
           )}
           <div className="min-w-0">

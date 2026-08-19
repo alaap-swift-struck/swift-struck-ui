@@ -141,7 +141,14 @@ export interface RecipeTab {
 export interface ScreenHeader {
   title: string
   subtitle?: string
+  /** The column holding the record's picture. Omit and the header draws NO
+   *  avatar at all — not an initials circle: a screen with no picture concept
+   *  should not open with two letters of its own title in a disc. */
   avatar?: string
+  /** How that picture is cropped. Default "circle"; "square" for a logo or
+   *  wordmark, which a circular crop renders unreadable. Ignored when `avatar`
+   *  is omitted (there is nothing to crop). */
+  avatarShape?: "circle" | "square"
 }
 
 /** The whole screen, as data. */
@@ -165,6 +172,16 @@ export interface ScreenRecipe {
    * bordered surface; "none" = flat, for when the host wraps the collection in
    * its own card and wants a single clean box, not a card-in-card. */
   surface?: "card" | "none"
+  /** list: the column holding each row's leading visual — an avatar, logo or
+   * type mark the HOST has already rendered into the row (a `Row` value is
+   * `unknown`, so a React node is a legal one). Read exactly as `fields[0]` is
+   * read for the title, and drawn in the List's `leading` slot / the CardGrid's
+   * `media` slot. Omit and nothing is drawn, which is every existing caller —
+   * there is deliberately no default mark, because an empty grey square on
+   * every row of a list that has no pictures is worse than plain text rows.
+   * A column holding a plain string renders as that string, so point this at
+   * the shaped node, not at a raw `logoUrl`. */
+  leading?: string
   /** custom: the composed tree. */
   layout?: RecipeNode
   /** confirm: the prompt. */

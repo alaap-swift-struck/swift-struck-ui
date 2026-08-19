@@ -3,12 +3,44 @@
 A running tally of the library. Updated each batch. No percentages — just
 what's built and what's left.
 
-> **Built: 91 components** (65 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 276 across 36 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async/range filter facets · creatable Choice · in-header sort control · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
+> **Built: 91 components** (65 primitives + 26 collections) &nbsp;·&nbsp; **Tests: 290 across 37 files** &nbsp;·&nbsp; _Glide parity complete · agent/app surfaces added · config-driven screen engine · status-stepper primitive · searchable/async/range filter facets · creatable Choice · in-header sort control · shared debounce hook · library-wide XSS hardening · component + interaction + security test suite in CI._
 
 > The live counts are authoritative from `registry.json` (components) and
 > `npm run guardrails` ("N modules", which also counts logic + test files).
 
 > **Glide config reference:** see `GLIDE-CONFIG-RESEARCH.md` — every component's real Glide config options, the source of truth for parity.
+
+---
+
+## 🖼 Pictures in recipe screens — four host slots (v0.11.0)
+
+A host reported that every recipe-driven collection rendered as two lines of
+text, while its hand-composed lists over the **same records** drew each record's
+logo. The picture was already on the row and the slot already existed on the
+component — `screen-renderer` was the only thing between them. Four gaps of that
+same shape, all closed here. **Every one is opt-in: a caller that changes nothing
+renders exactly what it rendered before**, which is the guardrail the new
+`registry/collections/slots.test.tsx` holds (13 tests, each proven able to fail).
+
+- [x] **`ScreenRecipe.leading`** — name a row column and the engine draws it in
+      the List's `leading` slot and the CardGrid's `media` slot. No default mark:
+      an empty grey square on every row of a list with no pictures is worse than
+      the text rows. A value React can't draw (a plain object) renders as
+      nothing rather than throwing and taking the screen down.
+- [x] **`TabItem.icon` accepts a node.** A string is still read as a lucide name
+      (`""` = none), so a tab set stays serialisable data; anything else — a
+      product logo, a type mark — renders as-is.
+- [x] **`StatItem.icon`** — a glyph top-right of a Big Number card. The label
+      truncates, the glyph never shrinks.
+- [x] **Recipe details stop inventing avatars.** `RecordDetail` gains
+      `avatarShape` (`"circle"` default, `"square"` for a logo or wordmark a
+      circle would crop into nonsense), and the engine now supplies initials
+      **only when the recipe's `header` declares an `avatar` column**.
+
+> **The one behaviour change:** a detail recipe whose `header` has no `avatar`
+> used to open with two letters of its own title in a circle, and now draws no
+> avatar at all. Add `avatar: "<column>"` to that recipe's `header` to keep the
+> old look — see CONFIG-REFERENCE.md.
 
 ---
 

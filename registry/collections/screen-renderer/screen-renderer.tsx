@@ -129,6 +129,16 @@ function initials(s: string): string {
   )
 }
 
+/** A row value, narrowed to something React can actually draw. Row values are
+ *  `unknown`, so a host CAN hand us a plain object — and React throws on an
+ *  object child, which would take the whole screen down. Anything undrawable
+ *  renders as nothing instead. */
+function asNode(value: unknown): React.ReactNode {
+  if (value == null || typeof value === "boolean") return undefined
+  if (typeof value === "string" || typeof value === "number") return value
+  return React.isValidElement(value) ? value : undefined
+}
+
 function colType(t: RecipeFieldType): DataTableColumn["type"] {
   return t === "number" ? "number" : t === "date" ? "date" : "text"
 }
@@ -553,6 +563,12 @@ function renderList(
     )
   }
 
+  // The row's leading visual, read exactly as `fields[0]` is read for the title.
+  // No `recipe.leading` = `undefined` = the slot is not rendered at all, so a
+  // caller that omits it gets byte-identical markup (see the guardrail test).
+  const leadingOf = (row: Row): React.ReactNode =>
+    recipe.leading ? asNode(row[recipe.leading]) : undefined
+
   return (
     <CollectionFrame
       config={recipe.collection ?? { ...defaultCollectionConfig }}
@@ -565,6 +581,7 @@ function renderList(
               id: String(row.id ?? ""),
               title: String(row[fields[0]?.column ?? "id"] ?? ""),
               description: String(row[fields[1]?.column ?? ""] ?? ""),
+              media: leadingOf(row),
             }))}
           />
         ) : (
@@ -574,6 +591,7 @@ function renderList(
               id: String(row.id ?? ""),
               title: String(row[fields[0]?.column ?? "id"] ?? ""),
               subtitle: String(row[fields[1]?.column ?? ""] ?? ""),
+              leading: leadingOf(row),
             }))}
             onItemClick={open}
           />
@@ -649,7 +667,11 @@ function renderDetail(
       title={title}
       subtitle={subtitle}
       avatarSrc={avatarSrc || undefined}
-      avatarFallback={initials(title)}
+      // Initials ONLY when the recipe declares an avatar column. Three of the
+      // host's five recipe details have no picture concept at all, and each was
+      // opening with two letters of its own title in a circle.
+      avatarFallback={header?.avatar ? initials(title) : undefined}
+      avatarShape={header?.avatarShape}
       actions={actions}
       className="w-full"
     >

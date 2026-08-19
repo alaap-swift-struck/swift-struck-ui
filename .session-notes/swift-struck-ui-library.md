@@ -4,19 +4,23 @@
 > (package `@swift-struck/ui`), NOT the Brimba app. Read `HANDOFF.md` at the repo root
 > first for the full orientation. This file is the per-workstream session memory.
 >
-> **Updated:** 2026-08-06 (merged; earlier entry covered up to v0.3.0). Written before a
-> `/compact`.
+> **Updated:** 2026-08-19. Merged file — earlier entries covered up to
+> v0.3.0, then v0.9.x, now through **v0.11.0**. Nothing is dropped on merge; sections are
+> updated in place so the reasoning behind old decisions survives.
 
 ---
 
 ## Current state
 
-- **Package version `0.10.0`.** Local = GitHub (`origin/main`) = staging = production, all
-  at the same commit, tagged `v0.10.0`. Working tree clean.
-- **Tests: 276 passing across 36 files.** Gate is green: `tsc` (root AND `www`),
-  `npm test`, `npm run guardrails` (181 modules, 0 violations), `npm run format:check`.
+- **Package version `0.11.0`.** Local = GitHub (`origin/main`) = staging = production,
+  tagged `v0.11.0`.
+- **Tests: 290 passing across 37 files.** Gate is green — and it is now ONE command:
+  **`npm run verify`** = `tsc --noEmit` + `vitest run` + `guardrails` + `format:check`.
+  (`npm run check` still exists but only covers guardrails + format — prefer `verify`.)
 - **Health (lean_mean_check): 94/100, Grade A.** Reports at `lean-mean-report.html` +
   `.md` (gitignored, local artifacts).
+- **Survivability (mac_fell_in_the_ocean_review): 97/100**, up from 79. Report committed
+  at `ocean-review.md` / `ocean-review.html`.
 - **91 components** (65 primitives + 26 collections) — authoritative count is
   `registry.json`.
 - **Live:** production `https://swift-struck-ui.pages.dev`, staging
@@ -25,30 +29,33 @@
 
 ### Every release is a git tag
 
-`v0.1.0` … `v0.10.0`, each verified against the `package.json` at that commit. Hosts pin
-with `npm install github:alaap-swift-struck/swift-struck-ui#v0.10.0`.
+`v0.1.0` … `v0.11.0` (20 tags), each verified against the `package.json` at that commit
+and each confirmed present on the remote. Hosts pin with
+`npm install github:alaap-swift-struck/swift-struck-ui#v0.11.0`.
 
 ---
 
 ## What shipped since v0.3.0 (chronological)
 
-| Version | What                                                                                                                      |
-| ------- | ------------------------------------------------------------------------------------------------------------------------- |
-| 0.4.0   | flat List self-rounds; AgentChat attachment slot                                                                          |
-| 0.5.0   | **searchable + async filter facets** (`FilterFacet.searchable`, `onSearch`)                                               |
-| 0.5.1   | shared `use-debounce` primitive (`useDebouncedCallback`) — DRY cleanup                                                    |
-| 0.6.0   | **numeric range facet** (`control:"range"`) + `Input` placeholder ellipsis                                                |
-| 0.7.0   | **in-header SortControl** + `ListItem.fields`                                                                             |
-| 0.7.1   | release hygiene: git tags, tests excluded from tarball, honest install docs                                               |
-| 0.8.0   | **creatable Choice** (`creatable`, `createLabel`, `onCreate`)                                                             |
-| 0.9.0   | 6 host-reported primitive fixes (dialog scroll `modal`, ring `shape`, truncation, `RecipeTab.badge`, per-facet clear)     |
-| 0.9.1   | **clear ✕ opened the dropdown instead of clearing**                                                                       |
-| 0.9.2   | docs-catalog drift, light-mode contrast, chart resize                                                                     |
-| 0.9.3   | audit pass: split filter-bar, drift guards, doc corrections                                                               |
-| 0.9.4   | **Card `min-w-0`**, chart tokens restored to graphics floor, stale token paths purged                                     |
-| 0.9.5   | **RE-SKIN CONTRAST CHECKLIST** + last 3 contrast gaps closed (new `--warning-strong`); Card/Chart regression guards       |
-| 0.9.6   | **Recharts legend labels pinned to the text token** (trap 4); dark-mode fill labels to near-black; chat timestamp opacity |
-| 0.10.0  | **Windowed rendering** in List/CardGrid/DataTable past 100 rows (`use-virtual-rows`); props API unchanged                 |
+| Version | What                                                                                                                        |
+| ------- | --------------------------------------------------------------------------------------------------------------------------- |
+| 0.4.0   | flat List self-rounds; AgentChat attachment slot                                                                            |
+| 0.5.0   | **searchable + async filter facets** (`FilterFacet.searchable`, `onSearch`)                                                 |
+| 0.5.1   | shared `use-debounce` primitive (`useDebouncedCallback`) — DRY cleanup                                                      |
+| 0.6.0   | **numeric range facet** (`control:"range"`) + `Input` placeholder ellipsis                                                  |
+| 0.7.0   | **in-header SortControl** + `ListItem.fields`                                                                               |
+| 0.7.1   | release hygiene: git tags, tests excluded from tarball, honest install docs                                                 |
+| 0.8.0   | **creatable Choice** (`creatable`, `createLabel`, `onCreate`)                                                               |
+| 0.9.0   | 6 host-reported primitive fixes (dialog scroll `modal`, ring `shape`, truncation, `RecipeTab.badge`, per-facet clear)       |
+| 0.9.1   | **clear ✕ opened the dropdown instead of clearing**                                                                         |
+| 0.9.2   | docs-catalog drift, light-mode contrast, chart resize                                                                       |
+| 0.9.3   | audit pass: split filter-bar, drift guards, doc corrections                                                                 |
+| 0.9.4   | **Card `min-w-0`**, chart tokens restored to graphics floor, stale token paths purged                                       |
+| 0.9.5   | **RE-SKIN CONTRAST CHECKLIST** + last 3 contrast gaps closed (new `--warning-strong`); Card/Chart regression guards         |
+| 0.9.6   | **Recharts legend labels pinned to the text token** (trap 4); dark-mode fill labels to near-black; chat timestamp opacity   |
+| 0.10.0  | **Windowed rendering** in List/CardGrid/DataTable past 100 rows (`use-virtual-rows`); props API unchanged                   |
+| 0.10.1  | **Survivability pass** — ocean review 79 → 97: real runbook, prerequisites, ownership, notices, 100% file headers           |
+| 0.11.0  | **Host visual slots** — `ScreenRecipe.leading`, node `TabItem.icon`, `StatItem.icon`, recipe details stop inventing avatars |
 
 ---
 
@@ -246,6 +253,92 @@ out **exactly**: the window sat still while the page scrolled. Invisible to the 
 (they return stubbed rects), found in 5 minutes in a real browser. Now guarded by a test that
 makes `<html>` look scrollable and asserts the window still advances.
 
+### Host visual slots (v0.11.0) — pictures in recipe screens
+
+A host agent reported that every recipe-driven collection rendered as two lines of text
+while its HAND-COMPOSED lists over the same records drew each record's logo. The rows
+already carried the picture and `List.leading` / `CardGridItem.media` already existed —
+`screen-renderer` simply never filled them. Four gaps of that shape, closed together.
+
+- **`ScreenRecipe.leading?: string`** — a COLUMN name, not a render prop. Recipes in the
+  host are declared as plain data in one file; a function inside a recipe would make them
+  unserialisable. The host already shapes its rows (`shapeAccountsList`), so putting the
+  node in the row is one line at the place that already knows the record.
+- **No default mark.** A recipe that names no column gets no box. An empty grey square on
+  every row of a list that has no pictures is worse than the text rows it replaced.
+- **`asNode()` guards the cast.** Row values are `unknown`; React THROWS on an object
+  child, which would take the whole screen down. Anything undrawable renders as nothing.
+  A plain string still renders as text — deliberately, so pointing `leading` at a raw
+  `logoUrl` shows you the URL instead of failing silently.
+- **`TabItem.icon` widened to `React.ReactNode`** rather than adding a second field: a
+  string is still read as a lucide name (`""` = none), so every existing caller is
+  untouched and a tab set stays serialisable. Adding a required 5th field would have
+  broken every host that builds `TabItem` objects literally.
+- **`StatItem.icon`** sits BESIDE the label (label truncates, glyph `shrink-0`), not above
+  the number — a long label then cannot push it out of the card.
+- **The one behaviour change:** `screen-renderer` used to pass `avatarFallback={initials}`
+  unconditionally, so every recipe detail opened with two letters of its own title in a
+  circle. Now initials are passed ONLY when `header.avatar` is declared. Hosts that want
+  the old look add `avatar: "<column>"`. `RecordDetail` also gained
+  `avatarShape: "circle" | "square"` — a company logo cropped to a circle is a wordmark
+  nobody can read.
+- **The acceptance test is the guardrail, not the feature.**
+  `registry/collections/slots.test.tsx` renders rows that ALWAYS carry a picture column
+  and changes only the RECIPE, so "omitting `leading` changes nothing" is proven about the
+  recipe rather than about the data. All 13 tests were mutation-checked (8 mutations, each
+  went red).
+- **Browser-verified in real Chrome:** marks in the list rows, media above the card
+  header, glyphs top-right with a truncating label, `icon: "inbox"` still loading the
+  lucide chunk, square avatar `border-radius: 12px`, the gallery's own recipe detail now
+  avatar-free with title/subtitle intact, and 0px horizontal overflow throughout.
+
+### Survivability (v0.10.1) — the ocean review, and what it caught
+
+`mac_fell_in_the_ocean_review` asks one question: the author and their machine are gone —
+can a stranger holding ONLY the remote copy run it, understand it and carry it on?
+**79 → 97.** Full report committed at `ocean-review.md` / `.html`.
+
+**The drill is the part that matters.** It clones the REMOTE (never the local folder) into
+scratch and follows only the written docs. Result: clone → `npm install` → 277 tests →
+guardrails → `tsc` → `npm run dev` serving HTTP 200 in **19 seconds**, and the README's
+headline promise (installing the library into a fresh app from GitHub) also worked with
+0 test files in the tarball. Then it **stopped dead at deployment**.
+
+**THE FINDING: `DEPLOY.md` was fiction.** It told the reader to run `npm run changeset` and
+`npm run release` — neither script has ever existed, there is no `.changeset` and no
+`release.yml` — and it contradicted `OPERATIONS.md` about how deploys actually happen. The
+README's docs map pointed at it and never mentioned `OPERATIONS.md`, the accurate one.
+**Worse: the literal `wrangler` command lived only inside the `/ship-staging` skill under
+`~/.claude` — on the laptop, not in the repo.** The lesson generalises:
+_if a step only exists in a skill, it does not survive the machine._
+
+- `OPERATIONS.md` is now **the operational source of truth**: real deploy commands, rollback
+  with a **named trigger**, credentials inventoried **by name never by value**, a
+  "what to check when it breaks" list, the account inventory, and an inheritance section.
+- `DEPLOY.md` replaced; it states plainly that its old contents described a pipeline that
+  was never built, and points at `OPERATIONS.md`.
+- Added `.nvmrc` + `engines: node>=20` (CI already ran 20; **nothing in the repo said so**),
+  a README prerequisites table, `.devcontainer/`, `CODEOWNERS`, maintainer fields in
+  `package.json`, and `NOTICE.md`.
+
+**Found while writing `NOTICE.md`: `react-leaflet` is Hippocratic-2.1, not MIT** — a non-OSI
+licence with use restrictions, and a `dependencies` entry, so every consumer inherits it.
+Only `Map` uses it. Documented with the unmade decision (moving it to optional
+`peerDependencies`) rather than left for a consumer's legal review to find.
+
+**Every source file now opens with a purpose line — 154/154, up from 38%.** Not filler: each
+carries the reason the file is shaped that way where one exists (Button's
+`[&_svg]:pointer-events-none` trap, Badge's fill-vs-text contrast pairing, Card's `min-w-0`).
+**Caveat worth keeping:** the probe reports 46% because it checks **line 1 only**, and 84
+files must legally open with `"use client"` before any comment. The row was scored earned on
+the rubric's own "judge content, not shape" rule, and the override plus a verification
+command are recorded in `ocean-review.md`.
+
+**`cf-exec` is mandatory for Cloudflare commands.** This machine hosts more than one
+Cloudflare account and a bare `npx wrangler` silently resolves to the DEFAULT one. Prefix
+every Cloudflare call: `cf-exec npx wrangler ...`. `cf-exec --check` names the account
+without running anything (this folder → **Swift Struck**, registered).
+
 ### Tokens live in root `styles.css`
 
 `www/app/globals.css` is a **3-line shim** that imports tailwind + `../../styles.css`.
@@ -339,6 +432,13 @@ Before trusting a new regression test, **revert the fix and confirm the test goe
   the "Updating" section of README.md. No case to revisit.
 - **`.session-notes/` is committed** (user confirmed 2026-08-06): it is shared memory, and
   that is intended. Not gitignored, on purpose.
+- **No second remote / mirror.** Offered during the ocean review and **declined by the user**
+  (2026-08-12). GitHub remains the only copy; this is why criterion 1 sits at 95 not 100.
+  Do not re-raise it as a pending task — it is a decision, not a gap.
+- **`react-leaflet` stays a normal dependency.** Making it an optional peer was offered and
+  **declined**. The licence position is documented in `NOTICE.md`; that is the whole action.
+- **The truck factor stays 1.** 40 points on criterion 10 need a second contributor. No
+  document can earn them — stop treating it as a documentation problem.
 
 ---
 
@@ -376,8 +476,32 @@ Nothing blocks them, but these library features stay **inert** until wired:
   the FilterBar primitive need it — a primitive may import lib, lib may never import a primitive).
 - `lib/recipe.ts` — `RecipeTab.badge` + `badgeVariant`.
 
+**Shipped library — v0.10.0 windowed rendering**
+
+- `lib/virtual.ts` — NEW: the DOM-free windowing arithmetic (`windowSlice`,
+  `initialWindow`). In `lib` because it is pure logic, like `lib/range.ts`.
+- `registry/primitives/use-virtual-rows/use-virtual-rows.tsx` — NEW: measures pitch +
+  live column count off the DOM, finds the scrolling ancestor, subscribes. **Read the
+  `findScroller` comment before touching it** — the `<html>` trap is recorded there.
+- `registry/collections/{list,card-grid,data-table}` — each applies the same numbers the
+  way its own layout demands (padding for list/grid, spacer ROWS for the table).
+
+**Repo hygiene — v0.10.1**
+
+- `.nvmrc`, `.devcontainer/devcontainer.json`, `CODEOWNERS`, `NOTICE.md` — all NEW.
+- `package.json` — `engines`, `author`, `repository`, `homepage`, `bugs`, and the
+  **`verify`** script (the one command the docs now point at).
+- `OPERATIONS.md` — rewritten; now the operational source of truth (see the v0.10.1
+  section above). `DEPLOY.md` — rewritten; was fiction.
+- `ocean-review.md` / `ocean-review.html` — the survivability report, committed.
+- **39 source files** gained a header comment (31 components + 8 config/harness), taking
+  purpose-line coverage to 154/154.
+
 **Tests**
 
+- `lib/virtual.test.ts`, `registry/primitives/use-virtual-rows/use-virtual-rows.test.tsx`,
+  `registry/collections/virtualization.test.tsx` — NEW (v0.10.0), 52 tests, **every one
+  mutation-checked**. See "Write tests that can actually fail".
 - `registry/catalog-sync.test.ts` — NEW: the 4 drift guards. The link guard now also
   validates **anchored** links (`file.md#section`), which previously slipped past it entirely.
 - `registry/primitives/card/card.test.tsx` — NEW (2026-08-06): the `min-w-0` guard.

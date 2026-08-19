@@ -42,14 +42,14 @@ The library **is** this repo — install it straight from GitHub:
 npm install github:alaap-swift-struck/swift-struck-ui react react-dom
 
 # or pin to a release (recommended for production apps)
-npm install github:alaap-swift-struck/swift-struck-ui#v0.10.1 react react-dom
+npm install github:alaap-swift-struck/swift-struck-ui#v0.11.0 react react-dom
 ```
 
 ```tsx
 import { Button } from "@swift-struck/ui/registry/primitives/button/button"
 ```
 
-Every release is a git tag (`v0.10.1`, `v0.10.0`, …) — see [PROGRESS.md](PROGRESS.md)
+Every release is a git tag (`v0.11.0`, `v0.10.1`, …) — see [PROGRESS.md](PROGRESS.md)
 for what changed in each.
 
 ### Required setup — the library ships TypeScript source
@@ -84,7 +84,7 @@ while its `package.json` looks current. To actually move:
 
 ```bash
 # untracked/pinned → jump to a specific release
-npm install github:alaap-swift-struck/swift-struck-ui#v0.10.1
+npm install github:alaap-swift-struck/swift-struck-ui#v0.11.0
 
 # tracking main → re-resolve to the newest commit
 npm update @swift-struck/ui
@@ -139,7 +139,7 @@ npm run guardrails # enforce the tokens → primitives → collections layering
 npm run format     # prettier write
 ```
 
-**Green looks like:** `tsc` silent, 277 tests passing across 36 files, guardrails
+**Green looks like:** `tsc` silent, 290 tests passing across 37 files, guardrails
 reporting 0 violations, prettier reporting all files formatted.
 
 ## Docs

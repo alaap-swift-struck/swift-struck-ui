@@ -35,6 +35,11 @@ export interface StatItem {
   value: string
   delta: string
   trend: "up" | "down" | "flat"
+  /** Optional glyph for the card's top-right — a lucide icon, a type mark, a
+   *  logo. Decorative: the label always says what the number is, so pass a node
+   *  that is already `aria-hidden` and the card adds no label of its own.
+   *  Omit and the card is exactly as it was. */
+  icon?: React.ReactNode
 }
 
 const columnClass: Record<number, string> = {
@@ -72,9 +77,19 @@ function StatGrid({
         return (
           <Card key={s.id} className="min-w-0 p-5">
             <div className="flex min-w-0 flex-col gap-1.5">
-              <span className="truncate text-xs tracking-wide text-muted-foreground uppercase">
-                {s.label}
-              </span>
+              {/* The glyph sits BESIDE the label, not above the number: the
+                  label truncates and the glyph never shrinks, so a long label
+                  can't push it out of the card. */}
+              <div className="flex min-w-0 items-center gap-2">
+                <span className="min-w-0 flex-1 truncate text-xs tracking-wide text-muted-foreground uppercase">
+                  {s.label}
+                </span>
+                {s.icon != null && (
+                  <span className="shrink-0 text-muted-foreground [&_svg]:size-4">
+                    {s.icon}
+                  </span>
+                )}
+              </div>
               {/* never overflow: shrink + ellipsis if the value is too wide */}
               <span
                 className="truncate text-2xl font-semibold tabular-nums"

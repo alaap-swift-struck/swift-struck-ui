@@ -136,8 +136,11 @@ function TabsContent({
 export interface TabItem {
   value: string
   label: string
-  /** lucide icon NAME, kebab-case (e.g. "inbox", "file-pen"). `""` = no icon. */
-  icon: string
+  /** A STRING is read as a lucide icon name, kebab-case (e.g. "inbox",
+   *  "file-pen"), and `""` = no icon — so a tab set stays plain, serialisable
+   *  data. Any other node is rendered as-is, for a tab that needs a mark lucide
+   *  doesn't have (a product logo, a type glyph, a coloured dot). */
+  icon: React.ReactNode
   /** A count or short tag (e.g. "24", "New"). `""` = no badge. */
   badge: string
   /** `""` = neutral count chip; otherwise a Badge variant for a colour-coded tag. */
@@ -206,9 +209,16 @@ function TabsView({
             variant={config.variant}
             className={cn(config.fullWidth && "flex-1")}
             icon={
-              t.icon ? (
-                <DynamicIcon name={t.icon as IconName} fallback={() => null} />
-              ) : undefined
+              typeof t.icon === "string" ? (
+                t.icon ? (
+                  <DynamicIcon
+                    name={t.icon as IconName}
+                    fallback={() => null}
+                  />
+                ) : undefined
+              ) : (
+                (t.icon ?? undefined)
+              )
             }
             badge={t.badge !== "" ? t.badge : undefined}
             badgeVariant={t.badgeVariant !== "" ? t.badgeVariant : undefined}
